@@ -152,11 +152,7 @@ type
     procedure   ClearAll;
     constructor Create; override;
     destructor  Destroy; override;
-
-    {AJG: Added:}
-      procedure   AssignClassProps(ASource: TtiObject); override;
-    {AJG: End.}
-
+    procedure   AssignClassProps(ASource: TtiObject); override;
   end;
 
   TMapProjectList = class(TBaseMapObjectList)
@@ -237,11 +233,7 @@ type
     property    Values: TMapEnumValueList read FValues write SetValues;
     constructor Create; override;
     destructor  Destroy; override;
-
-  {AJG: Added:}
     procedure AssignClassProps(ASource: TtiObject); override;
-  {AJG: End.}
-
   end;
 
   TMapEnumList = class(TBaseMapObjectList)
@@ -347,11 +339,7 @@ type
   public
     constructor Create; override;
     destructor  Destroy; override;
-
-  {AJG: Added:}
     procedure AssignClassProps(ASource: TtiObject); override;
-  {AJG: End.}
-
   end;
 
   {: Represent a parameter defintion in a selection.  Translates to the parameters of the
@@ -409,11 +397,7 @@ type
     property    Params: TSelectParamList read FParams;
     constructor Create; override;
     destructor  Destroy; override;
-
-  {AJG: Added:}
     procedure AssignClassProps(ASource: TtiObject); override;
-  {AJG: End.}
-
   published
     property    Name: string read FName write SetName;
     property    SQL: string read FSQL write SetSQL;
@@ -448,11 +432,7 @@ type
   public
     property    FilterType: TFilterType read FFilterType write SetFilterType;
     property    Field: String read FField write SetField;
-
-    {AJG: Added:}
     procedure AssignClassProps(ASource: TtiObject); override;
-    {AJG: End.}
-
   end;
 
   TFilterDefList = class(TBaseMapObjectList)
@@ -527,9 +507,9 @@ type
     property    ClassMapping: TClassMapping read FClassMapping;
     property    Selections: TClassMappingSelectList read FSelections;
     property    Validators: TMapValidatorList read FValidators;
-
     constructor Create; override;
     destructor  Destroy; override;
+    procedure AssignClassProps(ASource: TtiObject); override;
   published
     property    AutoCreateBase: boolean read FAutoCreateBase write SetAutoCreateBase;
     property    AutoCreateListClass: boolean read FAutoCreateListClass write SetAutoCreateListClass;
@@ -542,12 +522,6 @@ type
     property    ForwardDeclare: boolean read FForwardDeclare write SetForwardDeclare;
     property    ORMClassName: string read FORMClassName write SetORMClassName;
     property    NotifyObserversOfPropertyChanges: boolean read FNotifyObserversOfPropertyChanges write SetNotifyObserversOfPropertyChanges default False;
-
-  {AJG: Added:}
-  public
-    procedure AssignClassProps(ASource: TtiObject); override;
-  {AJG: End.}
-
 end;
 
   TMapClassDefList = class(TBaseMapObjectList)
@@ -577,11 +551,7 @@ end;
     function    HasValidators: boolean;
     constructor Create; override;
     destructor  Destroy; override;
-
-  {AJG: Added:}
     procedure AssignClassProps(ASource: TtiObject); override;
-  {AJG: End.}
-
   end;
 
   TMapUnitDefList = class(TBaseMapObjectList)
@@ -725,11 +695,10 @@ end;
   function  GetAbsolutePath(Source, Relative: string): string;
   {: Converts a string representation to TOIDType. }
   function  gStrToOIDType(const AString: string): TOIDType;
-
-  {AJG: Added:}
+  {: Converts ClassDefType to a String. }
   function gClassDefTypeToStr(const AClassDefType: TClassDefType): String;
+  {: Converts OIDTypeToStr. }
   function gOIDTypeToStr(const AOIDType: TOIDType): String;
-  {AJG: End.}
 
   // -----------------------------------------------------------------
   //  Glob vars
@@ -1162,16 +1131,10 @@ begin
   FVisibilityTabs:=AValue;
 end;
 
-{AJG: Added:}
 procedure TMapProject.AssignClassProps(ASource: TtiObject);
 begin
   //inherited AssignClassProps(ASource);
-  //property    Units: TMapUnitDefList read FUnits;
-  //property    ProjectClasses: TMapClassDefList read FProjectClasses write SetProjectClasses;
-  //property    ProjectEnums: TMapEnumList read FProjectEnums;
-  //property    Includes: TStringlist;
   Assert(ASource.TestValid(TMapProject), CTIErrorInvalidObject);
-
   FUnits.Clear;
   FUnits.Assign(TMapProject(ASource).Units);
   FProjectClasses.Clear;
@@ -1179,7 +1142,6 @@ begin
   FProjectEnums.Clear;
   FProjectEnums.Assign(TMapProject(ASource).ProjectEnums);
 end;
-{AJG: End.}
 
 { TBaseMapObjectList }
 
@@ -1306,18 +1268,8 @@ begin
   FName:=AValue;
 end;
 
-{AJG: Added:}
 procedure TMapUnitDef.AssignClassProps(ASource: TtiObject);
 begin
-  //published
-  // property    Name: string read FName write SetUnitName;
-  // // Object properties
-  // property    UnitClasses: TMapClassDefList read FUnitClasses;
-  // property    UnitEnums: TMapEnumList read FUnitEnums;
-  // property    References: TStringList read FReferences; //
-  // Added:
-  // public property UnitReferences: TMGReferenceList;
-
   //inherited AssignClassProps(ASource);
   Assert(ASource.TestValid(TMapUnitDef), CTIErrorInvalidObject);
   UnitClasses.Clear;
@@ -1327,7 +1279,6 @@ begin
   References.Clear;
   References.Assign(TMapUnitDef(ASource).References);
 end;
-{AJG: End.}
 
 { TMapEnumValue }
 
@@ -1396,14 +1347,13 @@ begin
   inherited Destroy;
 end;
 
-{AJG: Added:}
 procedure TMapEnum.AssignClassProps(ASource: TtiObject);
 begin
+  //inherited AssignClassProps(ASource);
   Assert(ASource.TestValid(TMapEnum), CTIErrorInvalidObject);
   FValues.Clear;
   FValues.Assign(TMapEnum(ASource).Values);
 end;
-{AJG: End.}
 
 procedure TMapEnum.SetEnumName(const AValue: string);
 begin
@@ -1492,15 +1442,9 @@ begin
   FDefType:=AValue;
 end;
 
-{AJG: Added:}
 procedure TMapClassDef.AssignClassProps(ASource: TtiObject);
 begin
-  //public
-  //  // Object Props
-  //  property    ClassProps: TMapClassPropList read FClassProps write SetClassProps;
-  //  property    ClassMapping: TClassMapping read FClassMapping;
-  //  property    Selections: TClassMappingSelectList read FSelections;
-  //  property    Validators: TMapValidatorList read FValidators;
+  //inherited AssignClassProps(ASource);
   Assert(ASource.TestValid(TMapClassDef), CTIErrorInvalidObject);
   FClassProps.Clear;
   FClassProps.Assign(TMapClassDef(ASource).ClassProps);
@@ -1510,7 +1454,6 @@ begin
   FValidators.Clear;
   FValidators.Assign(TMapClassDef(ASource).Validators);
 end;
-{AJG: End.}
 
 procedure TMapClassDef.SetForwardDeclare(const AValue: boolean);
 begin
@@ -1650,15 +1593,13 @@ begin
   inherited Destroy;
 end;
 
-{AJG: Added:}
 procedure TClassMapping.AssignClassProps(ASource: TtiObject);
 begin
+  //inherited AssignClassProps(ASource);
   Assert(ASource.TestValid(TClassMapping), CTIErrorInvalidObject);
-
   FPropMappings.Clear;
   FPropMappings.Assign(TClassMapping(ASource).PropMappings);
 end;
-{AJG: End.}
 
 procedure TClassMapping.SetOIDType(const AValue: TOIDType);
 begin
@@ -1791,15 +1732,13 @@ begin
   FFilterType:=AValue;
 end;
 
-{AJG: Added:}
 procedure TFilterDef.AssignClassProps(ASource: TtiObject);
 begin
+  //inherited AssignClassProps(ASource);
   Assert(ASource.TestValid(TFilterDef), CTIErrorInvalidObject);
-
   FFiltertype := TFilterDef(ASource).FilterType;
   FField := TFilterDef(ASource).Field;
 end;
-{AJG: End.}
 
 { TFilterDefList }
 
@@ -2054,14 +1993,13 @@ begin
   inherited Destroy;
 end;
 
-{AJG: Added:}
 procedure TClassMappingSelect.AssignClassProps(ASource: TtiObject);
 begin
+  //inherited AssignClassProps(ASource);
   Assert(ASource.TestValid(TClassMappingSelect), CTIErrorInvalidObject);
   FParams.Clear;
   FParams.Assign(TClassMappingSelect(ASource).Params);
 end;
-{AJG: End.}
 
 function TClassMappingSelect.GetCaption: string;
 var

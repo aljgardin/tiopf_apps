@@ -4,7 +4,6 @@ unit mapper_project_writer;
   {$mode objfpc}{$H+}
 {$ENDIF}
 
-
 interface
 
 uses

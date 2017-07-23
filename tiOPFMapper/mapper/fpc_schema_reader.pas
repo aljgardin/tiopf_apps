@@ -595,7 +595,6 @@ begin
                   lNewClass.ClassMapping.OIDType := otInt;
               end;
 
-            {AJG: Added:}
             lClassAttr := lClassNode.Attributes.GetNamedItem('forward-declare');
             if lClassAttr <> nil then
               lNewClass.ForwardDeclare := StrToBool(lClassAttr.NodeValue);
@@ -603,7 +602,6 @@ begin
             lClassAttr := lClassNode.Attributes.GetNamedItem('orm-class-name');
             if lClassAttr <> nil then
               lnewClass.ORMClassName := lClassAttr.NodeValue;
-            {AJG: End.}
 
             if lClassNode.FindNode('class-props') = nil then
               raise Exception.Create(ClassName + '.ReadUnitClasses: "class-props" node is not present.');
@@ -786,12 +784,9 @@ begin
       lNewMapPropNode.SetAttribute('prop', lMapProp.PropName);
       lNewMapPropNode.SetAttribute('field', lMapProp.FieldName);
       lNewMapPropNode.SetAttribute('type', gPropTypeToStr(lMapProp.PropertyType));
-
-      {AJG: Added:}
       lNewMapPropNode.SetAttribute('getter', lMapProp.PropertyGetter);
       lNewMapPropNode.SetAttribute('setter', lMapProp.PropertySetter);
       lNewMapPropNode.SetAttribute('abstract', LowerCase(BoolToStr(lMapProp.PropertyAccessorsAreAbstract, true)));
-      {AJG: END.}
 
       lNewMapNode.AppendChild(lNewMapPropNode);
     end;
@@ -916,13 +911,10 @@ var
   lNewElem: TDOMElement;
   lIncNode: TDomElement;
   lDir: string;
-
-  {AJG: ADDED:}
   lIncludesNode: TDomNode;
-  lIncElem: TDomElement;
+  lIncludeElement: TDomElement;
   ic: integer;
   lComment: TDOMComment;
-  {AJG: END.}
 begin
   if FDoc <> nil then
     begin
@@ -941,12 +933,10 @@ begin
   lDocElem.SetAttribute('project-name', FWriterProject.ProjectName);
   lDocElem.SetAttribute('outputdir', FWriterProject.OrigOutDirectory);
 
-  {AJG: ADDED:}
   if FWriterProject.EnumType = etInt then
     lDocElem.SetAttribute('enum-type', 'int')
   else
     lDocElem.SetAttribute('enum-type', 'string');
-  {AJG: END.}
 
   //Added write props:
   lDocElem.SetAttribute('origoutdir', FWriterProject.OrigOutDirectory);
@@ -969,9 +959,9 @@ begin
     lIncludesNode := FDoc.CreateElement('includes');
     for ic := 0 to FWriterProject.Includes.Count - 1 do
       begin
-        lIncElem := FDoc.CreateElement('item');
-        lIncElem.SetAttribute('file-name', FWriterProject.Includes.Strings[ic]);
-        lIncludesNode.AppendChild(lIncElem);
+        lIncludeElement := FDoc.CreateElement('item');
+        lIncludeElement.SetAttribute('file-name', FWriterProject.Includes.Strings[ic]);
+        lIncludesNode.AppendChild(lIncludeElement);
       end;
     lDocElem.AppendChild(lIncludesNode);
   end;
