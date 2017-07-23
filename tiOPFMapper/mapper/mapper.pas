@@ -479,7 +479,7 @@ type
     FAutoMap: boolean;
     FBaseClassName: string;
     FBaseClassParent: string;
-    FBaseUnitName: string;  //Was this to be The owning Unit?  Every time TMapUnitDef.name changes, change in all owned classes?
+    FBaseUnitName: string;  //Is this used and what is it for?
     FClassMapping: TClassMapping;
     FClassProps: TMapClassPropList;
     FCrud: string;
