@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="10"/>
+    <PathDelim Value="\"/>
+    <General>
+      <SessionStorage Value="InProjectDir"/>
+      <MainUnit Value="0"/>
+      <Title Value="LazMapperGui"/>
+      <UseAppBundle Value="False"/>
+      <ResourceType Value="res"/>
+      <Icon Value="0"/>
+    </General>
+    <BuildModes Count="1">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <CommandLineParams Value="-lv -lc -l"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="6">
+      <Item1>
+        <PackageName Value="tiopfLCL"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="agtipropertymanagerlazr"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="lazmrumenu"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="laz_timapper"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="tiOPF"/>
+      </Item5>
+      <Item6>
+        <PackageName Value="LCL"/>
+      </Item6>
+    </RequiredPackages>
+    <Units Count="13">
+      <Unit0>
+        <Filename Value="LazMapperGui.lpr"/>
+        <IsPartOfProject Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="frmmgmain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="MGMainForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="frmMGMain"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="mgdatamanager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MGDataManager"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="mgview.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="mgView"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="frmclassedit.lfm"/>
+        <IsPartOfProject Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="frmclassedit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="dlgClassEdit"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="frmClassEdit"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="frmclasspropertyedit.lfm"/>
+        <IsPartOfProject Value="True"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="frmclasspropertyedit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="dlgClassPropertyEdit"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="frmClassPropertyEdit"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="frmdefault.lfm"/>
+        <IsPartOfProject Value="True"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="frmdefault.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="DefaultForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="frmDefault"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="frmprojectsettings.lfm"/>
+        <IsPartOfProject Value="True"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="frmprojectsettings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="dlgProjectSettings"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="frmProjectSettings"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="test_gmapper.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Test_GMapper"/>
+      </Unit12>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="LazMapperGui"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="C:\development\Extras\Graemeg-tiOPF.git\branches\tiopf2\Demos\LCL\Demo_21_AddressBook\"/>
+      <UnitOutputDirectory Value="lib\$(LazVer)-$(FPCVER)\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CustomOptions Value="-dBorland
+-dVer150
+-dDelphi7
+-dCompiler6_Up
+-dPUREPASCAL
+-dDebug"/>
+      <OtherDefines Count="6">
+        <Define0 Value="Borland"/>
+        <Define1 Value="Ver150"/>
+        <Define2 Value="Delphi7"/>
+        <Define3 Value="Compiler6_Up"/>
+        <Define4 Value="PUREPASCAL"/>
+        <Define5 Value="Debug"/>
+      </OtherDefines>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="5">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+      <Item4>
+        <Name Value="EtiMediator"/>
+      </Item4>
+      <Item5>
+        <Name Value="Exception"/>
+      </Item5>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

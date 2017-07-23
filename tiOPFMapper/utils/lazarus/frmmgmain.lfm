@@ -1,0 +1,573 @@
+object MGMainForm: TMGMainForm
+  Left = 588
+  Height = 588
+  Top = 100
+  Width = 949
+  ActiveControl = sgUnits
+  Caption = 'MGMainForm'
+  ClientHeight = 588
+  ClientWidth = 949
+  Font.CharSet = ANSI_CHARSET
+  Font.Height = -13
+  Font.Name = 'Times New Roman'
+  Font.Pitch = fpVariable
+  Font.Quality = fqDraft
+  Menu = mmMain
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  ShowHint = True
+  LCLVersion = '1.7'
+  Visible = False
+  object pnlUnits: TPanel
+    Left = 0
+    Height = 438
+    Top = 34
+    Width = 243
+    Align = alLeft
+    ClientHeight = 438
+    ClientWidth = 243
+    TabOrder = 0
+    object lblUnits: TLabel
+      Left = 1
+      Height = 15
+      Top = 1
+      Width = 241
+      Align = alTop
+      Caption = 'Project Units'
+      ParentColor = False
+    end
+    object Splitter2: TSplitter
+      Left = 1
+      Height = 421
+      Top = 16
+      Width = 5
+    end
+    object sgUnits: TStringGrid
+      Left = 6
+      Height = 421
+      Top = 16
+      Width = 236
+      Align = alClient
+      PopupMenu = pmUnits
+      TabOrder = 1
+      TitleFont.CharSet = ANSI_CHARSET
+      TitleFont.Height = -13
+      TitleFont.Name = 'Times New Roman'
+      TitleFont.Pitch = fpVariable
+      TitleFont.Quality = fqDraft
+      OnDblClick = actUnitEditExecute
+      OnSelection = sgUnitsSelection
+    end
+  end
+  object Splitter1: TSplitter
+    Left = 243
+    Height = 438
+    Top = 34
+    Width = 5
+    Beveled = True
+  end
+  object pnlProjectName: TPanel
+    Left = 0
+    Height = 17
+    Top = 0
+    Width = 949
+    Align = alTop
+    AutoSize = True
+    ClientHeight = 17
+    ClientWidth = 949
+    TabOrder = 2
+    object lblProjectNameHeader: TLabel
+      Left = 1
+      Height = 15
+      Top = 1
+      Width = 76
+      Align = alLeft
+      Caption = 'Project Name: '
+      Color = clForm
+      ParentColor = False
+      Transparent = False
+    end
+    object lblProjectName: TLabel
+      Left = 77
+      Height = 15
+      Top = 1
+      Width = 29
+      Align = alLeft
+      Caption = 'None'
+      Color = clDefault
+      ParentColor = False
+      Transparent = False
+    end
+  end
+  object pnlRight: TPanel
+    Left = 248
+    Height = 438
+    Top = 34
+    Width = 701
+    Align = alClient
+    ClientHeight = 438
+    ClientWidth = 701
+    TabOrder = 3
+    object pnlCurrentUnit: TPanel
+      Left = 1
+      Height = 17
+      Top = 1
+      Width = 699
+      Align = alTop
+      AutoSize = True
+      ClientHeight = 17
+      ClientWidth = 699
+      TabOrder = 0
+      object lblCurrentUnitHeader: TLabel
+        Left = 1
+        Height = 15
+        Top = 1
+        Width = 75
+        Align = alLeft
+        Caption = 'Current Unit:  '
+        ParentColor = False
+      end
+      object lblCurrentUnit: TLabel
+        Left = 76
+        Height = 15
+        Top = 1
+        Width = 29
+        Align = alLeft
+        Caption = 'None'
+        Color = clDefault
+        ParentColor = False
+        Transparent = False
+      end
+    end
+    object pcMain: TPageControl
+      Left = 1
+      Height = 419
+      Top = 18
+      Width = 699
+      ActivePage = tsClasses
+      Align = alClient
+      TabIndex = 0
+      TabOrder = 1
+      object tsClasses: TTabSheet
+        Caption = 'Classes'
+        ClientHeight = 782
+        ClientWidth = 1382
+        object sgClasses: TStringGrid
+          Left = 0
+          Height = 391
+          Top = 0
+          Width = 691
+          Align = alClient
+          Color = clWhite
+          PopupMenu = pmClasses
+          TabOrder = 0
+          TitleFont.CharSet = ANSI_CHARSET
+          TitleFont.Height = -13
+          TitleFont.Name = 'Times New Roman'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Quality = fqDraft
+          OnSelection = sgClassesSelection
+        end
+      end
+      object tsEnum: TTabSheet
+        Caption = 'Enumerations'
+        ClientHeight = 1564
+        ClientWidth = 2764
+        ParentFont = False
+        object sgEnumerations: TStringGrid
+          Left = 0
+          Height = 391
+          Top = 0
+          Width = 691
+          Align = alClient
+          TabOrder = 0
+        end
+      end
+      object tsReferences: TTabSheet
+        Caption = 'References'
+        ClientHeight = 1564
+        ClientWidth = 2764
+        object sgReferences: TStringGrid
+          Left = 0
+          Height = 391
+          Top = 0
+          Width = 691
+          Align = alClient
+          TabOrder = 0
+          TitleFont.CharSet = ANSI_CHARSET
+          TitleFont.Height = -13
+          TitleFont.Name = 'Times New Roman'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Quality = fqDraft
+        end
+      end
+    end
+  end
+  object pnlBottom: TPanel
+    Left = 0
+    Height = 111
+    Top = 477
+    Width = 949
+    Align = alBottom
+    ClientHeight = 111
+    ClientWidth = 949
+    ParentFont = False
+    TabOrder = 4
+    object moLog: TMemo
+      Left = 1
+      Height = 109
+      Top = 1
+      Width = 947
+      Align = alClient
+      Color = clScrollBar
+      Lines.Strings = (
+        'moLog'
+      )
+      ParentFont = False
+      ReadOnly = True
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+  end
+  object Splitter3: TSplitter
+    Cursor = crVSplit
+    Left = 0
+    Height = 5
+    Top = 472
+    Width = 949
+    Align = alBottom
+    ResizeAnchor = akBottom
+  end
+  object pnlProjectFilename: TPanel
+    Left = 0
+    Height = 17
+    Top = 17
+    Width = 949
+    Align = alTop
+    AutoSize = True
+    ClientHeight = 17
+    ClientWidth = 949
+    TabOrder = 6
+    object lblProjectFilenameHeader: TLabel
+      Left = 1
+      Height = 15
+      Top = 1
+      Width = 53
+      Align = alLeft
+      Caption = 'Filename: '
+      Color = clForm
+      ParentColor = False
+      Transparent = False
+    end
+    object lblProjectFilename: TLabel
+      Left = 54
+      Height = 15
+      Top = 1
+      Width = 29
+      Align = alLeft
+      Caption = 'None'
+      Color = clDefault
+      ParentColor = False
+      Transparent = False
+    end
+  end
+  object mmMain: TMainMenu
+    Left = 24
+    Top = 124
+    object miFile: TMenuItem
+      Caption = '&File'
+      object miNewProject: TMenuItem
+        Action = actProjectNew
+      end
+      object miOpenProject: TMenuItem
+        Action = actProjectOpen
+      end
+      object miSaveProject: TMenuItem
+        Action = actProjectSave
+      end
+      object miSaveProjectAs: TMenuItem
+        Action = actProjectSaveAs
+      end
+      object miCloseProject: TMenuItem
+        Action = actProjectClose
+      end
+      object miDivider1: TMenuItem
+        Caption = '-'
+        Enabled = False
+      end
+      object miProjectsRecent: TMenuItem
+        Action = actProjectRecent
+      end
+      object miDivider2: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem1: TMenuItem
+        Action = actEnvironmentVars
+      end
+      object miExit: TMenuItem
+        Action = actProjectExit
+      end
+    end
+    object miEdit: TMenuItem
+      Caption = '&Edit'
+      object miCut: TMenuItem
+        Caption = 'Cu&t'
+        ShortCut = 16472
+      end
+      object miCopy: TMenuItem
+        Caption = '&Copy'
+        ShortCut = 16451
+      end
+      object miPaste: TMenuItem
+        Caption = '&Paste'
+        ShortCut = 16470
+      end
+    end
+    object miProjectSettings: TMenuItem
+      Action = actProjectSettings
+    end
+    object miGenerate: TMenuItem
+      Caption = '&Generate'
+      OnClick = miGenerateClick
+    end
+    object MenuItem2: TMenuItem
+      Caption = 'Setup Pers'
+    end
+    object miAsDebugString: TMenuItem
+      Action = actProjectAsDebugString
+    end
+    object miunitAsDebugString: TMenuItem
+      Action = actUnitAsDebugString
+    end
+    object miFont: TMenuItem
+      Action = actProjectFont
+    end
+  end
+  object alMain: TActionList
+    Left = 24
+    Top = 72
+    object actProjectNew: TAction
+      Category = 'Project'
+      Caption = '&New Project'
+      HelpKeyword = 'New Project'
+      Hint = 'New Project|Create A New Project.'
+      OnExecute = actProjectNewExecute
+    end
+    object actProjectOpen: TAction
+      Category = 'Project'
+      Caption = '&Open Project'
+      HelpKeyword = 'Open Project'
+      Hint = 'Open Project|Open a New Project.'
+      OnExecute = actProjectOpenExecute
+    end
+    object actProjectSave: TAction
+      Category = 'Project'
+      Caption = '&Save Project'
+      HelpKeyword = 'Save Project'
+      Hint = 'Save Project|Save the current project.'
+      OnExecute = actProjectSaveExecute
+      Visible = False
+    end
+    object actProjectSaveAs: TAction
+      Category = 'Project'
+      Caption = 'Save Project &As'
+      HelpKeyword = 'Save Project As'
+      Hint = 'Save Project As|Save Current Project As Specific filename.'
+      OnExecute = actProjectSaveAsExecute
+      Visible = False
+    end
+    object actProjectRecent: TAction
+      Category = 'Project'
+      Caption = 'Recent Projects'
+      HelpKeyword = 'Recent Projects'
+      Hint = 'Recent Projects|Load Recently saved project.'
+      OnExecute = actProjectRecentExecute
+    end
+    object actEnvironmentVars: TAction
+      Caption = 'Environment Variables'
+    end
+    object actProjectClose: TAction
+      Category = 'Project'
+      Caption = 'Close Project'
+      OnExecute = actProjectCloseExecute
+    end
+    object actProjectExit: TAction
+      Category = 'Project'
+      Caption = '&Exit'
+      OnExecute = actProjectExitExecute
+    end
+    object actProjectSettings: TAction
+      Category = 'Project'
+      Caption = 'Project Settings'
+      OnExecute = actProjectSettingsExecute
+    end
+    object actProjectAsDebugString: TAction
+      Category = 'Project'
+      Caption = 'Project: As Debug String'
+      OnExecute = actProjectAsDebugStringExecute
+    end
+    object actUnitAdd: TAction
+      Category = 'Unit'
+      Caption = 'Add Unit'
+      OnExecute = actUnitAddExecute
+      OnUpdate = actUnitAddUpdate
+    end
+    object actUnitRename: TAction
+      Category = 'Unit'
+      Caption = 'Rename Unit'
+      OnExecute = actUnitRenameExecute
+      OnUpdate = actUnitRenameUpdate
+    end
+    object actUnitDelete: TAction
+      Category = 'Unit'
+      Caption = 'Delete Unit'
+      OnExecute = actUnitDeleteExecute
+      OnUpdate = actUnitDeleteUpdate
+    end
+    object actUnitSort: TAction
+      Category = 'Unit'
+      Caption = 'Sort Units'
+      OnExecute = actUnitSortExecute
+      OnUpdate = actUnitSortUpdate
+    end
+    object actUnitAsDebugString: TAction
+      Category = 'Unit'
+      Caption = 'Unit: As Debug String'
+      OnExecute = actUnitAsDebugStringExecute
+      OnUpdate = actUnitAsDebugStringUpdate
+    end
+    object actProjectFont: TAction
+      Category = 'Project'
+      Caption = 'Font'
+      OnExecute = actProjectFontExecute
+    end
+    object actClassesAdd: TAction
+      Category = 'Classes'
+      Caption = 'Add Class'
+      OnExecute = actClassesAddExecute
+      OnUpdate = actClassesAddUpdate
+    end
+    object actClassesEdit: TAction
+      Category = 'Classes'
+      Caption = 'Edit Class'
+      OnExecute = actClassesEditExecute
+      OnUpdate = actClassesEditUpdate
+    end
+    object actClassesDelete: TAction
+      Category = 'Classes'
+      Caption = 'Delete Class'
+      OnExecute = actClassesDeleteExecute
+    end
+    object actIncludesAdd: TAction
+      Category = 'Includes'
+      Caption = 'Add Include'
+      OnExecute = actIncludesAddExecute
+    end
+    object actIncludesEdit: TAction
+      Category = 'Includes'
+      Caption = 'Edit Include'
+    end
+    object actIncludesDelete: TAction
+      Category = 'Includes'
+      Caption = 'Delete Include'
+    end
+    object actIncludesDebug: TAction
+      Category = 'Includes'
+      Caption = 'Includes: As Debug String'
+    end
+    object actClassesDebug: TAction
+      Category = 'Classes'
+      Caption = 'Classes: As Debug String'
+      OnExecute = actClassesDebugExecute
+      OnUpdate = actClassesDebugUpdate
+    end
+    object actClassPropertyAdd: TAction
+      Category = 'ClassProperties'
+      Caption = 'Add Property'
+      OnExecute = actClassPropertyAddExecute
+    end
+    object actClassPropertyEdit: TAction
+      Category = 'ClassProperties'
+      Caption = 'Edit Property'
+    end
+    object actClassPropertyDelete: TAction
+      Category = 'ClassProperties'
+      Caption = 'Delete Property'
+    end
+    object actClassPropertyDebug: TAction
+      Category = 'ClassProperties'
+      Caption = 'Class Property: AsDebugString'
+    end
+    object actClassesSort: TAction
+      Category = 'Classes'
+      Caption = 'Sort Classes'
+      OnExecute = actClassesSortExecute
+      OnUpdate = actClassesSortUpdate
+    end
+  end
+  object pmUnits: TPopupMenu
+    Left = 24
+    Top = 176
+    object miUnitAdd: TMenuItem
+      Action = actUnitAdd
+    end
+    object miUnitRename: TMenuItem
+      Action = actUnitRename
+    end
+    object miUnitDelete: TMenuItem
+      Action = actUnitDelete
+    end
+    object miUnitSort: TMenuItem
+      Action = actUnitSort
+    end
+  end
+  object apMain: TApplicationProperties
+    Left = 72
+    Top = 72
+  end
+  object mru1: TMRUMenuManager
+    MenuItem = miProjectsRecent
+    IniSection = 'ProjectMRU'
+    MenuCaptionMask = '%0:d.  %1:s'
+    Left = 72
+    Top = 124
+  end
+  object SDProject: TSaveDialog
+    DefaultExt = '.xml'
+    Filter = '*.xml'
+    Left = 200
+    Top = 72
+  end
+  object ODProject: TOpenDialog
+    Title = 'Open existing Project'
+    DefaultExt = '.xml'
+    Filter = '*.xml'
+    Left = 200
+    Top = 124
+  end
+  object FontDlg: TFontDialog
+    MinFontSize = 0
+    MaxFontSize = 0
+    OnApplyClicked = FontDlgApplyClicked
+    PreviewText = 'Testing 0123456789'
+    Left = 200
+    Top = 176
+  end
+  object pmClasses: TPopupMenu
+    Left = 296
+    Top = 200
+    object MenuItem3: TMenuItem
+      Action = actClassesAdd
+    end
+    object MenuItem4: TMenuItem
+      Action = actClassesEdit
+    end
+    object MenuItem5: TMenuItem
+      Action = actClassesDelete
+    end
+    object miClassDebug: TMenuItem
+      Action = actClassPropertyDebug
+    end
+  end
+end

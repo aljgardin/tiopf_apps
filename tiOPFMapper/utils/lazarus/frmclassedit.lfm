@@ -1,0 +1,372 @@
+inherited dlgClassEdit: TdlgClassEdit
+  Height = 656
+  Width = 573
+  ActiveControl = edlBaseClassName
+  Caption = 'Edit Class Definition'
+  ClientHeight = 656
+  ClientWidth = 573
+  inherited Panel1: TPanel
+    Top = 621
+    Width = 573
+    ClientWidth = 573
+    TabOrder = 1
+  end
+  object pnlTop: TPanel[1]
+    Left = 0
+    Height = 259
+    Top = 0
+    Width = 573
+    Align = alTop
+    ClientHeight = 259
+    ClientWidth = 573
+    TabOrder = 0
+    object edlBaseClassName: TLabeledEdit
+      Left = 24
+      Height = 21
+      Top = 24
+      Width = 250
+      EditLabel.AnchorSideLeft.Control = edlBaseClassName
+      EditLabel.AnchorSideRight.Control = edlBaseClassName
+      EditLabel.AnchorSideRight.Side = asrBottom
+      EditLabel.AnchorSideBottom.Control = edlBaseClassName
+      EditLabel.Left = 24
+      EditLabel.Height = 13
+      EditLabel.Top = 8
+      EditLabel.Width = 250
+      EditLabel.Caption = 'Class Name'
+      EditLabel.ParentColor = False
+      TabOrder = 0
+      Text = 'edlBaseClassName'
+    end
+    object edlBaseClassParent: TLabeledEdit
+      Left = 24
+      Height = 21
+      Top = 72
+      Width = 250
+      EditLabel.AnchorSideLeft.Control = edlBaseClassParent
+      EditLabel.AnchorSideRight.Control = edlBaseClassParent
+      EditLabel.AnchorSideRight.Side = asrBottom
+      EditLabel.AnchorSideBottom.Control = edlBaseClassParent
+      EditLabel.Left = 24
+      EditLabel.Height = 13
+      EditLabel.Top = 56
+      EditLabel.Width = 250
+      EditLabel.Caption = 'Base (Super) Class'
+      EditLabel.ParentColor = False
+      TabOrder = 1
+      Text = 'edlBaseClassParent'
+    end
+    object edlBaseUnitName: TLabeledEdit
+      Left = 24
+      Height = 21
+      Hint = 'Base Class Unit Name for Custom Base Classes.  Will be added to Interface Uses.'
+      Top = 128
+      Width = 250
+      EditLabel.AnchorSideLeft.Control = edlBaseUnitName
+      EditLabel.AnchorSideRight.Control = edlBaseUnitName
+      EditLabel.AnchorSideRight.Side = asrBottom
+      EditLabel.AnchorSideBottom.Control = edlBaseUnitName
+      EditLabel.Left = 24
+      EditLabel.Height = 26
+      EditLabel.Top = 99
+      EditLabel.Width = 250
+      EditLabel.Caption = 'Custom Base Class Unit Name.  Leave Blank otherwise.  Will be added to Interface Uses.'
+      EditLabel.ParentColor = False
+      EditLabel.WordWrap = True
+      TabOrder = 2
+      Text = 'edlBaseUnitName'
+    end
+    object chbxAutoCreateBase: TCheckBox
+      Left = 296
+      Height = 17
+      Top = 56
+      Width = 105
+      Caption = 'Auto Create Base'
+      TabOrder = 3
+    end
+    object chbxAutoCreateListClass: TCheckBox
+      Left = 296
+      Height = 17
+      Top = 120
+      Width = 126
+      Caption = 'Auto Create List Class'
+      TabOrder = 4
+    end
+    object chbxAutoMap: TCheckBox
+      Left = 296
+      Height = 17
+      Top = 88
+      Width = 213
+      Caption = 'Register Auto Map (Required for Query)'
+      TabOrder = 5
+    end
+    object edlCrud: TLabeledEdit
+      Left = 24
+      Height = 21
+      Top = 176
+      Width = 250
+      EditLabel.AnchorSideLeft.Control = edlCrud
+      EditLabel.AnchorSideRight.Control = edlCrud
+      EditLabel.AnchorSideRight.Side = asrBottom
+      EditLabel.AnchorSideBottom.Control = edlCrud
+      EditLabel.Left = 24
+      EditLabel.Height = 13
+      EditLabel.Top = 160
+      EditLabel.Width = 250
+      EditLabel.Caption = 'Crud'
+      EditLabel.ParentColor = False
+      TabOrder = 6
+      Text = 'edlCrud'
+    end
+    object cbDefType: TComboBox
+      Left = 296
+      Height = 21
+      Top = 24
+      Width = 100
+      ItemHeight = 13
+      Style = csDropDownList
+      TabOrder = 7
+    end
+    object lblDefType: TStaticText
+      Left = 296
+      Height = 17
+      Top = 8
+      Width = 65
+      Caption = 'Define Type'
+      TabOrder = 8
+    end
+    object chbxForwardDeclare: TCheckBox
+      Left = 296
+      Height = 17
+      Top = 152
+      Width = 138
+      Caption = 'Forward Declare Classes'
+      TabOrder = 9
+    end
+    object chbxNotifyObservers: TCheckBox
+      Left = 296
+      Height = 17
+      Top = 180
+      Width = 205
+      Caption = 'Notify Observers of Property Changes'
+      TabOrder = 10
+    end
+    object edlORMClassName: TLabeledEdit
+      Left = 24
+      Height = 21
+      Top = 224
+      Width = 250
+      EditLabel.AnchorSideLeft.Control = edlORMClassName
+      EditLabel.AnchorSideRight.Control = edlORMClassName
+      EditLabel.AnchorSideRight.Side = asrBottom
+      EditLabel.AnchorSideBottom.Control = edlORMClassName
+      EditLabel.Left = 24
+      EditLabel.Height = 13
+      EditLabel.Top = 208
+      EditLabel.Width = 250
+      EditLabel.Caption = 'ORM Class Name'
+      EditLabel.ParentColor = False
+      TabOrder = 11
+      Text = 'edlORMClassName'
+    end
+  end
+  object Splitter1: TSplitter[2]
+    Cursor = crVSplit
+    Left = 0
+    Height = 5
+    Top = 259
+    Width = 573
+    Align = alTop
+    ResizeAnchor = akTop
+  end
+  object pcClass: TPageControl[3]
+    Left = 0
+    Height = 357
+    Top = 264
+    Width = 573
+    ActivePage = tsProperties
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 2
+    object tsProperties: TTabSheet
+      Caption = 'Properties'
+      ClientHeight = 331
+      ClientWidth = 565
+      object sgProperties: TStringGrid
+        Left = 0
+        Height = 331
+        Top = 0
+        Width = 565
+        Align = alClient
+        ColCount = 1
+        FixedCols = 0
+        RowCount = 1
+        TabOrder = 0
+        OnSelection = sgPropertiesSelection
+      end
+    end
+    object tsClass: TTabSheet
+      Caption = 'ORM Mapping'
+      ClientHeight = 366
+      ClientWidth = 565
+      object pnlOrmTop: TPanel
+        Left = 0
+        Height = 130
+        Top = 0
+        Width = 565
+        Align = alTop
+        ClientHeight = 130
+        ClientWidth = 565
+        TabOrder = 0
+        object StaticText1: TStaticText
+          Left = 1
+          Height = 17
+          Top = 1
+          Width = 563
+          Align = alTop
+          Caption = 'Class <--> Database'
+          TabOrder = 0
+        end
+        object edtTableName: TLabeledEdit
+          Left = 24
+          Height = 21
+          Top = 48
+          Width = 200
+          EditLabel.AnchorSideLeft.Control = edtTableName
+          EditLabel.AnchorSideRight.Control = edtTableName
+          EditLabel.AnchorSideRight.Side = asrBottom
+          EditLabel.AnchorSideBottom.Control = edtTableName
+          EditLabel.Left = 24
+          EditLabel.Height = 13
+          EditLabel.Top = 32
+          EditLabel.Width = 200
+          EditLabel.Caption = 'Table Name'
+          EditLabel.ParentColor = False
+          TabOrder = 1
+          Text = 'edtTableName'
+        end
+        object cbOIDType: TComboBox
+          Left = 296
+          Height = 21
+          Top = 48
+          Width = 200
+          ItemHeight = 13
+          TabOrder = 2
+          Text = 'cbOIDType'
+        end
+        object lblOIDType: TStaticText
+          Left = 296
+          Height = 17
+          Top = 32
+          Width = 65
+          Caption = 'OID Type'
+          TabOrder = 3
+        end
+        object edtDBPKFieldname: TLabeledEdit
+          Left = 23
+          Height = 21
+          Top = 96
+          Width = 200
+          EditLabel.AnchorSideLeft.Control = edtDBPKFieldname
+          EditLabel.AnchorSideRight.Control = edtDBPKFieldname
+          EditLabel.AnchorSideRight.Side = asrBottom
+          EditLabel.AnchorSideBottom.Control = edtDBPKFieldname
+          EditLabel.Left = 23
+          EditLabel.Height = 13
+          EditLabel.Top = 80
+          EditLabel.Width = 200
+          EditLabel.Caption = 'Database PK Field Name'
+          EditLabel.ParentColor = False
+          TabOrder = 4
+          Text = 'edtDBPKFieldname'
+        end
+        object edtClassPk: TLabeledEdit
+          Left = 296
+          Height = 21
+          Top = 96
+          Width = 200
+          EditLabel.AnchorSideLeft.Control = edtClassPk
+          EditLabel.AnchorSideRight.Control = edtClassPk
+          EditLabel.AnchorSideRight.Side = asrBottom
+          EditLabel.AnchorSideBottom.Control = edtClassPk
+          EditLabel.Left = 296
+          EditLabel.Height = 13
+          EditLabel.Top = 80
+          EditLabel.Width = 200
+          EditLabel.Caption = 'Class PK Property Name'
+          EditLabel.ParentColor = False
+          TabOrder = 5
+          Text = 'edtClassPk'
+        end
+      end
+      object sgPropertyMaps: TStringGrid
+        Left = 0
+        Height = 219
+        Top = 147
+        Width = 565
+        Align = alClient
+        ColCount = 1
+        FixedCols = 0
+        RowCount = 1
+        TabOrder = 1
+      end
+      object lblPropertyMaps: TStaticText
+        Left = 0
+        Height = 17
+        Top = 130
+        Width = 565
+        Align = alTop
+        Caption = 'Property Maps'
+        TabOrder = 2
+      end
+    end
+    object tsValidators: TTabSheet
+      Caption = 'Validators'
+      ClientHeight = 366
+      ClientWidth = 565
+      object sgValidators: TStringGrid
+        Left = 0
+        Height = 366
+        Top = 0
+        Width = 565
+        Align = alClient
+        ColCount = 1
+        FixedCols = 0
+        RowCount = 1
+        TabOrder = 0
+      end
+    end
+    object tsSelections: TTabSheet
+      Caption = 'Selections'
+      ClientHeight = 366
+      ClientWidth = 565
+      object sgSelections: TStringGrid
+        Left = 0
+        Height = 366
+        Top = 0
+        Width = 565
+        Align = alClient
+        ColCount = 1
+        FixedCols = 0
+        RowCount = 1
+        TabOrder = 0
+      end
+    end
+  end
+  object pmClassProperties: TPopupMenu[4]
+    Left = 40
+    Top = 336
+    object miClassPropertyAdd: TMenuItem
+      Action = MGMainForm.actClassPropertyAdd
+    end
+    object miClassPropertyEdit: TMenuItem
+      Action = MGMainForm.actClassPropertyEdit
+    end
+    object MenuItem2: TMenuItem
+      Action = MGMainForm.actClassPropertyDelete
+    end
+    object miClassPropertyDebug: TMenuItem
+      Action = MGMainForm.actClassPropertyDebug
+    end
+  end
+end
