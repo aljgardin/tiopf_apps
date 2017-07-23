@@ -2359,7 +2359,7 @@ begin
   WriteLine('var', ASL);
     IncTab;
       WriteLine('lObj: ' + AClassDef.BaseClassName + ';', ASL);
-      WriteLine('lItemClass : '+AClassDef.BaseClassName+'Class = '+AClassDef.BaseClassName+';', ASL);
+      WriteLine('lItemClass: '+AClassDef.BaseClassName+'Class;', ASL);
       WriteExtraVarsMaybe(ASL, AClassDef);
     DecTab;
   WriteLine('begin', ASL);

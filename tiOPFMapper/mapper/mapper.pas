@@ -149,7 +149,7 @@ type
     property    ProjectEnums: TMapEnumList read FProjectEnums;
     function    FindEnumForPropName(const AUnitName: string; const AClassName: string; const APropName: string): TMapEnum;
     function    HasCustomSelects: boolean;
-    procedure   ClearAll;
+    procedure   ClearAll; virtual;
     constructor Create; override;
     destructor  Destroy; override;
     procedure   AssignClassProps(ASource: TtiObject); override;
