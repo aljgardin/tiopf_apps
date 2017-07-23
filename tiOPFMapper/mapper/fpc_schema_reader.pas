@@ -56,8 +56,8 @@ type
     procedure   WriteClassSelections(AClassDef: TMapClassDef; AClassNode: TDOMElement);
 
   public
-    procedure   WriteProject(AProject: TMapProject; const ADirectory: String; const AFileName: string); overload; virtual;
-    procedure   WriteProject(Aproject: TMapProject; const AFilePath: string); overload; virtual;
+    procedure   WriteProject(AProject: TMapProject; const ADirectory: String; const AFileName: string); virtual; overload;
+    procedure   WriteProject(Aproject: TMapProject; const AFilePath: string); virtual; overload;
     destructor  Destroy; override;
   end;
 
@@ -70,10 +70,12 @@ begin
   inherited Create;
 end;
 
-function TFPCSchemaXMLReader.CreateSQLSelectList(AClassDef: TMapClassDef): string;
+function TFPCSchemaXMLReader.CreateSQLSelectList(AClassDef: TMapClassDef
+  ): string;
 var
   lCtr: integer;
   lPropMap: TPropMapping;
+
 begin
   result := AClassDef.ClassMapping.TableName + '.OID ';
 
@@ -90,6 +92,7 @@ destructor TFPCSchemaXMLReader.Destroy;
 begin
   if FXML <>nil then
     FXML.Free;
+
   inherited Destroy;
 end;
 
@@ -106,7 +109,8 @@ begin
   ReadXMLFile(FXML, AFile);
 end;
 
-procedure TFPCSchemaXMLReader.ReadClassMapping(AClass: TMapClassDef; ANode: TDomNodeList);
+procedure TFPCSchemaXMLReader.ReadClassMapping(AClass: TMapClassDef;
+  ANode: TDomNodeList);
 var
   lCtr: integer;
   lNode: TDomNode;
@@ -141,14 +145,13 @@ begin
             lNewMapProp.PropertySetter := lMapPropNode.NodeValue;
           lMapPropNode := lNode.Attributes.GetNamedItem('abstract');
           if Assigned(lMapPropNode) then
-          begin
-            s := LowerCase(lMapPropNode.NodeValue);
-            if (s = 'false') or (s = '0') or (s = 'no') then
-              lAbstractValue := False
-            else
-              lAbstractValue := True;
-          end
-          else
+            begin
+              s := LowerCase(lMapPropNode.NodeValue);
+              if (s = 'false') or (s = '0') or (s = 'no') then
+                lAbstractValue := False
+              else
+                lAbstractValue := True;
+            end          else
             lAbstractValue := True;
           lNewMapProp.PropertyAccessorsAreAbstract := lAbstractValue;
 
@@ -194,7 +197,7 @@ begin
       begin
         if lPropAttr.NodeValue <> '' then
         begin
-          if (Copy(lPropAttr.NodeValue, 1,1) = 'T') and (LowerCase(lPropAttr.NodeValue) <> 'tdatetime') then
+          if (Copy(lPropAttr.NodeValue, 1,1) = 'T') and (Lowercase(lPropAttr.NodeValue) <> 'tdatetime') then
             lNewProp.PropertyType := ptEnum
           else
             lNewProp.PropertyType := gStrToPropType(lPropAttr.NodeValue);
@@ -251,7 +254,7 @@ begin
           // Get validator type.  "required" is the default.
           lTypeNode := lValNode.Attributes.GetNamedItem('type');
           if lTypeNode <> nil then
-            lVal.ValidatorType := gStrToValType(lTypeNode.NodeValue)
+            lVal.ValidatorType := gStrToValType(ltypeNode.NodeValue)
           else
             lVal.ValidatorType := vtRequired;
 
@@ -304,6 +307,7 @@ var
   lUnitNode: TDomNode;
   lName: string;
 begin
+
   if AUnitList = nil then exit;
 
   for lCtr := 0 to AUnitList.Length - 1 do
@@ -330,7 +334,7 @@ begin
               for lRefCtr := 0 to lRefNodeList.ChildNodes.Length - 1 do
                 begin
                   lRefNode := lRefNodeList.ChildNodes.Item[lRefCtr];
-                  if lRefNode.NodeType = ELEMENT_NODE then
+                  if lRefNodeList.NodeType = ELEMENT_NODE then
                     lUnit.References.Add(lRefNode.Attributes.GetNamedItem('name').NodeValue);
                 end;
             end;
@@ -356,6 +360,22 @@ begin
   FProject.ClearAll;
 
   LoadXMLDoc(AFileName);
+
+  { props to read:
+    xml ident         read    write   Gen
+     OK as is                         NA      property    FileName: string read FFileName write SetFileName;
+    'project-name'    OK              NA      property    ProjectName: string read FProjectName write SetProjectName;
+    'includes'        OK                      property    Includes: TStringList read FIncludes;
+    'outputdir'       OK              NA      property    OutputDirectory: string read FOutputDirectory write SetOutputDirectory;
+    'base-directory'  OK              NA      property    BaseDirectory: string read FBaseDirectory write SetBaseDirectory;
+    'tab-spaces'      OK              NA      property    TabSpaces: integer read FTabSpaces write SetTabSpaces;
+    'begin-end-tabs'  OK              NA      property    BeginEndTabs: integer read FBeginEndTabs write SetBeginEndTabs;
+    'visibility-tabs' OK              NA      property    VisibilityTabs: integer read FVisibilityTabs write SetVisibilityTabs;
+    'enum-type'       OK      OK      NA      property    EnumType: TEnumType read FEnumType write SetEnumType;
+
+    'origoutdir'      Add     Add     NA      property    OrigOutDirectory: string read FOrigOutDirectory write SetOrigOutDirectory;
+    'max-editor-code' Add     Add     NA      property    MaxEditorCodeWidth: integer read FMaxEditorCodeWidth write SetMaxEditorCodeWidth;
+    }
 
   lNode := FXML.DocumentElement;
   if lNode.Attributes.GetNamedItem('project-name') = nil then
@@ -386,26 +406,26 @@ begin
     end;
 
   lDirNode := lNode.Attributes.GetNamedItem('outputdir');
-  if lDirNode = nil then
-    FProject.OrigOutDirectory := FProject.BaseDirectory
-  else
-    FProject.OrigOutDirectory := lDirNode.NodeValue;
+    if lDirNode = nil then
+      FProject.OrigOutDirectory := FProject.BaseDirectory
+    else
+      FProject.OrigOutDirectory := lDirNode.NodeValue;
 
-  // Establish the Output directory, if present.
-  if lDirNode <> nil then
-    begin
-      if lDirNode.NodeValue <> '' then
-        begin
-          lPath := GetAbsolutePath(FProject.BaseDirectory, lDirNode.NodeValue);
-          FProject.OutputDirectory := lPath;
-        end
-      else
+    // Establish the Output directory, if present.
+    if lDirNode <> nil then
+      begin
+        if lDirNode.NodeValue <> '' then
+          begin
+            lPath := GetAbsolutePath(FProject.BaseDirectory, lDirNode.NodeValue);          FProject.OutputDirectory := lPath;
+            FProject.OutputDirectory := lPath;
+          end
+        else
+          FProject.OutputDirectory := FProject.BaseDirectory;
+      end
+    else
+      begin
         FProject.OutputDirectory := FProject.BaseDirectory;
-    end
-  else
-    begin
-      FProject.OutputDirectory := FProject.BaseDirectory;
-    end;
+      end;
 
   lAttr := lNode.Attributes.GetNamedItem('tab-spaces');
   if lAttr <> nil then
@@ -439,6 +459,22 @@ begin
       FProject.EnumType := etInt;
     end;
 
+//  Added read props:
+//    'origoutdir'      Add     Add     NA      property    OrigOutDirectory: string read FOrigOutDirectory write SetOrigOutDirectory;
+//    'max-editor-code' Add     Add     NA      property    MaxEditorCodeWidth: integer read FMaxEditorCodeWidth write SetMaxEditorCodeWidth;
+
+  lAttr := lNode.Attributes.GetNamedItem('origoutdir');
+  if lAttr <> nil then
+  begin
+    FProject.OrigOutDirectory := lAttr.NodeValue;
+  end;
+
+  lAttr := lNode.Attributes.GetNamedItem('max-editor-code');
+  if lAttr <> nil then
+    FProject.MaxEditorCodeWidth := StrToInt(lAttr.NodeValue)
+  else
+    FProject.MaxEditorCodeWidth := 80;
+
   // Process Includes
   if lNode.FindNode('includes') <> nil then
     begin
@@ -465,8 +501,6 @@ begin
             end;
         end;
     end;
-
-
 
   lUnitList := FXML.DocumentElement.FindNode('project-units').ChildNodes;
   ReadProjectUnits(lUnitList);
@@ -552,6 +586,25 @@ begin
             if lClassAttr <> nil then
               lNewClass.NotifyObserversOfPropertyChanges := StrToBool(lClassAttr.NodeValue);
 
+            lClassAttr := lClassNode.Attributes.GetNamedItem('oid-type');
+            if lClassAttr <> nil then
+              begin
+                if (lClassAttr.NodeValue = 'string') or (lClassAttr.NodeValue = 'guid')  then
+                  lNewClass.ClassMapping.OIDType := otString
+                else
+                  lNewClass.ClassMapping.OIDType := otInt;
+              end;
+
+            {AJG: Added:}
+            lClassAttr := lClassNode.Attributes.GetNamedItem('forward-declare');
+            if lClassAttr <> nil then
+              lNewClass.ForwardDeclare := StrToBool(lClassAttr.NodeValue);
+
+            lClassAttr := lClassNode.Attributes.GetNamedItem('orm-class-name');
+            if lClassAttr <> nil then
+              lnewClass.ORMClassName := lClassAttr.NodeValue;
+            {AJG: End.}
+
             if lClassNode.FindNode('class-props') = nil then
               raise Exception.Create(ClassName + '.ReadUnitClasses: "class-props" node is not present.');
 
@@ -565,7 +618,7 @@ begin
                 lNewClass.ClassMapping.PKName := lClassMapNode.Attributes.GetNamedItem('pk').NodeValue;
                 lNewClass.ClassMapping.TableName := lClassMapNode.Attributes.GetNamedItem('table').NodeValue;
                 lNewClass.ClassMapping.PKField := lClassMapNode.Attributes.GetNamedItem('pk-field').NodeValue;
-                lNewClass.ClassMapping.OIDType := gStrToOIDType(lClassMapNode.Attributes.GetNamedItem('oid-type').NodeValue);
+                                lNewClass.ClassMapping.OIDType := gStrToOIDType(lClassMapNode.Attributes.GetNamedItem('oid-type').NodeValue);
                 lClassMappings := lClassMapNode.ChildNodes;
 
                 if lClassMappings <> nil then
@@ -588,8 +641,8 @@ begin
                         if lSelectNode.NodeType <> COMMENT_NODE then
                           begin
                             lNewSelect := TClassMappingSelect.Create;
-                            lTemp := StringReplace(lSelectNode.FindNode('sql').ChildNodes.Item[0].NodeValue, #13, ' ', [rfReplaceAll]);
-                            lTemp := StringReplace(lTemp, #10, ' ', [rfReplaceAll]);
+                            lTemp := StringReplace(lSelectNode.FindNode('sql').ChildNodes.Item[0].NodeValue, #13, '', [rfReplaceAll]);
+                            lTemp := StringReplace(lTemp, #10, '', [rfReplaceAll]);
                             lTemp := tiNormalizeStr(lTemp);
                             // Change variable ${field_list} into list of field names in sql format
                             if POS('${field_list}', lTemp) > 0 then
@@ -733,9 +786,15 @@ begin
       lNewMapPropNode.SetAttribute('prop', lMapProp.PropName);
       lNewMapPropNode.SetAttribute('field', lMapProp.FieldName);
       lNewMapPropNode.SetAttribute('type', gPropTypeToStr(lMapProp.PropertyType));
+
+      {AJG: Added:}
+      lNewMapPropNode.SetAttribute('getter', lMapProp.PropertyGetter);
+      lNewMapPropNode.SetAttribute('setter', lMapProp.PropertySetter);
+      lNewMapPropNode.SetAttribute('abstract', LowerCase(BoolToStr(lMapProp.PropertyAccessorsAreAbstract, true)));
+      {AJG: END.}
+
       lNewMapNode.AppendChild(lNewMapPropNode);
     end;
-
 end;
 
 procedure TProjectWriter.WriteClassProps(AClassDef: TMapClassDef;
@@ -746,7 +805,6 @@ var
   lCtr: integer;
   lProp: TMapClassProp;
 begin
-
   lClassPropsNode := FDoc.CreateElement('class-props');
   AClassNode.AppendChild(lClassPropsNode);
 
@@ -856,7 +914,15 @@ procedure TProjectWriter.WriteProject(Aproject: TMapProject;
 var
   lDocElem: TDOMElement;
   lNewElem: TDOMElement;
+  lIncNode: TDomElement;
   lDir: string;
+
+  {AJG: ADDED:}
+  lIncludesNode: TDomNode;
+  lIncElem: TDomElement;
+  ic: integer;
+  lComment: TDOMComment;
+  {AJG: END.}
 begin
   if FDoc <> nil then
     begin
@@ -874,15 +940,47 @@ begin
   lDocElem.SetAttribute('visibility-tabs', IntToStr(FWriterProject.VisibilityTabs));
   lDocElem.SetAttribute('project-name', FWriterProject.ProjectName);
   lDocElem.SetAttribute('outputdir', FWriterProject.OrigOutDirectory);
-  lDocElem.SetAttribute('enum-type', 'int');
+
+  {AJG: ADDED:}
+  if FWriterProject.EnumType = etInt then
+    lDocElem.SetAttribute('enum-type', 'int')
+  else
+    lDocElem.SetAttribute('enum-type', 'string');
+  {AJG: END.}
+
+  //Added write props:
+  lDocElem.SetAttribute('origoutdir', FWriterProject.OrigOutDirectory);
+  lDocElem.SetAttribute('max-editor-code', intToStr(FWriterProject.MaxEditorCodeWidth));
+  lDocElem.SetAttribute('base-directory', FWriterProject.BaseDirectory);
+
   FDoc.AppendChild(lDocElem);
 
-
+  //Added write Includes:
+  lComment := FDoc.CreateComment('Includes are Schema files added to this schema before build-time.');
+  lDocElem.AppendChild(lComment);
+  lComment := FDoc.CreateComment('<includes>');
+  lDocElem.AppendChild(lComment);
+  lComment := FDoc.CreateComment('  <item file-name="{aFilename}" />');
+  lDocElem.AppendChild(lComment);
+  lComment := FDoc.CreateComment('</includes>');
+  lDocElem.AppendChild(lComment);
+  if FWriterProject.Includes.Count > 0 then
+  begin
+    lIncludesNode := FDoc.CreateElement('includes');
+    for ic := 0 to FWriterProject.Includes.Count - 1 do
+      begin
+        lIncElem := FDoc.CreateElement('item');
+        lIncElem.SetAttribute('file-name', FWriterProject.Includes.Strings[ic]);
+        lIncludesNode.AppendChild(lIncElem);
+      end;
+    lDocElem.AppendChild(lIncludesNode);
+  end;
+  lComment := FDoc.CreateComment('End Includes.');
+  lDocElem.AppendChild(lComment);
 
   WriteProjectUnits(FWriterProject, lDocElem);
 
   WriteXMLFile(FDoc, AFilePath);
-
 end;
 
 procedure TProjectWriter.WriteProject(AProject: TMapProject; const ADirectory: String; const AFileName: string);
@@ -940,6 +1038,16 @@ begin
   lNewClassNode.SetAttribute('auto-map', LowerCase(BoolToStr(AClassDef.AutoMap, true)));
   lNewClassNode.SetAttribute('auto-create-list', LowerCase(BoolToStr(AClassDef.AutoCreateListClass, true)));
 
+  {AJG: ADDED:}
+  lNewClassNode.SetAttribute('auto-create-base', LowerCase(BoolToStr(AClassDef.AutoCreateBase, true)));
+  lNewClassNode.SetAttribute('base-unit', AClassDef.BaseUnitName);
+  lNewClassNode.SetAttribute('crud', AClassDef.Crud);
+  lNewClassNode.SetAttribute('def-type',  mapper.gClassDefTypeToStr(AClassDef.DefType));
+  lNewClassNode.SetAttribute('forward-declare', LowerCase(BoolToStr(AClassDef.ForwardDeclare, true)));
+  lNewClassNode.SetAttribute('orm-class-name', AClassDef.ORMClassName);
+  lNewClassNode.SetAttribute('notify-observers', LowerCase(BoolToStr(AClassDef.NotifyObserversOfPropertyChanges, true)));
+  {AJG: END.}
+
   WriteClassProps(AClassDef, lNewClassNode);
   WriteClassValidators(AClassDef, lNewClassNode);
   WriteClassMappings(AClassDef, lNewClassNode);
@@ -993,8 +1101,10 @@ var
   lItemCtr: integer;
   lEnum: TMapEnum;
   lEnumVal: TMapEnumValue;
+
 begin
   lEnumsNode := AUnitNode.FindNode('enums');
+
   for lCtr := 0 to AUnitDef.UnitEnums.Count - 1 do
     begin
       lEnum := AUnitDef.UnitEnums.Items[lCtr];
@@ -1013,6 +1123,7 @@ begin
           // Append to <values> node
           lValuesEl.AppendChild(lSingleValNode);
         end;
+
       lEnumsNode.AppendChild(lEnumEl);
     end;
 end;

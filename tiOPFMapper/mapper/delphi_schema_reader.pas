@@ -26,7 +26,6 @@ type
     function    CreateSQLSelectList(AClassDef: TMapClassDef): string;
     function    ExtractBaseClassName(const AName: string): string;
     procedure   LoadXMLDoc(const AFile: string);
-    procedure   ReadProjectInfo;
     procedure   ReadProjectUnits(AUnitList: IXMLNodeList);
     procedure   ReadUnitClasses(AUnit: TMapUnitDef; ANode: IXMLNode);
     procedure   ReadUnitEnums(AUnit: TMapUnitDef; ANode: IXMLNode);
@@ -39,7 +38,6 @@ type
     constructor Create; override;
     destructor  Destroy; override;
   end;
-
 
   TProjectWriter = class(TBaseMapObject)
   protected
@@ -64,6 +62,7 @@ type
 
 implementation
 
+
 { TOmniXMLSchemaReader }
 
 constructor TOmniXMLSchemaReader.Create;
@@ -71,7 +70,8 @@ begin
   inherited Create;
 end;
 
-function TOmniXMLSchemaReader.CreateSQLSelectList(AClassDef: TMapClassDef): string;
+function TOmniXMLSchemaReader.CreateSQLSelectList(
+  AClassDef: TMapClassDef): string;
 var
   lCtr: integer;
   lPropMap: TPropMapping;
@@ -85,12 +85,13 @@ begin
     end;
 
   result := UpperCase(result);
+
 end;
 
 destructor TOmniXMLSchemaReader.Destroy;
 begin
   FXML := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 function TOmniXMLSchemaReader.ExtractBaseClassName(const AName: string): string;
@@ -122,70 +123,47 @@ end;
 procedure TOmniXMLSchemaReader.LoadXMLDoc(const AFile: string);
 begin
   FXML := nil;
+
   FXML := CreateXMLDoc;
   XMLLoadFromFile(FXML, AFile);
+
 end;
 
-procedure TOmniXMLSchemaReader.ReadClassMapping(AClass: TMapClassDef; ANode: IXMLNodeList);
+procedure TOmniXMLSchemaReader.ReadClassMapping(AClass: TMapClassDef;
+  ANode: IXMLNodeList);
 var
   lCtr: integer;
   lNode: IXMLNode;
   lMapNode: IXMLNode;
-  lMapPropNode: IXMLNode;
   lNewMapProp: TPropMapping;
-  lLastGood: string;
-  lAbstractValue: Boolean;
-  s: string;
 begin
   for lCtr := 0 to ANode.Length - 1 do
     begin
       lNode := ANode.Item[lCtr];
       if lNode.NodeType = ELEMENT_NODE then
         begin
-          lMapPropNOde := lNode.Attributes.GetNamedItem('field');
-          if lMapPropNode = nil then
-            begin
-              //WriteLn('Error Node Type: ' + IntToStr(lNode.NodeType));
-              raise Exception.Create(ClassName + '.ReadClassMapping: Mapping node Attribute "field" not found ' +
-                'reading schema for ' + AClass.BaseClassName);
-            end;
-
           lNewMapProp := TPropMapping.create;
           lNewMapProp.FieldName := lNode.Attributes.GetNamedItem('field').NodeValue;
           lNewMapProp.PropName := lNode.Attributes.GetNamedItem('prop').NodeValue;
-          lMapPropNode := lNode.Attributes.GetNamedItem('getter');
-          if Assigned(lMapPropNode) then
-            lNewMapProp.PropertyGetter := lMapPropNode.NodeValue;
-          lMapPropNode := lNode.Attributes.GetNamedItem('setter');
-          if Assigned(lMapPropNode) then
-            lNewMapProp.PropertySetter := lMapPropNode.NodeValue;
-          lMapPropNode := lNode.Attributes.GetNamedItem('abstract');
-          if Assigned(lMapPropNode) then
-          begin
-            s := LowerCase(lMapPropNode.NodeValue);
-            if (s = 'false') or (s = '0') or (s = 'no') then
-              lAbstractValue := False
-            else
-              lAbstractValue := True;
-          end
-          else
-            lAbstractValue := True;
-          lNewMapProp.PropertyAccessorsAreAbstract := lAbstractValue;
-
-          lLastGood := lNewMapProp.PropName;
 
           lMapNode := lNode.Attributes.GetNamedItem('type');
           if lMapNode = nil then
-            lNewMapProp.PropertyType := gStrToPropType('string')
+            begin
+              lNewMapProp.PropertyType := gStrToPropType('string');
+            end
           else
-            lNewMapProp.PropertyType := gStrToPropType(lMapNode.NodeValue);
+            begin
+              lNewMapProp.PropertyType := gStrToPropType(lNode.Attributes.GetNamedItem('type').NodeValue);
+            end;
 
           AClass.ClassMapping.PropMappings.Add(lNewMapProp);
         end;
     end;
+
 end;
 
-procedure TOmniXMLSchemaReader.ReadClassProps(AClass: TMapClassDef; ANode: IXMLNodeList);
+procedure TOmniXMLSchemaReader.ReadClassProps(AClass: TMapClassDef;
+  ANode: IXMLNodeList);
 var
   lCtr: Integer;
   lPropNode: IXMLNode;
@@ -193,48 +171,50 @@ var
   lNewProp: TMapClassProp;
 begin
   for lCtr := 0 to ANode.Length - 1 do
-  begin
-    lPropNode := ANode.Item[lCtr];
-    if lPropNode.NodeType = ELEMENT_NODE then
     begin
-      lNewProp := TMapClassProp.create;
+      lPropNode := ANode.Item[lCtr];
 
-      lNewProp.Name := lPropNode.Attributes.GetNamedItem('name').NodeValue;
-
-      // Read only?
-      lPropAttr := lPropNode.Attributes.GetNamedItem('read-only');
-      if lPropAttr <> nil then
-        lNewProp.IsReadOnly := StrToBool(lPropAttr.NodeValue)
-      else
-        lNewProp.IsReadOnly := false;
-
-      // Property type?
-      lPropAttr := lPropNode.Attributes.GetNamedItem('type');
-      if lPropAttr <> nil then
-      begin
-        if lPropAttr.NodeValue <> '' then
+      if lPropNode.NodeType = ELEMENT_NODE then
         begin
-          if (Copy(lPropAttr.NodeValue, 1,1) = 'T') and (LowerCase(lPropAttr.NodeValue) <> 'tdatetime') then
-            lNewProp.PropertyType := ptEnum
+          lNewProp := TMapClassProp.create;
+
+          lNewProp.Name := lPropNode.Attributes.GetNamedItem('name').NodeValue;
+
+          // Read only?
+          lPropAttr := lPropNode.Attributes.GetNamedItem('read-only');
+          if lPropAttr <> nil then
+            lNewProp.IsReadOnly := StrToBool(lPropAttr.NodeValue);
+
+          // Property type?
+          lPropAttr := lPropNode.Attributes.GetNamedItem('type');
+          if lPropAttr <> nil then
+            begin
+              if lPropAttr.NodeValue <> '' then
+                begin
+                  if (Copy(lPropAttr.NodeValue, 1,1) = 'T') and
+                    (LowerCase(lPropAttr.NodeValue) <> 'tdatetime') then
+                    lNewProp.PropertyType := ptEnum
+                  else
+                    lNewProp.PropertyType := gStrToPropType(lPropAttr.NodeValue);
+                  lNewProp.PropTypeName := lPropAttr.NodeValue
+                end
+              else
+                begin
+                  lNewProp.PropertyType:= ptString;
+                  lNewProp.PropTypeName := 'String';
+                end;
+            end
           else
-            lNewProp.PropertyType := gStrToPropType(lPropAttr.NodeValue);
-          lNewProp.PropTypeName := lPropAttr.NodeValue
-        end
-        else
-        begin
-          lNewProp.PropTypeName := 'String';
-          lNewProp.PropertyType := ptString;
-        end;
-      end
-      else
-      begin
-        lNewProp.PropTypeName := 'String';
-        lNewProp.PropertyType := ptString;
-      end;
+            begin
+              lNewProp.PropTypeName := 'string';
+              lNewProp.PropertyType := ptString;
+            end;
 
-      AClass.ClassProps.Add(lNewProp);
+          AClass.ClassProps.Add(lNewProp);
+        end;
+
     end;
-  end;
+
 end;
 
 procedure TOmniXMLSchemaReader.ReadClassSelects(AClass: TMapClassDef;
@@ -243,13 +223,13 @@ begin
 
 end;
 
-procedure TOmniXMLSchemaReader.ReadClassValidators(AClass: TMapClassDef; ANode: IXMLNode);
+procedure TOmniXMLSchemaReader.ReadClassValidators(AClass: TMapClassDef;
+  ANode: IXMLNode);
 var
   lCtr: Integer;
   lVal: TMapValidator;
   lValNode: IXMLNode;
   lValueNode: IXMLNode;
-  lTypeNode: IXMLNode;
   lProp: TMapClassProp;
   lValStr: string;
   lTempStr: string;
@@ -264,49 +244,45 @@ begin
       if lValNode.NodeType = ELEMENT_NODE then
         begin
           lVal := TMapValidator.Create;
-          // Get validator type.  "required" is the default.
-          lTypeNode := lValNode.Attributes.GetNamedItem('type');
-          if lTypeNode <> nil then
-            lVal.ValidatorType := gStrToValType(lTypeNode.NodeValue)
-          else
-            lVal.ValidatorType := vtRequired;
-
+          lVal.ValidatorType := gStrToValType(lValNode.Attributes.GetNamedItem('type').NodeValue);
           lVal.ClassProp := lValNode.Attributes.GetNamedItem('prop').NodeValue;
           lTempStr := lVal.ClassProp;
           if lVal.ValidatorType <> vtRequired then
             begin
               lProp := TMapClassProp(AClass.ClassProps.FindByProps(['Name'], [lVal.ClassProp]));
-              if lProp = nil then
-                raise Exception.Create('No registered property in class "' + AClass.BaseClassName + '" found with name "' + lVal.ClassProp +'"');
               lTempStr := lProp.Name;
               lType := lProp.PropertyType;
+              if lProp = nil then
+                raise Exception.Create('No register property in class "' + AClass.BaseClassName + '" found with name ' +
+                  lVal.ClassProp);
 
-              lValueNode := lValNode.SelectSingleNode('value');
-              if lValueNode <> nil then
-                begin
-                  lValStr := lValueNode.Text;
-                  case lProp.PropertyType of
-                    ptAnsiString, ptString:
-                      lVal.Value := lValStr;
-                    ptBoolean:
-                      lVal.Value := StrtoBool(lValStr);
-                    ptInt64, ptInteger:
-                      lVal.Value := StrToInt(lValStr);
-                    ptDateTime:
-                      lVal.Value := tiIntlDateStorAsDateTime(lValStr);
-                    ptEnum:;
-                    ptDouble, ptCurrency, ptSingle:
-                      lVal.Value := StrToFloat(lValStr);
+                lValueNode := lValNode.SelectSingleNode('value');
+
+                if lValueNode <> nil then
+                  begin
+                    lValStr := lValueNode.Text;
+
+                    case lProp.PropertyType of
+                      ptAnsiString, ptString:
+                        lVal.Value := lValStr;
+                      ptBoolean:
+                        lVal.Value := StrtoBool(lValStr);
+                      ptInt64, ptInteger:
+                        lVal.Value := StrToInt(lValStr);
+                      ptDateTime:
+                        //lVal.Value := tiIntlDateStorAsDateTime(lValStr);
+                        lVal.Value := StrToDateTime(lValStr);
+                      ptEnum:;
+                      ptDouble, ptSingle, ptCurrency:
+                        lVal.Value := StrToFloat(lValStr);
+                    end;
                   end;
-                end;
+
             end;
+
           AClass.Validators.Add(lVal);
         end;
     end;
-end;
-
-procedure TOmniXMLSchemaReader.ReadProjectInfo;
-begin
 
 end;
 
@@ -314,12 +290,12 @@ procedure TOmniXMLSchemaReader.ReadProjectUnits(AUnitList: IXMLNodeList);
 var
   lUnitsList: IXMLNodeList;
   lCtr: Integer;
-  lUnit: TMapUnitDef;
+  lNewUnit: TMapUnitDef;
   lRefNodeList, lRefNode: IXMLNode;
   lRefCtr: integer;
   lUnitNode: IXMLNode;
-  lName: string;
 begin
+
   if AUnitList = nil then exit;
 
   for lCtr := 0 to AUnitList.Length - 1 do
@@ -327,17 +303,10 @@ begin
       lUnitNode := AUnitList.Item[lCtr];
       if lUnitNode.NodeType = ELEMENT_NODE then
         begin
-          lName := lUnitNode.Attributes.GetNamedItem('name').NodeValue;
-          lUnit := TMapUnitDef(FProject.Units.FindByProps(['Name'], [lName]));
-          if lUnit = nil then
-            begin
-              lUnit := TMapUnitDef.Create;
-              lUnit.Name := lName;
-              FProject.Units.Add(lUnit);
-            end;
-
-          ReadUnitEnums(lUnit, lUnitNode.SelectSingleNode('enums'));
-          ReadUnitClasses(lUnit, lUnitNode.SelectSingleNode('classes'));
+          lNewUnit := TMapUnitDef.Create;
+          lNewUnit.Name := lUnitNode.Attributes.GetNamedItem('name').NodeValue;
+          ReadUnitEnums(lNewUnit, lUnitNode.SelectSingleNode('enums'));
+          ReadUnitClasses(lNewUnit, lUnitNode.SelectSingleNode('classes'));
 
           // Reference (uses)
           lRefNodeList := lUnitNode.SelectSingleNode('references');
@@ -346,15 +315,18 @@ begin
               for lRefCtr := 0 to lRefNodeList.ChildNodes.Length - 1 do
                 begin
                   lRefNode := lRefNodeList.ChildNodes.Item[lRefCtr];
-                  if lRefNode.NodeType = ELEMENT_NODE then
-                    lUnit.References.Add(lRefNode.Attributes.GetNamedItem('name').NodeValue);
+                  if lRefNodeList.NodeType = ELEMENT_NODE then
+                    lNewUnit.References.Add(lRefNode.Attributes.GetNamedItem('name').NodeValue);
                 end;
             end;
+          FProject.Units.Add(lNewUnit);
         end;
     end;
+
 end;
 
-procedure TOmniXMLSchemaReader.ReadSchema(AProject: TMapProject; const AFileName: string);
+procedure TOmniXMLSchemaReader.ReadSchema(AProject: TMapProject;
+  const AFileName: string);
 var
   lNode: IXMLNode;
   lNodeList: IXMLNodeList;
@@ -374,10 +346,8 @@ begin
   LoadXMLDoc(AFileName);
 
   lNode := FXML.DocumentElement;
-  if lNode.Attributes.GetNamedItem('project-name') = nil then
-    raise Exception.Create(ClassName + '.ReadSchema: Missing <project-name> attribute.');
-
-  FProject.ProjectName := lNode.Attributes.GetNamedItem('project-name').NodeValue;
+  lAttr := lNode.Attributes.GetNamedItem('project-name');
+  FProject.ProjectName := lAttr.NodeValue;
 
   // Establish the base directory
   lDirNode := lNode.Attributes.GetNamedItem('base-directory');
@@ -386,33 +356,21 @@ begin
       if lDirNode.NodeValue <> '' then
         FProject.BaseDirectory := lNode.Attributes.GetNamedItem('base-directory').NodeValue
       else
-      begin
-        lPath := ExtractFileDir(AFileName);
-        if lPath = '' then  // means only the filename was passed in, without any path details
-          lPath := GetCurrentDir;
-        FProject.BaseDirectory := lPath;
-      end;
+        FProject.BaseDirectory := ExtractFileDir(AFileName);
     end
   else
     begin
-      lPath := ExtractFileDir(AFileName);
-      if lPath = '' then  // means only the filename was passed in, without any path details
-        lPath := GetCurrentDir;
-      FProject.BaseDirectory := lPath;
+      FProject.BaseDirectory := ExtractFileDir(AFileName);
     end;
 
-  lDirNode := lNode.Attributes.GetNamedItem('outputdir');
-  if lDirNode = nil then
-    FProject.OrigOutDirectory := FProject.BaseDirectory
-  else
-    FProject.OrigOutDirectory := lDirNode.NodeValue;
-
   // Establish the Output directory, if present.
+  lDirNode := lNode.Attributes.GetNamedItem('outputdir');
   if lDirNode <> nil then
     begin
       if lDirNode.NodeValue <> '' then
         begin
-          lPath := GetAbsolutePath(FProject.BaseDirectory, lDirNode.NodeValue);
+          lPath := GetabsolutePath(FProject.BaseDirectory, lNode.Attributes.GetNamedItem('outputdir').NodeValue);
+          FProject.OrigOutDirectory := lNode.Attributes.GetNamedItem('outputdir').NodeValue;
           FProject.OutputDirectory := lPath;
         end
       else
@@ -422,6 +380,9 @@ begin
     begin
       FProject.OutputDirectory := FProject.BaseDirectory;
     end;
+
+
+  lIncPath := FProject.OutputDirectory;
 
   lAttr := lNode.Attributes.GetNamedItem('tab-spaces');
   if lAttr <> nil then
@@ -526,7 +487,7 @@ begin
             lNewClass := TMapClassDef.Create;
 
             lClassAttr := lClassNode.Attributes.GetNamedItem('def-type');
-            if lClassAttr <> nil then
+            if lClassAttr <>nil then
               lNewClass.DefType := gStrToClassDefType(lClassAttr.NodeValue)
             else
               lNewClass.DefType := dtReference;
@@ -567,9 +528,14 @@ begin
             else
               lNewClass.AutoCreateListClass := true;
 
-            lClassAttr := lClassNode.Attributes.GetNamedItem('notify-observers');
+            lClassAttr := lClassNode.Attributes.GetNamedItem('oid-type');
             if lClassAttr <> nil then
-              lNewClass.NotifyObserversOfPropertyChanges := StrToBool(lClassAttr.NodeValue);
+              begin
+                if lClassAttr.NodeValue = 'guid' then
+                  lNewClass.ClassMapping.OIDType := otString
+                else
+                  lNewClass.ClassMapping.OIDType := otInt;
+              end;
 
             if lClassNode.SelectSingleNode('class-props') = nil then
               raise Exception.Create(ClassName + '.ReadUnitClasses: Class PrNode is not present.');

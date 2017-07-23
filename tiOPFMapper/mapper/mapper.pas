@@ -4,7 +4,6 @@ unit mapper;
   {$mode objfpc}{$H+}
 {$ENDIF}
 
-
 interface
 
 uses
@@ -24,7 +23,7 @@ uses
 type
 
   // -----------------------------------------------------------------
-  //  Foward Declares
+  //  Forward Declares
   // -----------------------------------------------------------------
 
   TBaseMapObject = class;
@@ -142,6 +141,7 @@ type
     property    VisibilityTabs: integer read FVisibilityTabs write SetVisibilityTabs;
     property    MaxEditorCodeWidth: integer read FMaxEditorCodeWidth write SetMaxEditorCodeWidth;
     property    EnumType: TEnumType read FEnumType write SetEnumType;
+
   public
     // object properties
     property    Units: TMapUnitDefList read FUnits;
@@ -152,6 +152,11 @@ type
     procedure   ClearAll;
     constructor Create; override;
     destructor  Destroy; override;
+
+    {AJG: Added:}
+      procedure   AssignClassProps(ASource: TtiObject); override;
+    {AJG: End.}
+
   end;
 
   TMapProjectList = class(TBaseMapObjectList)
@@ -217,6 +222,9 @@ type
   end;
 
   {: Represents an enumerated type. }
+
+  { TMapEnum }
+
   TMapEnum = class(TBaseMapObject)
   private
     FEnumName: string;
@@ -229,6 +237,11 @@ type
     property    Values: TMapEnumValueList read FValues write SetValues;
     constructor Create; override;
     destructor  Destroy; override;
+
+  {AJG: Added:}
+    procedure AssignClassProps(ASource: TtiObject); override;
+  {AJG: End.}
+
   end;
 
   TMapEnumList = class(TBaseMapObjectList)
@@ -271,8 +284,12 @@ type
   end;
 
   {: Stores info about the mapping between a class property and its corresponding database field name. }
+
+  { TPropMapping }
+
   TPropMapping = class(TBaseMapObject)
   private
+//    FFieldLength: Integer;
     FFieldName: string;
     FPropName: string;
     FPropertyType: TMapPropType;
@@ -293,6 +310,7 @@ type
     property    PropertyGetter: string read FPropertyGetter write SetPropertyGetter;
     property    PropertySetter: string read FPropertySetter write SetPropertySetter;
     property    PropertyAccessorsAreAbstract: Boolean read FPropertyAccessorsAreAbstract write FPropertyAccessorsAreAbstract;
+
   end;
 
   TPropMappingList = class(TBaseMapObjectList)
@@ -306,6 +324,9 @@ type
 
   {: Stores information about the class <--> database mapping such as table name.
   Contains a TPropMappingList. }
+
+  { TClassMapping }
+
   TClassMapping = class(TBaseMapObject)
   private
     FOIDType: TOIDType;
@@ -326,6 +347,11 @@ type
   public
     constructor Create; override;
     destructor  Destroy; override;
+
+  {AJG: Added:}
+    procedure AssignClassProps(ASource: TtiObject); override;
+  {AJG: End.}
+
   end;
 
   {: Represent a parameter defintion in a selection.  Translates to the parameters of the
@@ -367,6 +393,9 @@ type
   end;
 
   {: Represents a class section.  Contains SQL and name.   }
+
+  { TClassMappingSelect }
+
   TClassMappingSelect = class(TBaseMapObject)
   private
     FName: string;
@@ -380,6 +409,11 @@ type
     property    Params: TSelectParamList read FParams;
     constructor Create; override;
     destructor  Destroy; override;
+
+  {AJG: Added:}
+    procedure AssignClassProps(ASource: TtiObject); override;
+  {AJG: End.}
+
   published
     property    Name: string read FName write SetName;
     property    SQL: string read FSQL write SetSQL;
@@ -403,6 +437,8 @@ type
     function    Add(AObject: TClassMapping): Integer; reintroduce;
   end;
 
+  { TFilterDef }
+
   TFilterDef = class(TBaseMapObject)
   private
     FField: String;
@@ -412,6 +448,11 @@ type
   public
     property    FilterType: TFilterType read FFilterType write SetFilterType;
     property    Field: String read FField write SetField;
+
+    {AJG: Added:}
+    procedure AssignClassProps(ASource: TtiObject); override;
+    {AJG: End.}
+
   end;
 
   TFilterDefList = class(TBaseMapObjectList)
@@ -449,6 +490,8 @@ type
     procedure   Add(AObject : TMapValidator); reintroduce;
   end;
 
+  { TMapClassDef }
+
   TMapClassDef = class(TBaseMapObject)
   private
     FAutoCreateBase: boolean;
@@ -456,7 +499,7 @@ type
     FAutoMap: boolean;
     FBaseClassName: string;
     FBaseClassParent: string;
-    FBaseUnitName: string;
+    FBaseUnitName: string;  //Was this to be The owning Unit?  Every time TMapUnitDef.name changes, change in all owned classes?
     FClassMapping: TClassMapping;
     FClassProps: TMapClassPropList;
     FCrud: string;
@@ -499,7 +542,13 @@ type
     property    ForwardDeclare: boolean read FForwardDeclare write SetForwardDeclare;
     property    ORMClassName: string read FORMClassName write SetORMClassName;
     property    NotifyObserversOfPropertyChanges: boolean read FNotifyObserversOfPropertyChanges write SetNotifyObserversOfPropertyChanges default False;
-  end;
+
+  {AJG: Added:}
+  public
+    procedure AssignClassProps(ASource: TtiObject); override;
+  {AJG: End.}
+
+end;
 
   TMapClassDefList = class(TBaseMapObjectList)
   protected
@@ -528,6 +577,11 @@ type
     function    HasValidators: boolean;
     constructor Create; override;
     destructor  Destroy; override;
+
+  {AJG: Added:}
+    procedure AssignClassProps(ASource: TtiObject); override;
+  {AJG: End.}
+
   end;
 
   TMapUnitDefList = class(TBaseMapObjectList)
@@ -552,6 +606,7 @@ type
   end;
 
 
+  {: Class to Generate pascal file.}
   TMapSchemaWriter = class(TBaseMapObject)
   private
     FCurrentIndent: integer;
@@ -647,7 +702,6 @@ type
   {: Class of  }
   TValidatorStringGeneratorClass = class of TValidatorStringGenerator;
 
-
   procedure RegisterMappings;
 
   // Misc global methods.
@@ -672,6 +726,11 @@ type
   {: Converts a string representation to TOIDType. }
   function  gStrToOIDType(const AString: string): TOIDType;
 
+  {AJG: Added:}
+  function gClassDefTypeToStr(const AClassDefType: TClassDefType): String;
+  function gOIDTypeToStr(const AOIDType: TOIDType): String;
+  {AJG: End.}
+
   // -----------------------------------------------------------------
   //  Glob vars
   // -----------------------------------------------------------------
@@ -680,6 +739,14 @@ var
   ValidatorStringClass: TValidatorStringGeneratorClass;
 
 implementation
+
+uses
+  tiConstants;
+
+//const
+//	//From tiConstants:
+//  CTIErrorInternal = 'tiOPF Internal Error: ';
+//  CTIErrorInvalidObject = CTIErrorInternal + ' TtiBaseObject.TestValid failed';
 
 var
   mSchemaReaderClass: TMapSchemaReaderClass;
@@ -693,6 +760,16 @@ begin
     Result := otString
   else
     Result := otInt;
+end;
+
+function gClassDefTypeToStr(const AClassDefType: TClassDefType): String;
+begin
+  result := typinfo.GetEnumName(TypeInfo(TClassDefType), Integer(AClassDefType));
+end;
+
+function gOIDTypeToStr(const AOIDType: TOIDType): String;
+begin
+  result := typinfo.GetEnumName(TypeInfo(TOIDType), Integer(AOIDType));
 end;
 
 function GetappearNum(sub, st: string): integer;
@@ -975,6 +1052,7 @@ begin
   FUnits.Free;
   FProjectClasses.Free;
   FProjectEnums.Free;
+
   inherited Destroy;
 end;
 
@@ -1084,6 +1162,24 @@ begin
   FVisibilityTabs:=AValue;
 end;
 
+{AJG: Added:}
+procedure TMapProject.AssignClassProps(ASource: TtiObject);
+begin
+  //inherited AssignClassProps(ASource);
+  //property    Units: TMapUnitDefList read FUnits;
+  //property    ProjectClasses: TMapClassDefList read FProjectClasses write SetProjectClasses;
+  //property    ProjectEnums: TMapEnumList read FProjectEnums;
+  //property    Includes: TStringlist;
+  Assert(ASource.TestValid(TMapProject), CTIErrorInvalidObject);
+
+  FUnits.Clear;
+  FUnits.Assign(TMapProject(ASource).Units);
+  FProjectClasses.Clear;
+  FProjectClasses.Assign(TMapProject(ASource).ProjectClasses);
+  FProjectEnums.Clear;
+  FProjectEnums.Assign(TMapProject(ASource).ProjectEnums);
+end;
+{AJG: End.}
 
 { TBaseMapObjectList }
 
@@ -1177,7 +1273,6 @@ begin
   FUnitClasses := TMapClassDefList.Create;
   FUnitEnums := TMapEnumList.Create;
   FReferences := TStringList.create;
-
 end;
 
 destructor TMapUnitDef.Destroy;
@@ -1185,6 +1280,7 @@ begin
   FUnitClasses.Free;
   FUnitEnums.Free;
   FReferences.Free;
+
   inherited Destroy;
 end;
 
@@ -1209,6 +1305,29 @@ begin
   if FName=AValue then exit;
   FName:=AValue;
 end;
+
+{AJG: Added:}
+procedure TMapUnitDef.AssignClassProps(ASource: TtiObject);
+begin
+  //published
+  // property    Name: string read FName write SetUnitName;
+  // // Object properties
+  // property    UnitClasses: TMapClassDefList read FUnitClasses;
+  // property    UnitEnums: TMapEnumList read FUnitEnums;
+  // property    References: TStringList read FReferences; //
+  // Added:
+  // public property UnitReferences: TMGReferenceList;
+
+  //inherited AssignClassProps(ASource);
+  Assert(ASource.TestValid(TMapUnitDef), CTIErrorInvalidObject);
+  UnitClasses.Clear;
+  UnitClasses.Assign(TMapUnitDef(ASource).UnitClasses);
+  UnitEnums.Clear;
+  UnitEnums.Assign(TMapUnitDef(ASource).UnitEnums);
+  References.Clear;
+  References.Assign(TMapUnitDef(ASource).References);
+end;
+{AJG: End.}
 
 { TMapEnumValue }
 
@@ -1276,6 +1395,15 @@ begin
   FValues.Free;
   inherited Destroy;
 end;
+
+{AJG: Added:}
+procedure TMapEnum.AssignClassProps(ASource: TtiObject);
+begin
+  Assert(ASource.TestValid(TMapEnum), CTIErrorInvalidObject);
+  FValues.Clear;
+  FValues.Assign(TMapEnum(ASource).Values);
+end;
+{AJG: End.}
 
 procedure TMapEnum.SetEnumName(const AValue: string);
 begin
@@ -1363,6 +1491,26 @@ begin
   if FDefType=AValue then exit;
   FDefType:=AValue;
 end;
+
+{AJG: Added:}
+procedure TMapClassDef.AssignClassProps(ASource: TtiObject);
+begin
+  //public
+  //  // Object Props
+  //  property    ClassProps: TMapClassPropList read FClassProps write SetClassProps;
+  //  property    ClassMapping: TClassMapping read FClassMapping;
+  //  property    Selections: TClassMappingSelectList read FSelections;
+  //  property    Validators: TMapValidatorList read FValidators;
+  Assert(ASource.TestValid(TMapClassDef), CTIErrorInvalidObject);
+  FClassProps.Clear;
+  FClassProps.Assign(TMapClassDef(ASource).ClassProps);
+  FClassMapping.Assign(TMapClassDef(ASource).ClassMapping);
+  FSelections.Clear;
+  FSelections.Assign(TMapClassDef(ASource).Selections);
+  FValidators.Clear;
+  FValidators.Assign(TMapClassDef(ASource).Validators);
+end;
+{AJG: End.}
 
 procedure TMapClassDef.SetForwardDeclare(const AValue: boolean);
 begin
@@ -1502,6 +1650,16 @@ begin
   inherited Destroy;
 end;
 
+{AJG: Added:}
+procedure TClassMapping.AssignClassProps(ASource: TtiObject);
+begin
+  Assert(ASource.TestValid(TClassMapping), CTIErrorInvalidObject);
+
+  FPropMappings.Clear;
+  FPropMappings.Assign(TClassMapping(ASource).PropMappings);
+end;
+{AJG: End.}
+
 procedure TClassMapping.SetOIDType(const AValue: TOIDType);
 begin
   if FOIDType=AValue then exit;
@@ -1572,6 +1730,12 @@ begin
   FFieldName:=AValue;
 end;
 
+//procedure TPropMapping.SetFieldLength(AValue: Integer);
+//begin
+//  if FFieldLength = AValue then Exit;
+//  FFieldLength := AValue;
+//end;
+
 procedure TPropMapping.SetPropName(const AValue: string);
 begin
   if FPropName=AValue then exit;
@@ -1584,13 +1748,13 @@ begin
   FPropertyType:=AValue;
 end;
 
-procedure TPropMapping.SetPropertyGetter(const AValue: String);
+procedure TPropMapping.SetPropertyGetter(const AValue: string);
 begin
   if FPropertyGetter=AValue then exit;
   FPropertyGetter:=AValue;
 end;
 
-procedure TPropMapping.SetPropertySetter(const AValue: String);
+procedure TPropMapping.SetPropertySetter(const AValue: string);
 begin
   if FPropertySetter=AValue then exit;
   FPropertySetter:=AValue;
@@ -1626,6 +1790,16 @@ begin
   if FFilterType=AValue then exit;
   FFilterType:=AValue;
 end;
+
+{AJG: Added:}
+procedure TFilterDef.AssignClassProps(ASource: TtiObject);
+begin
+  Assert(ASource.TestValid(TFilterDef), CTIErrorInvalidObject);
+
+  FFiltertype := TFilterDef(ASource).FilterType;
+  FField := TFilterDef(ASource).Field;
+end;
+{AJG: End.}
 
 { TFilterDefList }
 
@@ -1880,6 +2054,15 @@ begin
   inherited Destroy;
 end;
 
+{AJG: Added:}
+procedure TClassMappingSelect.AssignClassProps(ASource: TtiObject);
+begin
+  Assert(ASource.TestValid(TClassMappingSelect), CTIErrorInvalidObject);
+  FParams.Clear;
+  FParams.Assign(TClassMappingSelect(ASource).Params);
+end;
+{AJG: End.}
+
 function TClassMappingSelect.GetCaption: string;
 var
   lCtr: integer;
@@ -1961,7 +2144,8 @@ begin
   FEnumType:=AValue;
 end;
 
-procedure TtiMapParameterListReadVisitor.SetObjClass(const AValue: TtiObjectClass);
+procedure TtiMapParameterListReadVisitor.SetObjClass(const AValue: TtiObjectClass
+  );
 begin
   if FObjClass=AValue then exit;
   FObjClass:=AValue;
@@ -1980,8 +2164,9 @@ var
   lList: TtiMappedFilteredObjectList;
   lProp: TMapClassProp;
 begin
-  inherited SetupParams;
 
+  inherited SetupParams;
+  exit;
 (*
   lList := TtiMappedFilteredObjectList(Visited);
 
@@ -1990,38 +2175,29 @@ begin
       lParam := lList.Params.Items[lCtr];
 
       case lParam.ParamType of
-        ptString,
-        ptAnsiString:
+        ptString, ptAnsiString:
           Query.ParamAsString[lParam.SQLParamName] := lParam.Value;
-
         ptBoolean:
           Query.ParamAsBoolean[lParam.SQLParamName] := lParam.Value;
-
         ptDateTime:
           Query.ParamAsDateTime[lParam.SQLParamName] := lParam.Value;
-
-        ptDouble,
-        ptCurrency,
-        ptSingle:
+        ptDouble, ptCurrency, ptSingle:
           Query.ParamAsFloat[lParam.SQLParamName] := lParam.Value;
-
-        ptInt64,
-        ptInteger:
+        ptInt64, ptInteger:
           Query.ParamAsInteger[lParam.SQLParamName] := lParam.Value;
-
         ptEnum:
           begin
             if lList.EnumType = etString then
-              Query.ParamAsString[lParam.SQLParamName] := GetEnumName(TypeInfo(TMapPropType), Integer(lParam.Value))
+              begin
+                Query.ParamAsString[lParam.SQLParamName] := GetEnumName(TypeInfo(TMapPropType), Integer(lParam.Value));
+              end
             else
               Query.ParamAsInteger[lParam.SQLParamName] := Integer(lParam.Value);
           end;
-
-        ptStream:
-          Query.AssignParamFromStream(lParam.SQLParamName, TStream(lParam.Value));
+        ptStream: Query.AssignParamFromStream(lParam.SQLParamName, TStream(lParam.Value));
       end;
     end;
-*)
+*)  
 end;
 
 { TtiMappedFilteredObjectList }

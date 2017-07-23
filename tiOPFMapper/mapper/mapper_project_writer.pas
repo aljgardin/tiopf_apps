@@ -323,7 +323,7 @@ var
   i: Integer;
   HasStream: Boolean;
 begin
-  HasStream := False;
+  HasStream := false;
   for i := 0 to AClassDef.ClassMapping.PropMappings.Count-1 do
   begin
     if not HasStream and (AClassDef.ClassMapping.PropMappings.Items[I].PropertyType = ptStream) then
@@ -468,7 +468,7 @@ var
   lNeedDestructor: Boolean;
   lBaseClassName: String;
 begin
-  lNeedDestructor := False;
+  lNeedDestructor := false;
   for lCtr := 0 to AClassDef.ClassMapping.PropMappings.Count-1 do
     begin
       lMapping := AClassDef.ClassMapping.PropMappings.Items[lCtr];
@@ -1308,7 +1308,7 @@ begin
       if AClassDef.ClassMapping.OIDType = otString then
         WriteLine('Criteria.AddEqualTo(''' + AClassDef.ClassMapping.PKField + ''', AOID);', ASL)
       else
-        WriteLine('Criteria.AddEqualTo(''' + AClassDef.ClassMapping.PKField + ''', StrToInt(AOID));', ASL);
+        WriteLine('Criteria.AddEqualTo(''' + AClassDef.ClassMapping.PKField + ', StrToInt(AOID));', ASL);
 
       WriteLine('Read;', ASL);
       WriteLine('result := Count;', ASL);
@@ -1537,6 +1537,7 @@ var
   lSL: TStringList;
   lUnit: TMapUnitDef;
 begin
+
   BaseDir := ADirectory;
   tiForceDirectories1(BaseDir);
 
@@ -1559,6 +1560,7 @@ var
   lCtr: Integer;
   lUnit: TMapUnitDef;
 begin
+
   BaseDir := ADirectory;
   tiForceDirectories1(BaseDir);
 
@@ -1573,6 +1575,7 @@ begin
       WriteUnit(lUnit, ASL);
       ASL.SaveToFile(BaseDir + PathDelim + lUnit.Name + '.pas');
     end;
+
 end;
 
 procedure TMapperProjectWriter.WritePropGetter(ASL: TStringList;
@@ -1839,6 +1842,8 @@ procedure TMapperProjectWriter.WriteUnit(AUnit: TMapUnitDef; ASL: TStringList);
 var
   lCtr: Integer;
   lClassDef: TMapClassDef;
+  fdc: integer;
+  fduc: integer;
 begin
 
   // Event Notification
@@ -1871,6 +1876,22 @@ begin
     begin
       ASL.Add('type');
       ASL.Add(sLineBreak);
+
+      //Process Forward declares of unit:
+      IncTab;
+        WriteLine('// ---------------------------------------------', ASL);
+        WriteLine('// Forward Declares', ASL);
+        WriteLine('// ---------------------------------------------', ASL);
+      DecTab;
+      for fdc := 0 to AUnit.UnitClasses.Count - 1 do
+      begin
+        if AUnit.UnitClasses[fdc].ForwardDeclare then
+        begin
+          IncTab;
+          WriteLine(AUnit.UnitClasses[fdc].BaseClassName + ' = Class;', ASL);
+          Dectab;
+        end;
+      end;
 
       if AUnit.UnitEnums.Count > 0 then
         begin
@@ -2339,7 +2360,7 @@ begin
   WriteLine('var', ASL);
     IncTab;
       WriteLine('lObj: ' + AClassDef.BaseClassName + ';', ASL);
-      WriteLine('lItemClass: '+AClassDef.BaseClassName+'Class;', ASL);
+      WriteLine('lItemClass : '+AClassDef.BaseClassName+'Class = '+AClassDef.BaseClassName+';', ASL);
       WriteExtraVarsMaybe(ASL, AClassDef);
     DecTab;
   WriteLine('begin', ASL);
