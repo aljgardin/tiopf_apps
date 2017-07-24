@@ -1,0 +1,35 @@
+<project tab-spaces="2" begin-end-tabs="2" visibility-tabs="2" project-name="TIOPF Property Data GUI." outputdir="" enum-type="int">
+  <project-units>
+    <unit name="agtiPropertyGUI">
+      <enums />
+      <classes>
+        <class base-class="TagtiPropertyGUIDef" base-class-parent="TtiObject" auto-map="true" auto-create-list="true">
+          <class-props>
+            <prop name="tiClassName" type="String" />
+            <prop name="tiPropertyName" type="String" />
+            <prop name="GUILabelCaption" type="String" />
+            <prop name="GUIEditLengthChars" type="Integer" />
+            <prop name="GUIEditLengthPixels" type="Integer" />
+            <prop name="IsReadOnly" type="Boolean" />
+            <prop name="FieldName" type="String" />
+            <prop name="FieldLength" type="Integer" />
+            <prop name="LanguageID" type="Integer" />
+          </class-props>
+          <validators />
+          <mapping table="MGPropertyGUIDefs" pk="OID" pk-field="OID" oid-type="string">
+            <prop-map prop="tiClassName" field="tiClassName" type="String" />
+            <prop-map prop="tiPropertyName" field="tiPropertyName" type="String" />
+            <prop-map prop="GUILabelCaption" field="GUILabelCaption" type="String" />
+            <prop-map prop="GUIEditLengthChars" field="GUIEditLengthChars" type="Integer" />
+            <prop-map prop="GUIEditLengthPixels" field="GuiEditLengthPixels" type="Integer" />
+            <prop-map prop="IsReadOnly" field="IsReadOnly" type="Boolean" />
+            <prop-map prop="FieldName" field="FieldName" type="String" />
+            <prop-map prop="FieldLength" field="FieldName" type="Integer" />
+            <prop-map prop="LanguageID" field="LanguageID" type="Integer" />
+          </mapping>
+          <selections />
+        </class>
+      </classes>
+    </unit>
+  </project-units>
+</project>
