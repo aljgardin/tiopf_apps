@@ -357,16 +357,28 @@ inherited dlgClassEdit: TdlgClassEdit
     Left = 40
     Top = 336
     object miClassPropertyAdd: TMenuItem
-      Action = MGMainForm.actClassPropertyAdd
+      Caption = 'Add Property'
     end
     object miClassPropertyEdit: TMenuItem
-      Action = MGMainForm.actClassPropertyEdit
+      Caption = 'Edit Property'
     end
     object MenuItem2: TMenuItem
-      Action = MGMainForm.actClassPropertyDelete
+      Caption = 'Delete Property'
     end
     object miClassPropertyDebug: TMenuItem
-      Action = MGMainForm.actClassPropertyDebug
+      Caption = 'Class Property: AsDebugString'
+    end
+  end
+  object ActionList1: TActionList[5]
+    Left = 171
+    Top = 342
+    object actClassPropertiesAdd: TAction
+      Category = 'ClassProperties'
+      Caption = 'Add Class Property'
+      OnExecute = actClassPropertiesAddExecute
+    end
+    object Action1: TAction
+      Caption = 'Action1'
     end
   end
 end

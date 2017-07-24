@@ -6,13 +6,17 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, Grids, Menus, frmDefault, tiObject, Mapper, tiModelMediator;
+  StdCtrls, ComCtrls, Grids, Menus, ActnList, frmDefault, tiObject, Mapper,
+  tiModelMediator, agtiPropertyGUIManager;
 
 type
 
   { TdlgClassEdit }
 
   TdlgClassEdit = class(TDefaultForm)
+    actClassPropertiesAdd: TAction;
+    Action1: TAction;
+    ActionList1: TActionList;
     cbDefType: TComboBox;
     cbOIDType: TComboBox;
     chbxAutoCreateBase: TCheckBox;
@@ -50,6 +54,7 @@ type
     tsSelections: TTabSheet;
     tsValidators: TTabSheet;
 
+    procedure actClassPropertiesAddExecute(Sender: TObject);
     procedure sgPropertiesSelection(Sender: TObject; aCol, aRow: Integer);
   private
 
@@ -84,6 +89,19 @@ begin
   //UpdateUnitChangeMediators;
 end;
 
+procedure TdlgClassEdit.actClassPropertiesAddExecute(Sender: TObject);
+var
+  aClassProp: TMapClassProp;
+begin
+  //Log('procedure TdlgClassEdit.actClassPropertiesAddExecute(Sender: TObject); Called.');
+
+  if mProperties.SelectedObject[sgProperties] <> nil then
+  begin
+
+  end;
+
+end;
+
 procedure TdlgClassEdit.SetData(AValue: TtiObject);
 begin
   inherited SetData(AValue);
@@ -92,6 +110,8 @@ begin
 end;
 
 procedure TdlgClassEdit.SetupMediators(AValue: TtiObject);
+var
+  compstr: string;
 begin
   //AddComposite('<Fieldname>(<length>,"<Display>")', <GUIComponent>);
 
@@ -128,9 +148,14 @@ begin
 
   //TMapClassPropList
   if Not(Assigned(mProperties)) then
+  begin
     mProperties := TtiModelMediator.Create(self);
-  { TODO : Direct to Propertydatamanager }
-  //  mProperties.AddComposite(Manager.ClassPropertyDefCols, sgProperties);
+    { TODO : Direct to Propertydatamanager }
+    compstr := gPropertyGUIManager.GetCompositeStr(TMapClassProp);
+    mProperties.AddComposite(compstr, sgProperties);
+  end;
+
+  mProperties.Active := false;
   mProperties.Subject := TMapClassDef(AValue).ClassProps;
   mProperties.Active := true;
 

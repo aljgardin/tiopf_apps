@@ -14,13 +14,16 @@ uses
   , Dialogs
   , StdCtrls
   , ExtCtrls
-  , Spin, ComCtrls, Menus, Grids
+  , Spin
+  , ComCtrls
+  , Menus
+  , Grids
   , Mapper
+  , Test_GMapper
   , mgDataManager
   , mgView
   , tiModelMediator
   , tiListMediators
-//  , MapProjectAdd_Model
   ;
 
 type
@@ -67,7 +70,7 @@ type
 
     procedure SetupMediators;
 
-    function MapProject: TMapProject;
+    function MapProject: TGMapProject;
     function Manager: TMGDataManager;
 
   public
@@ -158,7 +161,7 @@ begin
 
 end;
 
-function TdlgProjectSettings.MapProject: TMapProject;
+function TdlgProjectSettings.MapProject: TGMapProject;
 begin
   result := gMGManager.MapProject;
 end;

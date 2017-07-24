@@ -9,12 +9,14 @@ unit mgView;
 interface
 
 uses
-  //Classes
-  //, SysUtils
-  tiMediators
+  Classes
+  //,SysUtils
+  ,tiMediators
   , tiListMediators
   , typinfo
-  , agtiPropertyGUIManager;
+  , agtiPropertyGUIManager
+  , Test_GMapper
+  , mapper;
 
 type
 //   declare your mediator view classes here:
@@ -49,7 +51,13 @@ type
   TMapProject_Filename_TLabel_Mediator = class(TtiStaticTextMediatorView)
   end;
 
+  { TMapProject_Units_TStringGrid_Mediator }
+
   TMapProject_Units_TStringGrid_Mediator = class(TtiStringGridMediatorView)
+  protected
+
+  public
+    procedure HandleSelectionChanged; override;//virtual; // Called from the GUI to trigger events
   end;
 
   TMapProject_Classes_TStringgrid_Mediator = class(TtiStringgridMediatorView)
@@ -88,8 +96,8 @@ type
 implementation
 
 uses
-  Mapper
-  , tiBaseMediator
+//  Mapper
+  tiBaseMediator
   , stdctrls
   , dialogs
   ;
@@ -103,29 +111,36 @@ begin
   // Specific
   //ie..gMediatorManager.RegisterMediator(TPerson_Name_Memo_Mediator, TPerson, 'Name');
   //Project:
-  gMediatorManager.RegisterMediator(TMapProject_ProjectName_TEdit_Mediator, TMapProject, 'ProjectName' );
-  gMediatorManager.RegisterMediator(TMapProject_ProjectName_TLabel_Mediator, TMapProject, 'ProjectName');
-  gMediatorManager.RegisterMediator(TMapProject_Filename_Tedit_Mediator, TMapProject, 'Filename');
-  gMediatorManager.RegisterMediator(TMapProject_Filename_TLabel_Mediator, TMapProject, 'Filename');
+  gMediatorManager.RegisterMediator(TMapProject_ProjectName_TEdit_Mediator, TGMapProject, 'ProjectName' );
+  gMediatorManager.RegisterMediator(TMapProject_ProjectName_TLabel_Mediator, TGMapProject, 'ProjectName');
+  gMediatorManager.RegisterMediator(TMapProject_Filename_Tedit_Mediator, TGMapProject, 'Filename');
+  gMediatorManager.RegisterMediator(TMapProject_Filename_TLabel_Mediator, TGMapProject, 'Filename');
   //Unit:
   gMediatorManager.RegisterMediator(TMapProject_Unit_Name_TLabel_Mediator, TMapUnitDef, 'Name');
 
   //StringGrid Mediators:
   //gMediatorManager.RegisterMediator(TMapProject_ClassProperties_StringGrid_Mediator, TMapClassDef);
-  gMediatorManager.RegisterMediator(TMapProject_Units_TStringGrid_Mediator, TMapProject, 'Units');
+  gMediatorManager.RegisterMediator(TMapProject_Units_TStringGrid_Mediator, TGMapProject, 'Units');
   gMediatorManager.RegisterMediator(TMapProject_Classes_TStringgrid_Mediator, TMapClassDefList);
   gMediatorManager.RegisterMediator(TMapProject_Unit_Enumerations_StringGrid_Mediator, TMapEnumList);
-  gMediatorManager.RegisterMediator(TMapProject_Unit_References_StringGrid_Mediator, TMGReferenceList);
-  gMediatorManager.RegisterMediator(TMapProject_IncludeFiles_StringGrid_Mediator, TMapProject, 'IncludeFiles' );
+  gMediatorManager.RegisterMediator(TMapProject_Unit_References_StringGrid_Mediator, TGMapUnitReferenceList);
+  gMediatorManager.RegisterMediator(TMapProject_IncludeFiles_StringGrid_Mediator, TGMapProject, 'IncludeFiles' );
 
 
   // Enumeration mediators:
-  gMediatorManager.RegisterMediator(TEnumComboBox_Mediator, TMapProject, 'EnumType');
+  gMediatorManager.RegisterMediator(TEnumComboBox_Mediator, TGMapProject, 'EnumType');
   gMediatorManager.RegisterMediator(TEnumComboBox_Mediator, TMapClassDef, 'DefType');
   gMediatorManager.RegisterMediator(TEnumComboBox_Mediator, TFilterDef, 'FilterType');
   gMediatorManager.RegisterMediator(TEnumComboBox_Mediator, TClassMapping, 'OIDType');
   gMediatorManager.RegisterMediator(TEnumComboBox_Mediator, TMapValidator, 'ValidatorType');
 
+end;
+
+{ TMapProject_Units_TStringGrid_Mediator }
+
+procedure TMapProject_Units_TStringGrid_Mediator.HandleSelectionChanged;
+begin
+  ShowMessage('Stringgrid Selection change.');
 end;
 
 { TEnumCombobox_Mediator }

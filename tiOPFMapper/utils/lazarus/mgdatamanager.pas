@@ -12,6 +12,7 @@ uses
   {$ENDIF}
   Dialogs,  //LCL
   Controls,  //LCL
+  stdCtrls,
   typinfo,
   TiObject,
   tiopfManager,
@@ -22,7 +23,11 @@ uses
   tiLogToFile,
   tiLogToDebugSvr,
   agtiPropertyGUIManager,
-  Mapper;
+  Mapper,
+  Test_GMapper,
+  agtifpc_schema_Reader,
+  agtiMapper_Project_Writer,
+  mgView;
 
 type
 
@@ -30,46 +35,46 @@ type
 
   TMGDataManager = class(TtiObject)
   private
-    FCurrentUnit: TMapUnitDef;
-    FDummyUnit: TMapUnitDef;
-    FCurrentClass: TMapClassDef;
+    FDUmmyProject: TGMapProject;
+    FDummyUnit: TGMapUnitDef;
     FDummyClass: TMapClassDef;
+    FDummyProperty: TMapClassProp;
     FData: TtiObject;
     FDataBuffer: TtiObject;
     FFilename: String;
-    function GetCurrentClass: TMapClassDef;
-    function GetCurrentUnit: TMapUnitDef;
-    procedure SetCurrentClass(AValue: TMapClassDef);
-    procedure SetCurrentUnit(AValue: TMapUnitDef);
+    procedure SetDummyUnit(AValue: TGMapUnitDef);
     procedure SetFilename(AValue: String);
     procedure SetData(AValue: TtiObject);
-    procedure SetMapProject(AValue: TMapProject);
+    procedure SetMapProject(AValue: TGMapProject);
 
   protected
-    FMapProject: TMapProject;
+    FMapProject: TGMapProject;
 
     property DataBuffer: TtiObject read FDataBuffer write FDataBuffer;
-    function DataEdited: Boolean;
     procedure SetBuffer;
+
+    procedure NewDummyProject;
+    procedure NewDummyUnit;
+    procedure NewDummyClass;
+    procedure NewDummyProperty;
+    procedure NewDummyAll;
 
     //Override these methods in descendants:
     function DoSaveData: Boolean; virtual;  //override to save data.
     function DoSaveDataAs: Boolean; virtual;  //override to save data.
     function DoOpenData(aFilename: String): Boolean; Virtual;  //override to open-load data.
-    procedure QuerySaveData; virtual;  //on close, open new check to save data.
 
-    //Call These normally, Move to Public when ready.
-    procedure SaveData;
-    procedure SaveDataAs(aFilename: String);
-    procedure OpenData(aFilename: String);
+
+    procedure ClearAll;
+
+    procedure SetupTestProject;
 
   public
 //    property Data: TtiObject read FData write SetData;
-    property MapProject: TMapProject read FMapProject write SetMapProject;
+    property MapProject: TGMapProject read FMapProject write SetMapProject;
     property Filename: String read FFilename write SetFilename;
 
-    property CurrentUnit: TMapUnitDef read GetCurrentUnit write SetCurrentUnit;
-    property CurrentClass: TMapClassDef read GetCurrentClass write SetCurrentClass;
+    property DummyUnit: TGMapUnitDef read FDummyUnit write SetDummyUnit;
 
     procedure Log(const AMessage : string;
                   const ASeverity : TtiLogSeverity = lsNormal);// overload;
@@ -77,12 +82,18 @@ type
                   const AArray : Array of Const;
                   const ASeverity : TtiLogSeverity = lsNormal);// overload;
 
+    function ProjectActive: Boolean;
+
     Constructor Create; Override;
     Destructor Destroy; Override;
 
-    function ProjectActive: Boolean;
-    function UnitActive: Boolean;
-    function ClassActive: Boolean;
+    //Call These normally, Move to Public when ready.
+    procedure SaveData;
+    procedure SaveDataAs(aFilename: String);
+    procedure OpenData(aFilename: String);
+    function QuerySaveData: Boolean; virtual;  //on close, open new check to save data.
+
+    function IsDataEdited: Boolean;
 
   published
 
@@ -97,72 +108,18 @@ implementation
 uses
   frmMGMain;
 
-{ tagiDefaultManager }
-
 procedure TMGDataManager.SetFilename(AValue: String);
 begin
-  Log('TMGDataManager.SetFilename(String); Fired.');
+  Log('TMGDataManager.SetFilename(String); Fired.' +
+    ':: AValue: String = ' + AValue + '  FFilename = ' + FFileName);
   if FFilename = AValue then Exit;
   FFilename := AValue;
 end;
 
-procedure TMGDataManager.SetCurrentUnit(AValue: TMapUnitDef);
+procedure TMGDataManager.SetDummyUnit(AValue: TGMapUnitDef);
 begin
-  Log('procedure TMGDataManager.SetCurrentUnit(AValue: TMapUnitDef); Called.');
-  if FCurrentUnit = AValue then Exit;
-  FCurrentUnit := AValue;
-end;
-
-function TMGDataManager.GetCurrentClass: TMapClassDef;
-var
-  cci: integer;
-begin
-  Log('function TMGDataManager.GetCurrentClass: TMapClassDef; Called.');
-  // Return dummy class or Selected class.
-  if Not(assigned(MGMainForm)) or (MGMainForm = nil) then
-  begin
-    raise Exception.Create('MGMainForm not Assigned or nil.  In function TMGDataManager.GetCurrentClass: TMapClassDef;');
-    result := FDummyClass;
-    exit;
-  end;
-
-  cci := MGMainForm.GetSelectedClassIDX;
-  if cci < 0 then
-    FCurrentClass := FDUmmyClass
-  else
-    FCurrentClass := GetCurrentUnit.UnitClasses[cci];
-
-  result := FCurrentClass;
-end;
-
-function TMGDataManager.GetCurrentUnit: TMapUnitDef;
-var
-  cui: Integer;
-begin
-  Log('function TMGDataManager.GetCurrentUnit: TMapUnitDef; Called.');
-  { TODO : SHould this check be donw somewhere else? }
-
-  if Not(assigned(MGMainForm)) or (MGMainForm = nil) then
-  begin
-    raise Exception.Create('MGMainForm not Assigned or nil.  In function TMGDataManager.GetCurrentUnit: TMapUnitDef;');
-    result := FDummyUnit;
-    exit;
-  end;
-
-  cui := MGMainForm.GetSelectedUnitIDX;
-  if cui < 0 then
-    FCurrentUnit := FDummyUnit
-  else
-    FCurrentUnit := MapProject.Units[cui];
-
-  result := FCurrentUnit;
-end;
-
-procedure TMGDataManager.SetCurrentClass(AValue: TMapClassDef);
-begin
-  Log('procedure TMGDataManager.SetCurrentClass(AValue: TMapClassDef); Called.');
-  if FCurrentClass = AValue then exit;
-  FCurrentClass := AValue;
+  if FDummyUnit = AValue then Exit;
+  FDummyUnit := AValue;
 end;
 
 procedure TMGDataManager.SetData(AValue: TtiObject);
@@ -174,90 +131,188 @@ end;
 
 function TMGDataManager.ProjectActive: Boolean;
 begin
-  if Length(MapProject.FileName) > 5 then
+  Log('function TMGDataManager.ProjectActive: Boolean; Called.');
+  if (Length(MapProject.FileName) > 4) and (MapProject.FileName <> 'Not Assigned') then
     Result := true
   else
     result := false;
 end;
 
-function TMGDataManager.UnitActive: Boolean;
-begin
-  if CurrentUnit.Name = 'Not Assigned' then
-    result := false
-  else
-    result := true;
-end;
-
-function TMGDataManager.ClassActive: Boolean;
-begin
-  if CurrentClass.BaseClassName = 'Not Assigned' then
-    result := false
-  else
-    result := true;
-end;
-
-procedure TMGDataManager.SetMapProject(AValue: TMapProject);
+procedure TMGDataManager.SetMapProject(AValue: TGMapProject);
 begin
   Log('procedure TMGDataManager.SetMapProject(AValue: TMapProject); Called.');
   if FMapProject = AValue then Exit;
   FMapProject := AValue;
 end;
 
-function TMGDataManager.DataEdited: Boolean;
+function TMGDataManager.IsDataEdited: Boolean;
 begin
-  Log('TMGDataManager.DataEdited; Fired.');
+  Log('TMGDataManager.IsDataEdited; Fired.');
   result := not FData.Equals(FDataBuffer);
 end;
 
 function TMGDataManager.DoSaveData: Boolean;
 begin
   Log('TMGDataManager.DoSaveData; Fired.');
-  result := false;
+  result := true;
 end;
 
 function TMGDataManager.DoSaveDataAs: Boolean;
 begin
   Log('TMGDataManager.DoSaveDataAs; Fired.');
-  result := false;
+  result := true;
 end;
 
 function TMGDataManager.DoOpenData(aFilename: String): Boolean;
 begin
   Log('TMGDataManager.DoOpenData(String); Fired.');
-  result := false;
+  result := true;
 end;
 
-procedure TMGDataManager.QuerySaveData;
+function TMGDataManager.QuerySaveData: Boolean;
 begin
   Log('TMGDataManager.QuerySaveData; Fired.');
   if Dialogs.QuestionDlg('Data Not Saved.', 'Data has not been saved.  Save Data Now?', mtCustom, [mrYes, mrNo], '') = mrYes then
     SaveData;
 end;
 
+procedure TMGDataManager.ClearAll;
+begin
+  Log('procedure TMGDataManager.ClearAll; Called.');
+  //Clears all data.  Dummy's and main data.
+  FMapProject.ClearAll;
+  NewDummyAll;
+end;
+
+procedure TMGDataManager.SetupTestProject;
+var
+  iu, ic, ie, ir, icp: Integer;
+  mu: TGMapUnitDef;
+  uclass: TMapClassDef;
+  ue: TMapEnum;
+  ur: TGMapUnitReference;
+  cp: TMapClassProp;
+
+  type
+  rName = record
+    Name: String;
+  end;
+
+  const
+  crNames: Array[1..5] of rName = (
+    (name: 'One'),
+    (name: 'Two'),
+    (name: 'Three'),
+    (name: 'Four'),
+    (name: 'Five'));
+
+begin
+  for iu := Low(crNames) to High(crNames) do
+  begin
+    mu := TGMapUnitDef.Create;
+    mu.Name := 'u' + crNames[iu].name;
+
+    MapProject.Units.Add(mu);
+
+    for ic := Low(crNames) to High(crNames) do
+    begin
+      uclass := TMapClassDef.Create;
+      uclass.BaseClassName := mu.Name + 'c' + crNames[ic].name;
+
+      for icp := Low(crNames) to High(crNames) do
+      begin
+        cp := TMapClassProp.Create;
+        cp.Name := 'c' + crNames[icp].name + '_' + uclass.BaseClassName;
+        cp.PropertyType := ptString;
+
+        uclass.ClassProps.Add(cp);
+      end;
+
+      mu.UnitClasses.Add(uclass);
+    end;
+
+    for ie := Low(crNames) to High(crNames) do
+    begin
+      ue := TMapEnum.Create;
+      ue.EnumName := 'e' + crNames[ie].name;
+
+      mu.UnitEnums.Add(ue);
+    end;
+
+    for ir := Low(crNames) to High(crNames) do
+    begin
+      ur := TGMapUnitReference.Create;
+      ur.Reference := 'ref' + crNames[ir].name;
+
+      mu.UnitReferences.Add(ur);
+    end;
+  end;
+end;
+
 procedure TMGDataManager.SaveData;
+var
+  fsw: TagtiProjectWriter;
 begin
   Log('TMGDataManager.SaveData; Fired.');
   if DoSaveData then
   begin
-    SetBuffer;
+    try
+      fsw := TagtiProjectWriter.Create;
+      fsw.WriteProject(MapProject, MapProject.FileName);
+      SetBuffer;
+    finally
+      fsw.Free;
+    end;
   end;
 end;
 
 procedure TMGDataManager.SaveDataAs(aFilename: String);
+var
+  fsw: TagtiProjectWriter;
 begin
-  Log('TMGDataManager.SaveDataAs(String); Fired.');
-  if DoSaveDataAs then
+  Log('TMGDataManager.SaveData; Fired.');
+  if DoSaveData then
   begin
-    SetBuffer;
+    try
+      fsw := TagtiProjectWriter.Create;
+      fsw.WriteProject(MapProject, aFilename);
+{ TODO : Ask to change project filename }
+      SetBuffer;
+    finally
+      fsw.Free;
+    end;
   end;
 end;
 
 procedure TMGDataManager.OpenData(aFilename: String);
+var
+  fsr: TagtiFPCSchemaXMLReader;
+  c: Integer;
+  s: string;
 begin
   Log('TMGDataManager.OpenData(String); Fired.');
   if DoOpenData(aFilename) then
   begin
+    if IsDataEdited then
+      QuerySaveData;
+
+    MapProject.ClearAll;
+    fsr := TagtiFPCSchemaXMLReader.Create;
+    fsr.ReadSchema(MapProject, aFilename);
+    fsr.Free;
     SetBuffer;
+
+    MapProject.NotifyObservers();
+    MapProject.Units.NotifyObservers();
+
+    {$IFDEF DEBUG}
+    s := MapProject.Units.AsDebugString();
+    if MapProject.Units.Count > 0 then
+    begin
+      s := s + #10#13 + MapProject.Units[0].AsDebugString();
+    end;
+    ShowMessage(s);
+    {$ENDIF}
   end;
 end;
 
@@ -267,6 +322,55 @@ begin
   FreeAndNil(FDataBuffer);
   if FData <> nil then
     FDataBuffer := FData.Clone;
+end;
+
+procedure TMGDataManager.NewDummyProject;
+begin
+  Log('procedure TMGDataManager.NewDummyProject; Called.');
+  if Not(Assigned(FDummyProject)) then
+    FDummyProject := TGMapProject.Create;
+
+  FDummyProject.FileName := 'Not Assigned';
+  FDummyProject.NotifyObservers();
+end;
+
+procedure TMGDataManager.NewDummyUnit;
+begin
+  Log('procedure TMGDataManager.NewDummyUnit; Called.');
+  if not(Assigned(FDummyUnit)) then
+    FDummyUnit := TGMapUnitDef.Create;
+
+  FDummyUnit.Name := 'Not Assigned';
+  FDummyUnit.NotifyObservers();
+end;
+
+procedure TMGDataManager.NewDummyClass;
+begin
+  Log('procedure TMGDataManager.NewDummyClass; Called.');
+  if Not(Assigned(FDummyClass)) then
+    FDummyClass := TMapClassDef.Create;
+
+  FDummyClass.BaseClassName := 'Not Assigned';
+  FDummyClass.NotifyObservers();
+end;
+
+procedure TMGDataManager.NewDummyProperty;
+begin
+  Log('procedure TMGDataManager.NewDummyProperty; Called.');
+  if Not(Assigned(FDummyProperty)) then
+    FDummyProperty := TMapClassProp.Create;
+
+  FDummyProperty.Name := 'Not Assigned';
+  FDummyProperty.NotifyObservers();
+end;
+
+procedure TMGDataManager.NewDummyAll;
+begin
+  Log('procedure TMGDataManager.NewDummyAll; Called.');
+  NewDummyProject;
+  NewDummyUnit;
+  NewDummyClass;
+  NewDummyProperty;
 end;
 
 procedure TMGDataManager.Log(const AMessage: string;
@@ -282,27 +386,34 @@ begin
 end;
 
 constructor TMGDataManager.Create;
+var
+  logfile: String;
 begin
   inherited Create;
 
-  FMapProject := TMapProject.Create;
+  FMapProject := TGMapProject.Create;
   FData := FMapProject;
   SetBuffer;
 
-  FDummyUnit := TMapUnitDef.Create;
-  FDummyUnit.Name := 'Not Assigned';
-  FDummyClass := TMapClassDef.Create;
-  FDummyClass.BaseClassName := 'Not Assigned';
+  {$ifdef debug}
+  FMapProject.FileName := 'TestProject.xml';
+  FMapProject.ProjectName := 'Test Project';
+
+  SetupTestProject;
+  {$endif}
+
+  NewDummyAll;
 
   // Logging
   //csLog         = 'l'; // Command line parameter to turn logging on (default log to file)
   //csLogVisual   = 'lv'; // Command line parameter to turn visual logging on
   //csLogConsole  = 'lc'; // Command line parameter to turn console logging on
   //csLogDebugSvr = 'ls'; // Command line parameter to turn debug server logging on
+  logfile := ChangeFileExt(ExtractFilename(Application.ExeName), '.log');
   if gCommandLineParams.IsParam(csLogConsole) then
     gLog.RegisterLog(TtiLogToConsole);
   if gCommandLineParams.IsParam(csLog) then
-    gLog.RegisterLog(TtiLogToFile.CreateWithFileName('',ExtractFilename(Application.ExeName), True));
+    gLog.RegisterLog(TtiLogToFile.CreateWithFileName('',logfile, True));
   if gCommandLineParams.IsParam(csLogVisual) then
     gLog.RegisterLog(TtiLogToGUI.Create);
   if gCommandLineParams.IsParam(csLogDebugSvr) then
@@ -314,7 +425,7 @@ destructor TMGDataManager.Destroy;
 begin
   Log('TMGDataManager.Destroy; Fired.');
 
-  if DataEdited then
+  if IsDataEdited then
     QuerySaveData;
 
   FreeAndNil(FMapProject);

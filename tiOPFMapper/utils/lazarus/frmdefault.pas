@@ -20,6 +20,8 @@ uses
   , tiModelMediator
   , tiMediators
   , tiListMediators
+  , MGDataManager
+  , agtiPropertyGUIManager
   ;
 
 type

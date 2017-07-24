@@ -17,7 +17,6 @@ object MGMainForm: TMGMainForm
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   ShowHint = True
-  LCLVersion = '1.7'
   Visible = False
   object pnlUnits: TPanel
     Left = 0
@@ -49,6 +48,7 @@ object MGMainForm: TMGMainForm
       Top = 16
       Width = 236
       Align = alClient
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goColMoving, goSmoothScroll]
       PopupMenu = pmUnits
       TabOrder = 1
       TitleFont.CharSet = ANSI_CHARSET
@@ -56,7 +56,7 @@ object MGMainForm: TMGMainForm
       TitleFont.Name = 'Times New Roman'
       TitleFont.Pitch = fpVariable
       TitleFont.Quality = fqDraft
-      OnDblClick = actUnitEditExecute
+      OnDblClick = actUnitRenameExecute
       OnSelection = sgUnitsSelection
     end
   end
@@ -145,14 +145,14 @@ object MGMainForm: TMGMainForm
       Height = 419
       Top = 18
       Width = 699
-      ActivePage = tsClasses
+      ActivePage = tsEnum
       Align = alClient
-      TabIndex = 0
+      TabIndex = 1
       TabOrder = 1
       object tsClasses: TTabSheet
         Caption = 'Classes'
-        ClientHeight = 782
-        ClientWidth = 1382
+        ClientHeight = 391
+        ClientWidth = 691
         object sgClasses: TStringGrid
           Left = 0
           Height = 391
@@ -172,8 +172,8 @@ object MGMainForm: TMGMainForm
       end
       object tsEnum: TTabSheet
         Caption = 'Enumerations'
-        ClientHeight = 1564
-        ClientWidth = 2764
+        ClientHeight = 391
+        ClientWidth = 691
         ParentFont = False
         object sgEnumerations: TStringGrid
           Left = 0
@@ -181,13 +181,14 @@ object MGMainForm: TMGMainForm
           Top = 0
           Width = 691
           Align = alClient
+          PopupMenu = pmEnumerations
           TabOrder = 0
         end
       end
       object tsReferences: TTabSheet
         Caption = 'References'
-        ClientHeight = 1564
-        ClientWidth = 2764
+        ClientHeight = 391
+        ClientWidth = 691
         object sgReferences: TStringGrid
           Left = 0
           Height = 391
@@ -323,25 +324,42 @@ object MGMainForm: TMGMainForm
         Caption = '&Paste'
         ShortCut = 16470
       end
-    end
-    object miProjectSettings: TMenuItem
-      Action = actProjectSettings
+      object miPreferences: TMenuItem
+        Action = actAppPreferences
+      end
+      object miProjectSettings: TMenuItem
+        Action = actProjectSettings
+      end
     end
     object miGenerate: TMenuItem
       Caption = '&Generate'
-      OnClick = miGenerateClick
     end
     object MenuItem2: TMenuItem
       Caption = 'Setup Pers'
     end
     object miAsDebugString: TMenuItem
-      Action = actProjectAsDebugString
-    end
-    object miunitAsDebugString: TMenuItem
-      Action = actUnitAsDebugString
+      Caption = 'Debug'
+      object MenuItem6: TMenuItem
+        Action = actProjectAsDebugString
+      end
+      object MenuItem7: TMenuItem
+        Action = actUnitAsDebugString
+      end
     end
     object miFont: TMenuItem
       Action = actProjectFont
+    end
+    object MenuItem8: TMenuItem
+      Caption = 'Show'
+      object MenuItem9: TMenuItem
+        Action = actShowViewCodeForm
+      end
+    end
+    object miSelectedUnit: TMenuItem
+      Caption = 'SelectedUnit='
+    end
+    object miUnitCount: TMenuItem
+      Action = actUnitCount
     end
   end
   object alMain: TActionList
@@ -367,6 +385,7 @@ object MGMainForm: TMGMainForm
       HelpKeyword = 'Save Project'
       Hint = 'Save Project|Save the current project.'
       OnExecute = actProjectSaveExecute
+      OnUpdate = actProjectSaveUpdate
       Visible = False
     end
     object actProjectSaveAs: TAction
@@ -375,6 +394,7 @@ object MGMainForm: TMGMainForm
       HelpKeyword = 'Save Project As'
       Hint = 'Save Project As|Save Current Project As Specific filename.'
       OnExecute = actProjectSaveAsExecute
+      OnUpdate = actProjectSaveAsUpdate
       Visible = False
     end
     object actProjectRecent: TAction
@@ -383,14 +403,17 @@ object MGMainForm: TMGMainForm
       HelpKeyword = 'Recent Projects'
       Hint = 'Recent Projects|Load Recently saved project.'
       OnExecute = actProjectRecentExecute
+      OnUpdate = actProjectRecentUpdate
     end
     object actEnvironmentVars: TAction
       Caption = 'Environment Variables'
+      OnExecute = actEnvironmentVarsExecute
     end
     object actProjectClose: TAction
       Category = 'Project'
       Caption = 'Close Project'
       OnExecute = actProjectCloseExecute
+      OnUpdate = actProjectCloseUpdate
     end
     object actProjectExit: TAction
       Category = 'Project'
@@ -401,11 +424,13 @@ object MGMainForm: TMGMainForm
       Category = 'Project'
       Caption = 'Project Settings'
       OnExecute = actProjectSettingsExecute
+      OnUpdate = actProjectSettingsUpdate
     end
     object actProjectAsDebugString: TAction
       Category = 'Project'
       Caption = 'Project: As Debug String'
       OnExecute = actProjectAsDebugStringExecute
+      OnUpdate = actProjectAsDebugStringUpdate
     end
     object actUnitAdd: TAction
       Category = 'Unit'
@@ -458,23 +483,7 @@ object MGMainForm: TMGMainForm
       Category = 'Classes'
       Caption = 'Delete Class'
       OnExecute = actClassesDeleteExecute
-    end
-    object actIncludesAdd: TAction
-      Category = 'Includes'
-      Caption = 'Add Include'
-      OnExecute = actIncludesAddExecute
-    end
-    object actIncludesEdit: TAction
-      Category = 'Includes'
-      Caption = 'Edit Include'
-    end
-    object actIncludesDelete: TAction
-      Category = 'Includes'
-      Caption = 'Delete Include'
-    end
-    object actIncludesDebug: TAction
-      Category = 'Includes'
-      Caption = 'Includes: As Debug String'
+      OnUpdate = actClassesDeleteUpdate
     end
     object actClassesDebug: TAction
       Category = 'Classes'
@@ -482,28 +491,80 @@ object MGMainForm: TMGMainForm
       OnExecute = actClassesDebugExecute
       OnUpdate = actClassesDebugUpdate
     end
-    object actClassPropertyAdd: TAction
-      Category = 'ClassProperties'
-      Caption = 'Add Property'
-      OnExecute = actClassPropertyAddExecute
-    end
-    object actClassPropertyEdit: TAction
-      Category = 'ClassProperties'
-      Caption = 'Edit Property'
-    end
-    object actClassPropertyDelete: TAction
-      Category = 'ClassProperties'
-      Caption = 'Delete Property'
-    end
-    object actClassPropertyDebug: TAction
-      Category = 'ClassProperties'
-      Caption = 'Class Property: AsDebugString'
-    end
     object actClassesSort: TAction
       Category = 'Classes'
       Caption = 'Sort Classes'
       OnExecute = actClassesSortExecute
       OnUpdate = actClassesSortUpdate
+    end
+    object actAppPreferences: TAction
+      Category = 'App'
+      Caption = 'Preferences'
+      OnExecute = actAppPreferencesExecute
+    end
+    object actProjectGenerateInternal: TAction
+      Category = 'Project'
+      Caption = 'Generate: Internal'
+      OnExecute = actProjectGenerateInternalExecute
+    end
+    object actShowViewCodeForm: TAction
+      Category = 'Form'
+      Caption = 'Show View Code Form'
+      OnExecute = actShowViewCodeFormExecute
+    end
+    object actUnitCount: TAction
+      Category = 'Unit'
+      Caption = 'Unit Count ='
+      OnExecute = actUnitCountExecute
+      OnUpdate = actUnitCountUpdate
+    end
+    object actEnumerationAdd: TAction
+      Category = 'Enumeration'
+      Caption = 'Add Enumeration'
+      OnExecute = actEnumerationAddExecute
+      OnUpdate = actEnumerationAddUpdate
+    end
+    object actEnumerationEdit: TAction
+      Category = 'Enumeration'
+      Caption = 'Edit Enumeration'
+      OnExecute = actEnumerationEditExecute
+      OnUpdate = actEnumerationEditUpdate
+    end
+    object actEnumerationDelete: TAction
+      Category = 'Enumeration'
+      Caption = 'Delete Enumeration'
+      OnExecute = actEnumerationDeleteExecute
+      OnUpdate = actEnumerationDeleteUpdate
+    end
+    object actEnumerationDebug: TAction
+      Category = 'Enumeration'
+      Caption = 'Enumeration: As Debug String'
+      OnExecute = actEnumerationDebugExecute
+      OnUpdate = actEnumerationDebugUpdate
+    end
+    object actReferenceAdd: TAction
+      Category = 'Reference'
+      Caption = 'Add Reference'
+      OnExecute = actReferenceAddExecute
+      OnUpdate = actReferenceAddUpdate
+    end
+    object actReferenceEdit: TAction
+      Category = 'Reference'
+      Caption = 'Edit Reference'
+      OnExecute = actReferenceEditExecute
+      OnUpdate = actReferenceEditUpdate
+    end
+    object actReferenceDelete: TAction
+      Category = 'Reference'
+      Caption = 'ReferenceDelete'
+      OnExecute = actReferenceDeleteExecute
+      OnUpdate = actReferenceDeleteUpdate
+    end
+    object actReferencesDebug: TAction
+      Category = 'Reference'
+      Caption = 'References: As Debug String'
+      OnExecute = actReferencesDebugExecute
+      OnUpdate = actReferencesDebugUpdate
     end
   end
   object pmUnits: TPopupMenu
@@ -522,7 +583,9 @@ object MGMainForm: TMGMainForm
       Action = actUnitSort
     end
   end
-  object apMain: TApplicationProperties
+  object apMainProps: TApplicationProperties
+    OnActivate = apMainPropsActivate
+    OnIdle = apMainPropsIdle
     Left = 72
     Top = 72
   end
@@ -542,6 +605,7 @@ object MGMainForm: TMGMainForm
   object ODProject: TOpenDialog
     Title = 'Open existing Project'
     DefaultExt = '.xml'
+    FileName = '*.xml'
     Filter = '*.xml'
     Left = 200
     Top = 124
@@ -567,7 +631,23 @@ object MGMainForm: TMGMainForm
       Action = actClassesDelete
     end
     object miClassDebug: TMenuItem
-      Action = actClassPropertyDebug
+      Caption = 'Class Property: AsDebugString'
+    end
+  end
+  object pmEnumerations: TPopupMenu
+    Left = 368
+    Top = 200
+    object miEnumerationAdd: TMenuItem
+      Action = actEnumerationAdd
+    end
+    object miEnumerationEdit: TMenuItem
+      Action = actEnumerationEdit
+    end
+    object miEnumerationDelete: TMenuItem
+      Action = actEnumerationDelete
+    end
+    object miEnumerationDebug: TMenuItem
+      Action = actEnumerationDebug
     end
   end
 end

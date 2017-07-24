@@ -10,6 +10,7 @@ object dlgProjectSettings: TdlgProjectSettings
   ClientWidth = 706
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  LCLVersion = '1.7'
   Visible = False
   object Panel1: TPanel
     Left = 0
@@ -206,13 +207,13 @@ object dlgProjectSettings: TdlgProjectSettings
     Left = 160
     Top = 200
     object miAdd: TMenuItem
-      Action = MGMainForm.actIncludesAdd
+      Caption = 'Add Include'
     end
     object miEdit: TMenuItem
-      Action = MGMainForm.actIncludesEdit
+      Caption = 'Edit Include'
     end
     object miDelete: TMenuItem
-      Action = MGMainForm.actIncludesDelete
+      Caption = 'Delete Include'
     end
   end
 end

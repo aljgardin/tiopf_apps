@@ -20,30 +20,33 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-lv -lc -l"/>
+        <CommandLineParams Value="-l"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="6">
+    <RequiredPackages Count="7">
       <Item1>
-        <PackageName Value="tiopfLCL"/>
+        <PackageName Value="SynEdit"/>
       </Item1>
       <Item2>
-        <PackageName Value="agtipropertymanagerlazr"/>
+        <PackageName Value="agtiMapperGUI_LazR"/>
       </Item2>
       <Item3>
-        <PackageName Value="lazmrumenu"/>
+        <PackageName Value="tiopfLCL"/>
       </Item3>
       <Item4>
-        <PackageName Value="laz_timapper"/>
+        <PackageName Value="lazmrumenu"/>
       </Item4>
       <Item5>
-        <PackageName Value="tiOPF"/>
+        <PackageName Value="laz_timapper"/>
       </Item5>
       <Item6>
-        <PackageName Value="LCL"/>
+        <PackageName Value="tiOPF"/>
       </Item6>
+      <Item7>
+        <PackageName Value="LCL"/>
+      </Item7>
     </RequiredPackages>
-    <Units Count="13">
+    <Units Count="15">
       <Unit0>
         <Filename Value="LazMapperGui.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -115,10 +118,22 @@
         <UnitName Value="frmProjectSettings"/>
       </Unit11>
       <Unit12>
-        <Filename Value="test_gmapper.pas"/>
+        <Filename Value="mgAppPreferences_BOM.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="Test_GMapper"/>
       </Unit12>
+      <Unit13>
+        <Filename Value="uruntimap.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uRunTimap"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="frmviewcode.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="ViewCodeForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="frmViewCode"/>
+      </Unit14>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -156,23 +171,4 @@
       </OtherDefines>
     </Other>
   </CompilerOptions>
-  <Debugging>
-    <Exceptions Count="5">
-      <Item1>
-        <Name Value="EAbort"/>
-      </Item1>
-      <Item2>
-        <Name Value="ECodetoolError"/>
-      </Item2>
-      <Item3>
-        <Name Value="EFOpenError"/>
-      </Item3>
-      <Item4>
-        <Name Value="EtiMediator"/>
-      </Item4>
-      <Item5>
-        <Name Value="Exception"/>
-      </Item5>
-    </Exceptions>
-  </Debugging>
 </CONFIG>
