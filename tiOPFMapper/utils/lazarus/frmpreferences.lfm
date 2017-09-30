@@ -1,0 +1,19 @@
+inherited PreferencesFrm: TPreferencesFrm
+  OnCreate = FormCreate
+  object Label1: TLabel[1]
+    Left = 16
+    Height = 13
+    Top = 16
+    Width = 95
+    Caption = 'tiMap.exe Location:'
+    ParentColor = False
+  end
+  object edttimaplocation: TEdit[2]
+    Left = 16
+    Height = 21
+    Top = 38
+    Width = 464
+    TabOrder = 1
+    Text = 'edttimaplocation'
+  end
+end

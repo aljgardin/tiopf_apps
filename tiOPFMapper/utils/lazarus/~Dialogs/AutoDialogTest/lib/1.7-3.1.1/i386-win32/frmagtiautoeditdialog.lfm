@@ -1,0 +1,101 @@
+inherited agTIAutoEditDialog: TagTIAutoEditDialog
+  Height = 522
+  Width = 535
+  ActiveControl = cbEnterAsTab
+  ClientHeight = 522
+  ClientWidth = 535
+  Font.CharSet = ANSI_CHARSET
+  Font.Height = -21
+  Font.Name = 'Arial'
+  Font.Pitch = fpVariable
+  Font.Quality = fqDraft
+  OnCreate = FormCreate
+  OnKeyPress = FormKeyPress
+  Position = poScreenCenter
+  inherited pnlButtons: TPanel
+    Height = 50
+    Top = 472
+    Width = 535
+    AutoSize = False
+    ClientHeight = 46
+    ClientWidth = 531
+    inherited btnCancel: TButton
+      Left = 434
+      Height = 34
+      Width = 91
+      Action = agTIEditDialog.actCancel
+      Cancel = False
+    end
+    inherited btnOK: TButton
+      Left = 372
+      Height = 34
+      Width = 56
+      Action = agTIEditDialog.actOK
+      Default = False
+    end
+    inherited cbEnterAsTab: TCheckBox
+      Height = 34
+      Width = 140
+      OnChange = nil
+    end
+    inherited btnDebug: TButton
+      Left = 152
+      Height = 34
+      Width = 164
+    end
+  end
+  inherited sbEdit: TScrollBox
+    Height = 472
+    Width = 535
+    HorzScrollBar.Page = 283
+    VertScrollBar.Page = 42
+    ChildSizing.Layout = cclNone
+    ClientHeight = 468
+    ClientWidth = 531
+    PopupMenu = PopupMenu1
+    object Edit1: TEdit[0]
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Side = asrCenter
+      AnchorSideBottom.Side = asrBottom
+      Left = 77
+      Height = 32
+      Top = 4
+      Width = 200
+      TabOrder = 0
+      Text = 'Edit1'
+    end
+    object Label1: TLabel[1]
+      Left = 8
+      Height = 24
+      Top = 8
+      Width = 63
+      Alignment = taRightJustify
+      Caption = 'Label1'
+      ParentColor = False
+    end
+  end
+  inherited EditActionList: TActionList
+    Left = 56
+    Top = 104
+    inherited actOK: TAction
+      Enabled = True
+    end
+    inherited actCancel: TAction
+      Enabled = True
+    end
+  end
+  object FontDialog1: TFontDialog[3]
+    MinFontSize = 0
+    MaxFontSize = 0
+    Left = 136
+    Top = 80
+  end
+  object PopupMenu1: TPopupMenu[4]
+    Left = 136
+    Top = 16
+    object MenuItem1: TMenuItem
+      Caption = 'Font'
+      OnClick = MenuItem1Click
+    end
+  end
+end

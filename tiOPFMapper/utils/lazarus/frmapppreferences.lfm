@@ -1,0 +1,19 @@
+inherited DefaultForm1: TDefaultForm1
+  OnCreate = FormCreate
+  object Label1: TLabel[1]
+    Left = 15
+    Height = 13
+    Top = 23
+    Width = 95
+    Caption = 'tiMap.exe Location:'
+    ParentColor = False
+  end
+  object edttimapLocation: TEdit[2]
+    Left = 15
+    Height = 21
+    Top = 40
+    Width = 465
+    TabOrder = 1
+    Text = 'edttimapLocation'
+  end
+end

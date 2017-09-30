@@ -1,0 +1,25 @@
+<project tab-spaces="2" begin-end-tabs="2" visibility-tabs="2" project-name="mgAppPreferences" outputdir="" enum-type="string">
+  <project-units>
+    <unit name="mgAppPreferencesBase_BOM">
+      <enums />
+      <classes>
+        <class base-class="TmgAPFilename" base-class-parent="TtiObject" auto-map="true" auto-create-list="true">
+          <class-props>
+            <prop name="Filename" type="String" />
+          </class-props>
+          <validators />
+          <mapping table="mgAppPreferences" pk="OID" pk-field="OID" oid-type="string">
+            <prop-map prop="Filename" field="tiMapFilename" type="String" />
+          </mapping>
+          <selections />
+        </class>
+        <class base-class="TmgAppPreferencesBase" base-class-parent="TtiObject" auto-map="true" auto-create-list="true">
+          <class-props />
+          <validators />
+          <mapping table="mgAppPreferences" pk="OID" pk-field="OID" oid-type="string" />
+          <selections />
+        </class>
+      </classes>
+    </unit>
+  </project-units>
+</project>

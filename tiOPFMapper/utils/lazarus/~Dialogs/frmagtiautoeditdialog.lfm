@@ -53,7 +53,6 @@ inherited agTIAutoEditDialog: TagTIAutoEditDialog
     ClientHeight = 468
     ClientWidth = 531
     PopupMenu = PopupMenu1
-    OnClick = sbEditClick
     object Edit1: TEdit[0]
       AnchorSideLeft.Side = asrBottom
       AnchorSideTop.Side = asrCenter

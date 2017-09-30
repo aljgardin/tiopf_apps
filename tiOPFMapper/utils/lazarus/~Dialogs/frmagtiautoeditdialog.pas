@@ -1,13 +1,13 @@
 unit frmagtiAutoEditDialog;
 
-{$mode objfpc}{$H+}
-
+{$mode objfpc}//{$H+}
+{$H-}
 interface
 
 uses
   Classes, SysUtils, FileUtil, DateTimePicker, Forms, Controls, Graphics,
   Dialogs, ExtCtrls, StdCtrls, ActnList, Menus, frmagTIEditDialog, tiObject,
-  tiModelMediator, tiMediators, tiListMediators, contnrs;
+  tiBaseMediator, tiModelMediator, tiMediators, tiListMediators, contnrs, agtiMediators;
 
 type
 
@@ -23,7 +23,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
-    procedure sbEditClick(Sender: TObject);
   private
     FMediators: TtiModelMediatorList;
     procedure SetMediators(AValue: TtiModelMediatorList);
@@ -33,6 +32,9 @@ type
 
   public
     procedure SetData(const AValue: TtiObject); override;
+
+    class function Execute(const AData: TtiObject;
+      pReadOnly: boolean = False): boolean; virtual;
 
   end;
 
@@ -105,6 +107,12 @@ var
   lidx: Integer;
   totHeight, totWidth: Integer;
   lblWidth: Integer;
+
+  curPropName: String;
+
+  lPropType: TTypeKind;
+  lPropTypeName: string;
+  lPropInfo: PPropInfo;
 const
   cBorder = 12;
   cCtrlWidth  = 300;
@@ -126,19 +134,37 @@ begin
   pLabel := nil;  //Previous Label
   pComp := nil;   //Previous Comp or edit.
 
-  try
-    tiGetPropertyNames(TtiObject(AValue),
-                        lsl,
-                        ctkSimple + [tkVariant, tkEnumeration]);
+  tiGetPropertyNames(TtiObject(AValue), lsl, ctkSimple + [tkVariant, tkEnumeration]);
 
+  try
     lsl.Sorted := true;
     lsl.Sort;
+
     // We don't need caption.
     if lsl.Find('Caption', lidx) then
       lsl.Delete(lidx);
 
     for i := 0 to lsl.Count - 1 do
     begin
+      curPropName := lsl.Strings[i];
+
+      // register propertyname:
+      //Assert(AValue <> nil, 'AValue is nil');
+      //lPropInfo := tiGetPropInfo(AValue.ClassType, curPropName, @AValue);
+      //Assert(lPropInfo <> nil, Format('Class %s has no published property %s', [AValue.ClassName, curPropName]));
+      //lPropTypeName := lPropInfo^.PropType^.Name;
+      //lPropType := lPropInfo^.PropType^.Kind;
+      //case lProptype of
+      //  //TTypeKind = (tkUnknown,tkInteger,tkChar,tkEnumeration,tkFloat,
+      //  //           tkSet,tkMethod,tkSString,tkLString,tkAString,
+      //  //           tkWString,tkVariant,tkArray,tkRecord,tkInterface,
+      //  //           tkClass,tkObject,tkWChar,tkBool,tkInt64,tkQWord,
+      //  //           tkDynArray,tkInterfaceRaw,tkProcVar,tkUString,tkUChar,
+      //  //           tkHelper,tkFile,tkClassRef,tkPointer);
+      //  tkInteger:
+      //    gMediatorManager.RegisterMediator(TtiSpinEditMediatorView, AValue.ClassType, lPropTypeName);
+      //
+      //end;
 
       //Create The Label:
       lLabel := TLabel.Create(self);
@@ -170,7 +196,9 @@ begin
 
       pLabel := lLabel;
 
+
       // What type of control to create:
+      //TtiTypeKind =  (tiTKInteger, tiTKFloat , tiTKString, tiTKDateTime, tiTKBoolean, tiTKBinary);
       atypekind := tiGetSimplePropType(TtiObject(AValue), lsl.Strings[i]);
       case atypekind of
         tiTKString:
@@ -209,6 +237,7 @@ begin
             TDateTimePicker(lcomp).ReadOnly := RO.ReadOnly;
             lcomp.Width := cCtrlWidth;
           end;
+
       else
         lcomp := TEdit.Create(self);
         TEdit(lcomp).ReadOnly := RO.ReadOnly;
@@ -254,10 +283,12 @@ begin
 
     sbEdit.ClientHeight := totHeight;
     sbEdit.ClientWidth := totWidth;
+
+    self.Position := poScreenCenter;
+
   finally
     lsl.Free;
   end;
-  self.Position := poScreenCenter;
 
   //for i := 0 to sbEdit.ComponentCount -1 do
   //begin
@@ -268,6 +299,23 @@ begin
   //  end;
   //end;
 
+end;
+
+class function TagTIAutoEditDialog.Execute(const AData: TtiObject;
+  pReadOnly: boolean): boolean;
+var
+  lForm: TagTIEditDialog;
+begin
+  lForm := Create(nil);
+  try
+    lForm.Data := AData;
+    if pReadOnly then
+      lForm.RO.Enabled := True;
+    lForm.RO.ReadOnly := pReadOnly;
+    Result := lForm.ShowModal = mrOk;
+  finally
+    lForm.Free;
+  end;
 end;
 
 initialization

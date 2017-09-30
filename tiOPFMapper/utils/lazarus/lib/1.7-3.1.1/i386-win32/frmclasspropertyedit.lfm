@@ -1,0 +1,118 @@
+inherited dlgClassPropertyEdit: TdlgClassPropertyEdit
+  Height = 400
+  Width = 589
+  ActiveControl = edlClassPropertyName
+  Caption = 'Edit Class Property'
+  ClientHeight = 400
+  ClientWidth = 589
+  inherited Panel1: TPanel
+    Height = 50
+    Top = 350
+    Width = 589
+    AutoSize = False
+    BevelOuter = bvRaised
+    BorderStyle = bsSingle
+    ChildSizing.Layout = cclNone
+    ClientHeight = 46
+    ClientWidth = 585
+    TabOrder = 1
+    inherited btnOK: TButton
+      Left = 16
+      Height = 25
+      Top = 8
+      Width = 75
+      Align = alNone
+      AutoSize = False
+      Default = False
+    end
+    inherited btnCancel: TButton
+      Left = 112
+      Height = 25
+      Top = 8
+      Width = 75
+      Align = alNone
+      AutoSize = False
+      Cancel = False
+    end
+    inherited btnDebug: TButton
+      Left = 208
+      Height = 25
+      Top = 8
+      Width = 75
+      Align = alNone
+      AutoSize = False
+    end
+  end
+  object pnlTop: TPanel[1]
+    Left = 0
+    Height = 208
+    Top = 0
+    Width = 589
+    Align = alTop
+    ClientHeight = 208
+    ClientWidth = 589
+    TabOrder = 0
+    object edlClassPropertyName: TLabeledEdit
+      Left = 24
+      Height = 21
+      Top = 32
+      Width = 200
+      EditLabel.AnchorSideLeft.Control = edlClassPropertyName
+      EditLabel.AnchorSideTop.Side = asrBottom
+      EditLabel.AnchorSideRight.Control = edlClassPropertyName
+      EditLabel.AnchorSideRight.Side = asrBottom
+      EditLabel.AnchorSideBottom.Control = edlClassPropertyName
+      EditLabel.Left = 24
+      EditLabel.Height = 13
+      EditLabel.Top = 16
+      EditLabel.Width = 200
+      EditLabel.Caption = 'Property Name'
+      EditLabel.ParentColor = False
+      TabOrder = 0
+      Text = 'edlClassPropertyName'
+    end
+    object stClassPropertyType: TStaticText
+      Left = 24
+      Height = 17
+      Top = 64
+      Width = 200
+      Caption = 'Property Type'
+      TabOrder = 1
+    end
+    object cbClassPropertytype: TComboBox
+      Left = 24
+      Height = 21
+      Top = 88
+      Width = 200
+      ItemHeight = 13
+      TabOrder = 2
+      Text = 'cbClassPropertytype'
+    end
+    object edlClassPropertyTypeName: TLabeledEdit
+      Left = 24
+      Height = 21
+      Top = 136
+      Width = 200
+      EditLabel.AnchorSideLeft.Control = edlClassPropertyTypeName
+      EditLabel.AnchorSideRight.Control = edlClassPropertyTypeName
+      EditLabel.AnchorSideRight.Side = asrBottom
+      EditLabel.AnchorSideBottom.Control = edlClassPropertyTypeName
+      EditLabel.Left = 24
+      EditLabel.Height = 13
+      EditLabel.Top = 120
+      EditLabel.Width = 200
+      EditLabel.Caption = 'Property Type Name'
+      EditLabel.ParentColor = False
+      TabOrder = 3
+      Text = 'edlClassPropertyTypeName'
+    end
+    object chbxClassPropertyIsReadOnly: TCheckBox
+      Left = 24
+      Height = 17
+      Top = 168
+      Width = 82
+      Caption = 'Is Read Only'
+      TabOrder = 4
+    end
+  end
+end

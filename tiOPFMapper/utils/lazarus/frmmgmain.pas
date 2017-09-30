@@ -250,6 +250,8 @@ type
     function GetCurrentUnit: TGMapUnitDef;
     function IsUnitActive: boolean;
 
+    procedure ResetIndexes;
+
   public
     { public declarations }
 
@@ -400,7 +402,7 @@ begin
   SetupUnitEnumerationsMediators(ASubject.UnitEnums);
 
   {Unit References}
-  SetupUnitReferencesMediators(ASubject.UnitReferences);
+//  SetupUnitReferencesMediators(ASubject.UnitReferences);
 
   {Unit Classes}
   SetupUnitClassesMediators(ASubject.UnitClasses);
@@ -516,6 +518,7 @@ begin
   //Log('procedure TMGMainForm.FormCreate(Sender: TObject); Called.');
   FMapProject := Manager.MapProject;
 
+  ResetIndexes;
   SetupMediators;
 end;
 
@@ -603,6 +606,11 @@ begin
   result := false;
   if cu.Name <> 'NotAssigned' then
     result := true;
+end;
+
+procedure TMGMainForm.ResetIndexes;
+begin
+  CurrentUnitIDX := -1;
 end;
 
 function TMGMainForm.GetCurrentUnitIDX: Integer;
@@ -1166,6 +1174,9 @@ begin
   if ODProject.Execute then
   begin
     Manager.OpenData(ODProject.FileName);
+    ResetIndexes;
+    //ResetViews;
+    SetupMediators;
   end;
 end;
 

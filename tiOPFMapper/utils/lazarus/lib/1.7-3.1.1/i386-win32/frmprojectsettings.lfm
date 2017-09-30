@@ -1,0 +1,219 @@
+object dlgProjectSettings: TdlgProjectSettings
+  Left = 331
+  Height = 504
+  Top = 105
+  Width = 706
+  ActiveControl = edtProjectName
+  BorderStyle = bsDialog
+  Caption = 'Project Settings'
+  ClientHeight = 504
+  ClientWidth = 706
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '1.7'
+  Visible = False
+  object Panel1: TPanel
+    Left = 0
+    Height = 504
+    Top = 0
+    Width = 706
+    Align = alClient
+    Caption = 'Panel1'
+    ClientHeight = 504
+    ClientWidth = 706
+    ParentFont = False
+    TabOrder = 0
+    object edtProjectName: TLabeledEdit
+      Left = 16
+      Height = 21
+      Top = 64
+      Width = 312
+      EditLabel.AnchorSideLeft.Control = edtProjectName
+      EditLabel.AnchorSideRight.Control = edtProjectName
+      EditLabel.AnchorSideRight.Side = asrBottom
+      EditLabel.AnchorSideBottom.Control = edtProjectName
+      EditLabel.Left = 16
+      EditLabel.Height = 13
+      EditLabel.Top = 48
+      EditLabel.Width = 312
+      EditLabel.Caption = 'Project Name:'
+      EditLabel.ParentColor = False
+      TabOrder = 0
+    end
+    object edtOutputDirectory: TLabeledEdit
+      Left = 16
+      Height = 21
+      Top = 104
+      Width = 666
+      EditLabel.AnchorSideLeft.Control = edtOutputDirectory
+      EditLabel.AnchorSideRight.Control = edtOutputDirectory
+      EditLabel.AnchorSideRight.Side = asrBottom
+      EditLabel.AnchorSideBottom.Control = edtOutputDirectory
+      EditLabel.Left = 16
+      EditLabel.Height = 13
+      EditLabel.Top = 88
+      EditLabel.Width = 666
+      EditLabel.Caption = 'Output Directory (Relative to project files path)'
+      EditLabel.ParentColor = False
+      TabOrder = 1
+      Text = 'edtOutputDirectory'
+    end
+    object seTabSpaces: TSpinEdit
+      Left = 16
+      Height = 21
+      Top = 152
+      Width = 100
+      TabOrder = 2
+    end
+    object lblTabSpaces: TLabel
+      Left = 16
+      Height = 13
+      Top = 136
+      Width = 59
+      Caption = 'Tab Spaces:'
+      ParentColor = False
+    end
+    object lblBeginEndTabs: TLabel
+      Left = 16
+      Height = 13
+      Top = 176
+      Width = 77
+      Caption = 'Begin End Tabs:'
+      ParentColor = False
+    end
+    object seBeginEndTabs: TSpinEdit
+      Left = 16
+      Height = 21
+      Top = 192
+      Width = 100
+      TabOrder = 3
+    end
+    object lblVisibilityTabs: TLabel
+      Left = 16
+      Height = 13
+      Top = 216
+      Width = 67
+      Caption = 'Visibility Tabs:'
+      ParentColor = False
+    end
+    object seVisibilityTabs: TSpinEdit
+      Left = 16
+      Height = 21
+      Top = 232
+      Width = 100
+      TabOrder = 4
+    end
+    object lblMaxEditorCodeWidth: TLabel
+      Left = 16
+      Height = 13
+      Top = 256
+      Width = 114
+      Caption = 'Max Editor Code Width:'
+      ParentColor = False
+    end
+    object seMaxEditorCodeWidth: TSpinEdit
+      Left = 16
+      Height = 21
+      Top = 272
+      Width = 100
+      TabOrder = 5
+    end
+    object btnDebugMapProject: TButton
+      Left = 104
+      Height = 34
+      Top = 456
+      Width = 75
+      Caption = 'Debug Project'
+      OnClick = btnDebugMapProjectClick
+      ParentFont = False
+      TabOrder = 6
+    end
+    object btnClose: TButton
+      Left = 16
+      Height = 34
+      Top = 456
+      Width = 75
+      Caption = 'Close'
+      OnClick = btnCloseClick
+      ParentFont = False
+      TabOrder = 7
+    end
+    object lblIncludes: TLabel
+      Left = 127
+      Height = 13
+      Top = 136
+      Width = 44
+      Caption = 'Includes:'
+      ParentColor = False
+      ParentFont = False
+    end
+    object btnDebugIncludes: TButton
+      Left = 192
+      Height = 34
+      Top = 456
+      Width = 91
+      Caption = 'Debug Includes'
+      OnClick = btnDebugIncludesClick
+      ParentFont = False
+      TabOrder = 8
+    end
+    object edtFilename: TLabeledEdit
+      Left = 16
+      Height = 21
+      Top = 24
+      Width = 664
+      EditLabel.AnchorSideLeft.Control = edtFilename
+      EditLabel.AnchorSideRight.Control = edtFilename
+      EditLabel.AnchorSideRight.Side = asrBottom
+      EditLabel.AnchorSideBottom.Control = edtFilename
+      EditLabel.Left = 16
+      EditLabel.Height = 13
+      EditLabel.Top = 8
+      EditLabel.Width = 664
+      EditLabel.Caption = 'Filename:'
+      EditLabel.ParentColor = False
+      ParentColor = True
+      ReadOnly = True
+      TabOrder = 9
+    end
+    object lblEnumType: TLabel
+      Left = 16
+      Height = 13
+      Top = 296
+      Width = 57
+      Caption = 'Enum Type:'
+      ParentColor = False
+    end
+    object cbEnumType: TComboBox
+      Left = 16
+      Height = 21
+      Top = 312
+      Width = 100
+      ItemHeight = 13
+      OnChange = cbEnumTypeChange
+      TabOrder = 10
+      Text = 'cbEnumType'
+    end
+  end
+  object sgIncludeFiles: TStringGrid
+    Left = 128
+    Height = 288
+    Top = 152
+    Width = 552
+    PopupMenu = pmIncludes
+    TabOrder = 1
+  end
+  object pmIncludes: TPopupMenu
+    Left = 160
+    Top = 200
+    object miAdd: TMenuItem
+      Caption = 'Add Include'
+    end
+    object miEdit: TMenuItem
+      Caption = 'Edit Include'
+    end
+    object miDelete: TMenuItem
+      Caption = 'Delete Include'
+    end
+  end
+end
