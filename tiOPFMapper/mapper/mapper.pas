@@ -367,6 +367,9 @@ type
 
 
   {: Stores information about a class property. }
+
+  { TMapClassProp }
+
   TMapClassProp = class(TBaseMapObject)
   private
     FIsReadOnly: boolean;
@@ -380,9 +383,14 @@ type
     procedure SetVirtualGetter(AValue: boolean);
   protected
     procedure AssignClassProps(ASource: TtiObject); override;
+  public
+    constructor Create; override;
+    destructor Destroy; override;
   published
-    property Name: string read FName write SetPropName;
+    //Class Property:
     property PropertyType: TMapPropertyType read FPropertyType write SetPropType;
+
+    property Name: string read FName write SetPropName;
     property IsReadOnly: boolean read FIsReadOnly write SetIsReadOnly;
     property VirtualGetter: boolean read FVirtualGetter write SetVirtualGetter;
   end;
@@ -400,6 +408,9 @@ type
 
 
   {: Stores info about the mapping between a class property and its corresponding database field name. }
+
+  { TPropMapping }
+
   TPropMapping = class(TBaseMapObject)
   private
     FFieldName: string;
@@ -416,6 +427,8 @@ type
   protected
     procedure AssignClassProps(ASource: TtiObject); override;
   public
+    constructor Create; override;
+    destructor Destroy; override;
     function IsValid(const AErrors: TtiObjectErrors): Boolean; override;
   published
     property PropName: string read FPropName write SetPropName;
@@ -558,6 +571,9 @@ type
 
 
   {: Validators get written into the class object's IsValid override. }
+
+  { TMapValidator }
+
   TMapValidator = class(TBaseMapObject)
   private
     FClassProp: TMapClassProp;
@@ -569,10 +585,15 @@ type
   protected
     procedure AssignClassProps(ASource: TtiObject); override;
   public
+    constructor Create; override;
+    destructor Destroy; override;
+
     function IsValid(const AErrors: TtiObjectErrors): boolean; override;
   published
-    property ValidatorType: TValidatorType read FValidatorType write SetValidatorType;
+    //Class Property:
     property ClassProp: TMapClassProp read FClassProp write SetClassProp;
+
+    property ValidatorType: TValidatorType read FValidatorType write SetValidatorType;
     property Value: variant read FValue write SetValue;
   end;
 
@@ -586,6 +607,8 @@ type
     property Items[i: integer]: TMapValidator read GetItems write SetItems;
     function Add(AObject: TMapValidator): integer; reintroduce;
   end;
+
+  { TMapClassDef }
 
   TMapClassDef = class(TBaseMapObject)
   private
@@ -625,6 +648,8 @@ type
   public
     constructor Create; override;
     destructor Destroy; override;
+    function    Clone: TMapClassDef; override; //virtual; // Must override and typecast if to be used
+
   published
     // Object Props
     property ClassProps: TMapClassPropList read FClassProps write SetClassProps;
@@ -1561,6 +1586,11 @@ begin
   inherited Destroy;
 end;
 
+function TMapClassDef.Clone: TMapClassDef;
+begin
+  Result := TMapClassDef(inherited Clone);
+end;
+
 procedure TMapClassDef.SetAutoCreateBase(const AValue: boolean);
 begin
   if FAutoCreateBase = AValue then
@@ -1709,6 +1739,18 @@ begin
 
     PropertyType := lSource.PropertyType;
   end;
+end;
+
+constructor TMapClassProp.Create;
+begin
+  inherited Create;
+  FPropertyType := TMapPropertyType.Create;
+end;
+
+destructor TMapClassProp.Destroy;
+begin
+  FPropertyType.Free;
+  inherited Destroy;
 end;
 
 procedure TMapClassProp.SetIsReadOnly(const AValue: boolean);
@@ -1881,6 +1923,18 @@ begin
 
     PropertyType := lSource.PropertyType;
   end;
+end;
+
+constructor TPropMapping.Create;
+begin
+  inherited Create;
+  FPropertyType := TMapPropertyType.Create;
+end;
+
+destructor TPropMapping.Destroy;
+begin
+  FPropertyType.Free;
+  inherited Destroy;
 end;
 
 function TPropMapping.IsValid(const AErrors: TtiObjectErrors): Boolean;
@@ -2467,6 +2521,18 @@ begin
 
     ClassProp := lSource.ClassProp;
   end;
+end;
+
+constructor TMapValidator.Create;
+begin
+  inherited Create;
+  FClassProp := TMapClassProp.Create;
+end;
+
+destructor TMapValidator.destroy;
+begin
+  inherited destroy;
+  FClassProp.Free;
 end;
 
 function TMapValidator.IsValid(const AErrors: TtiObjectErrors): boolean;
