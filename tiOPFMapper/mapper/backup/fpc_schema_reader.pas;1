@@ -39,7 +39,7 @@ type
     destructor  Destroy; override;
   end;
 
-  {Write out as XML:}
+
   TProjectWriter = class(TBaseMapObject)
   protected
     FDirectory: String;

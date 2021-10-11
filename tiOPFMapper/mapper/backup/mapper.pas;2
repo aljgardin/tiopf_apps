@@ -31,15 +31,12 @@ uses
   ,tiRTTI
   ,tiAutoMap
   ,typinfo
-  ,fgl
   ,tiVisitorDB
   ,tiOPFManager
   ,tiFilteredObjectList
   ;
 
 type
-
-  TtiStringlistList = specialize TFPGObjectList<TStringList>;
 
   // -----------------------------------------------------------------
   //  Forward Declares
@@ -124,8 +121,7 @@ type
     property    Items[AIndex: Integer]: TBaseMapObject read GetItems write SetItems; default;
     function    Add(AObject: TBaseMapObject): Integer; reintroduce;
 
-    { //  : Add= a New object to the list.  }
-    { //  FBaseItemtype must be set or will return a TBaseMapObject. }
+    {: Add a New object to the list.  BaseItemtype must be set or will return a TtiObject.}
     function    Add: TBaseMapObject; overload; virtual;
   end;
 
@@ -1166,11 +1162,11 @@ procedure TMapProject.AssignClassProps(ASource: TtiObject);
 begin
   //inherited AssignClassProps(ASource);
   Assert(ASource.TestValid(TMapProject), CTIErrorInvalidObject);
-//  FUnits.Clear;
+  FUnits.Clear;
   FUnits.Assign(TMapProject(ASource).Units);
-//  FProjectClasses.Clear;
+  FProjectClasses.Clear;
   FProjectClasses.Assign(TMapProject(ASource).ProjectClasses);
-//  FProjectEnums.Clear;
+  FProjectEnums.Clear;
   FProjectEnums.Assign(TMapProject(ASource).ProjectEnums);
 end;
 

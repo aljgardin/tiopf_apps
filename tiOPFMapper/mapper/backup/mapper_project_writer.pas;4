@@ -16,8 +16,6 @@ uses
 
 type
 
-  { TMapperProjectWriter }
-
   TMapperProjectWriter = class(TMapSchemaWriter)
   private
     FBaseDir: string;
@@ -105,9 +103,6 @@ type
     {: Expects to have NO trailing path delim to ADirectory parameter string.}
     procedure   WriteProject(const ADirectory: String); overload; override;
     procedure   WriteProject(const ADirectory: string; ASL: TStringList); overload; override;
-
-    procedure WriteProject(sll: TtiStringlistList); overload;
-
     constructor Create(AProject: TMapProject); override;
     destructor  Destroy; override;
   end;
@@ -1229,7 +1224,7 @@ begin
       WriteLine('public', ASL);
         IncTab;
           WriteLine('property    Items[i:integer] : ' + AClassDef.BaseClassName + ' read GetItems write SetItems;', ASL);
-          WriteLine('function    Add(AObject: ' + AClassDef.BaseClassName + '): Integer; reintroduce;', ASL);
+          WriteLine('procedure   Add(AObject: ' + AClassDef.BaseClassName + '); reintroduce;', ASL);
           WriteLine('procedure   Read; override;', ASL);
           WriteLine('procedure   Save; override;', ASL);
           WriteLine('class property ItemClass: '+AClassDef.BaseClassName+'Class read FItemClass write FItemClass;', ASL);
@@ -1258,10 +1253,10 @@ begin
   WriteLine(' {' + lListName + ' }', ASL);
   WriteBreak(ASL);
 
-  WriteLine('function ' + lListName + '.Add(AObject: ' + AClassDef.BaseClassName + '): integer;', ASL);
+  WriteLine('procedure ' + lListName + '.Add(AObject: ' + AClassDef.BaseClassName + ');', ASL);
   WriteLine('begin', ASL);
     IncTab;
-      WriteLine('result := inherited Add(AObject);', ASL);
+      WriteLine('inherited Add(AObject);', ASL);
     DecTab;
   WriteLine('end;', ASL);
   WriteBreak(ASL);
@@ -1582,36 +1577,6 @@ begin
 
 end;
 
-procedure TMapperProjectWriter.WriteProject(sll: TtiStringlistList);
-var
-  lCtr: Integer;
-  lUnit: TMapUnitDef;
-  aSL: TStringlist;
-begin
-  //Save Each unit to a ssl.Items property.
-
-  //BaseDir := ADirectory;
-  //tiForceDirectories1(BaseDir);
-  sll.FreeObjects:=true;
-
-  sll.Clear;
-
-  for lCtr := 0 to Project.Units.Count - 1 do
-    begin
-      aSL := TStringlist.Create;
-      sll.Add(aSL);
-
-      lUnit := Project.Units.Items[lCtr];
-      WriteBreak(ASL);
-      WriteLine('// -------------------------------------------------------------', ASL);
-      WriteLine('// Unit Definition: ' + lUnit.Name, ASL);
-      WriteLine('// -------------------------------------------------------------', ASL);
-      WriteBreak(ASL);
-      WriteUnit(lUnit, ASL);
-      //ASL.SaveToFile(BaseDir + PathDelim + lUnit.Name + '.pas');
-    end;
-end;
-
 procedure TMapperProjectWriter.WritePropGetter(ASL: TStringList;
   APropDef: TMapClassProp);
 begin
@@ -1887,7 +1852,7 @@ begin
 
   ASL.Add(sLineBreak);
   ASL.Add('unit ' + AUnit.Name + ';');
-  //if Verbose then
+  if Verbose then
   begin
     WriteLine('// ---------------------------------------------------------', ASL);
     WriteLine('// Automatically generated on '+DateToStr(now)+' '+TimeToStr(now), ASL);

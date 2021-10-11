@@ -39,7 +39,7 @@ uses
 
 type
 
-  TtiStringlistList = specialize TFPGObjectList<TStringList>;
+  TStringlistList = specialize TFPGObjectList<TStringList>;
 
   // -----------------------------------------------------------------
   //  Forward Declares

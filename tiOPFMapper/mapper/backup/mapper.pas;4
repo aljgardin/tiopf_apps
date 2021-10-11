@@ -1,21 +1,5 @@
 unit mapper;
 
-
-//  Adding methods to each Mapper Class:
-//  ..Needed to clone, assign.
-//    procedure   AssignClassProps(ASource: TtiObject); override;
-//    function    Clone : TGMapProject; reintroduce;
-//    constructor Create; override;
-//    destructor Destroy; override;
-//    procedure ClearAll; reintroduce;
-//
-//  Adding Methods to each list class:
-//    FBaseItemType: TClass;
-//    {: Add a New object to the list.  BaseItemtype must be set or will return a TtiObject.}
-//    function    Add: TBaseMapObject; overload; virtual;
-
-
-
 {$IFDEF FPC}
   {$mode objfpc}{$H+}
 {$ENDIF}
@@ -31,15 +15,12 @@ uses
   ,tiRTTI
   ,tiAutoMap
   ,typinfo
-  ,fgl
   ,tiVisitorDB
   ,tiOPFManager
   ,tiFilteredObjectList
   ;
 
 type
-
-  TtiStringlistList = specialize TFPGObjectList<TStringList>;
 
   // -----------------------------------------------------------------
   //  Forward Declares
@@ -111,22 +92,13 @@ type
   end;
   {$M-}
 
-  { TBaseMapObjectList }
-
   TBaseMapObjectList = class(TtiObjectList)
   protected
-    FBaseItemType: TClass;
     function    GetItems(i: Integer): TBaseMapObject; reintroduce;
     procedure   SetItems(i: Integer;  AObject: TBaseMapObject); reintroduce;
   public
-    constructor Create; override;
-
     property    Items[AIndex: Integer]: TBaseMapObject read GetItems write SetItems; default;
     function    Add(AObject: TBaseMapObject): Integer; reintroduce;
-
-    { //  : Add= a New object to the list.  }
-    { //  FBaseItemtype must be set or will return a TBaseMapObject. }
-    function    Add: TBaseMapObject; overload; virtual;
   end;
 
   {: Base project class. }
@@ -252,14 +224,11 @@ type
   TMapEnum = class(TBaseMapObject)
   private
     FEnumName: string;
-    FEnumSetName: String;
     FValues: TMapEnumValueList;
     procedure SetEnumName(const AValue: string);
-    procedure SetEnumSetName(AValue: String);
     procedure SetValues(const AValue: TMapEnumValueList);
   published
     property    EnumName: string read FEnumName write SetEnumName;
-    property    EnumSetName: String read FEnumSetName write SetEnumSetName;
   public
     property    Values: TMapEnumValueList read FValues write SetValues;
     constructor Create; override;
@@ -1166,11 +1135,11 @@ procedure TMapProject.AssignClassProps(ASource: TtiObject);
 begin
   //inherited AssignClassProps(ASource);
   Assert(ASource.TestValid(TMapProject), CTIErrorInvalidObject);
-//  FUnits.Clear;
+  FUnits.Clear;
   FUnits.Assign(TMapProject(ASource).Units);
-//  FProjectClasses.Clear;
+  FProjectClasses.Clear;
   FProjectClasses.Assign(TMapProject(ASource).ProjectClasses);
-//  FProjectEnums.Clear;
+  FProjectEnums.Clear;
   FProjectEnums.Assign(TMapProject(ASource).ProjectEnums);
 end;
 
@@ -1181,13 +1150,6 @@ begin
   inherited Add(AObject);
 end;
 
-function TBaseMapObjectList.Add: TBaseMapObject;
-begin
-  //result := TBaseMapObject(FBaseItemType.newinstance);
-
-  result := TBaseMapObject(FBaseItemType.newinstance);
-end;
-
 function TBaseMapObjectList.GetItems(i: Integer): TBaseMapObject;
 begin
   result := inherited GetItems(i) as TBaseMapObject;
@@ -1196,14 +1158,6 @@ end;
 procedure TBaseMapObjectList.SetItems(i: Integer; AObject: TBaseMapObject);
 begin
   inherited SetItems(i, AObject);
-end;
-
-constructor TBaseMapObjectList.Create;
-begin
-  inherited Create;
-  //override this in new overriden class:
-  //FBaseItemType := ItemClass.ClassType;  ie.. FBaseItemType := TMapProject;
-  FBaseItemType := TBaseMapObject.ClassType;
 end;
 
 { TMapProjectList }
@@ -1405,12 +1359,6 @@ procedure TMapEnum.SetEnumName(const AValue: string);
 begin
   if FEnumName=AValue then exit;
   FEnumName:=AValue;
-end;
-
-procedure TMapEnum.SetEnumSetName(AValue: String);
-begin
-  if FEnumSetName = AValue then Exit;
-  FEnumSetName := AValue;
 end;
 
 procedure TMapEnum.SetValues(const AValue: TMapEnumValueList);

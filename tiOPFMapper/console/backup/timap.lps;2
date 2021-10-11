@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="12"/>
+    <Units Count="5">
+      <Unit0>
+        <Filename Value="timap.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="12"/>
+        <UsageCount Value="20"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="readme.txt"/>
+        <IsPartOfProject Value="True"/>
+        <UsageCount Value="20"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="sample.xml"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="XML"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\mapper\mapper_project_writer.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1208"/>
+        <CursorPos X="3" Y="1227"/>
+        <UsageCount Value="10"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\..\..\..\Graemeg-TIOPF_Apps.git\tiOPFMapper\mapper\mapper_project_writer.pas"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="1307"/>
+        <CursorPos X="95" Y="1322"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit4>
+    </Units>
+    <JumpHistory Count="3" HistoryIndex="2">
+      <Position1>
+        <Filename Value="..\..\..\..\Graemeg-TIOPF_Apps.git\tiOPFMapper\mapper\mapper_project_writer.pas"/>
+        <Caret Line="53" Column="7" TopLine="29"/>
+      </Position1>
+      <Position2>
+        <Filename Value="..\..\..\..\Graemeg-TIOPF_Apps.git\tiOPFMapper\mapper\mapper_project_writer.pas"/>
+        <Caret Line="1287" Column="84" TopLine="1270"/>
+      </Position2>
+      <Position3>
+        <Filename Value="..\..\..\..\Graemeg-TIOPF_Apps.git\tiOPFMapper\mapper\mapper_project_writer.pas"/>
+        <Caret Line="54" Column="17" TopLine="41"/>
+      </Position3>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes ActiveMode="default"/>
+    </RunParams>
+  </ProjectSession>
+</CONFIG>

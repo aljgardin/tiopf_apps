@@ -31,15 +31,12 @@ uses
   ,tiRTTI
   ,tiAutoMap
   ,typinfo
-  ,fgl
   ,tiVisitorDB
   ,tiOPFManager
   ,tiFilteredObjectList
   ;
 
 type
-
-  TtiStringlistList = specialize TFPGObjectList<TStringList>;
 
   // -----------------------------------------------------------------
   //  Forward Declares
@@ -1166,11 +1163,11 @@ procedure TMapProject.AssignClassProps(ASource: TtiObject);
 begin
   //inherited AssignClassProps(ASource);
   Assert(ASource.TestValid(TMapProject), CTIErrorInvalidObject);
-//  FUnits.Clear;
+  FUnits.Clear;
   FUnits.Assign(TMapProject(ASource).Units);
-//  FProjectClasses.Clear;
+  FProjectClasses.Clear;
   FProjectClasses.Assign(TMapProject(ASource).ProjectClasses);
-//  FProjectEnums.Clear;
+  FProjectEnums.Clear;
   FProjectEnums.Assign(TMapProject(ASource).ProjectEnums);
 end;
 

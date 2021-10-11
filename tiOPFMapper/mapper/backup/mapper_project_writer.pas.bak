@@ -106,7 +106,7 @@ type
     procedure   WriteProject(const ADirectory: String); overload; override;
     procedure   WriteProject(const ADirectory: string; ASL: TStringList); overload; override;
 
-    procedure WriteProject(sll: TtiStringlistList); overload;
+    procedure WriteProject(sll: TStringListList); overload;
 
     constructor Create(AProject: TMapProject); override;
     destructor  Destroy; override;
@@ -1582,7 +1582,7 @@ begin
 
 end;
 
-procedure TMapperProjectWriter.WriteProject(sll: TtiStringlistList);
+procedure TMapperProjectWriter.WriteProject(sll: TStringListList);
 var
   lCtr: Integer;
   lUnit: TMapUnitDef;
