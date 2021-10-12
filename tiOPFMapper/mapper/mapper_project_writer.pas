@@ -106,7 +106,7 @@ type
     procedure   WriteProject(const ADirectory: String); overload; override;
     procedure   WriteProject(const ADirectory: string; ASL: TStringList); overload; override;
 
-    procedure WriteProject(sll: TtiStringlistList); overload;
+    procedure WriteProject(aOutputList: TagtiMapperOutputList); overload;
 
     constructor Create(AProject: TMapProject); override;
     destructor  Destroy; override;
@@ -1582,30 +1582,27 @@ begin
 
 end;
 
-procedure TMapperProjectWriter.WriteProject(sll: TtiStringlistList);
+procedure TMapperProjectWriter.WriteProject(aOutputList: TagtiMapperOutputList);
 var
   lCtr: Integer;
   lUnit: TMapUnitDef;
-  aSL: TStringlist;
+  aOutput: TagtiMapperOutput;
+  asl: TStringlist;  //points to stringlist of output
 begin
-  //Save Each unit to a ssl.Items property.
-
   //BaseDir := ADirectory;
   //tiForceDirectories1(BaseDir);
-  sll.FreeObjects:=true;
-
-  sll.Clear;
 
   for lCtr := 0 to Project.Units.Count - 1 do
     begin
-      aSL := TStringlist.Create;
-      sll.Add(aSL);
+      aOutput := TagtiMapperOutput.Create;
+      ASL := aOutput.pasOutput;
+      aOutputList.Add(aOutput);
 
       lUnit := Project.Units.Items[lCtr];
       WriteBreak(ASL);
-      WriteLine('// -------------------------------------------------------------', ASL);
-      WriteLine('// Unit Definition: ' + lUnit.Name, ASL);
-      WriteLine('// -------------------------------------------------------------', ASL);
+      ASL.Add('// -------------------------------------------------------------');
+      ASL.Add('// Unit Definition: ' + lUnit.Name);
+      ASL.Add('// -------------------------------------------------------------');
       WriteBreak(ASL);
       WriteUnit(lUnit, ASL);
       //ASL.SaveToFile(BaseDir + PathDelim + lUnit.Name + '.pas');
