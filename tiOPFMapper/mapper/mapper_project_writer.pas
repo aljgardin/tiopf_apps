@@ -1,8 +1,45 @@
 unit mapper_project_writer;
 
+{
+//  AJG TODO:
+    WriteClass:
+      function    Clone : TtiObject; virtual; // Must override and typecast if to be used
+      procedure   AssignClassProps(ASource: TtiObject); virtual;
+      List Class: procedure Add: TheItemClass;
+
+    Also:
+      In Read and Write, If Persistence Layer Does not handle SQL?????
+      SQL: Use tiobject.read
+      NOSQL: Use gtiopfmanager.read
+      OR
+        Alter Read and write to check on Persistencelayer and if SQL
+
+
+     Set The Item Class in Create;
+
+
+        //{: @ToDo We have to address two issues with assign:
+        //  i)  What if our object contains a pointer to another object that it owns
+        //  ii) What if our object contains a list of other objects
+        //  If we are to be creating new instances of owned objects, we must work out
+        //  what to do about ObjectState and OIDs
+        //Creates a cloned instance of the object. This method must be overridden and
+        //typecast if you are going to use it. }
+        //function TtiObject.Clone: TtiObject;
+        //var
+        //  lClass : TtiClass;
+        //begin
+        //  lClass := TtiClass(ClassType);
+        //  result := TtiObject(lClass.Create);
+        //  result.Assign(self);
+        //end;
+}
+
 {$IFDEF FPC}
   {$mode objfpc}{$H+}
 {$ENDIF}
+
+{$define agti}
 
 interface
 
@@ -12,6 +49,9 @@ uses
   ,dateutils
   ,mapper
   ,tiUtils
+  {$ifdef agti}
+  ,agtiMapperOutput
+  {$endif}
   ;
 
 type
@@ -47,6 +87,12 @@ type
     procedure   WriteORMClass(ASL: TStringList; AClassDef: TMapClassDef);
     procedure   WriteClassIntfMethods(ASL: TStringList; AClassDef: TMapClassDef);
     procedure   WriteClassImpSettersGetters(ASL: TStringList; AClassDef: TMapClassDef);
+    {AJG}
+    procedure   WriteClassIntfClone(ASL: TStringlist; AClassDef: TMapClassDef);
+    procedure   WriteClassImpClone(ASL: TStringlist; AClassDef: TMapClassDef);
+    procedure   WriteClassIntfAssignClassProps(ASL: TStringlist; AClassDef: TMapClassDef);
+    procedure   WriteClassImpAssignClassProps(ASL: TStringlist; AClassDef: TMapClassDef);
+    {End AJG}
     procedure   WriteClassIntfDestructor(ASL: TStringList; AClassDef: TMapClassDef);
     procedure   WriteClassIntfReadMethod(ASL: TStringList; AClassDef: TMapClassDef);
     procedure   WriteIntfUses(ASL: TStringList; AUnitDef: TMapUnitDef);
@@ -106,7 +152,10 @@ type
     procedure   WriteProject(const ADirectory: String); overload; override;
     procedure   WriteProject(const ADirectory: string; ASL: TStringList); overload; override;
 
+    {AJG 2021-10-10}
+    {$ifdef agti}
     procedure WriteProject(aOutputList: TagtiMapperOutputList); overload;
+    {$endif}
 
     constructor Create(AProject: TMapProject); override;
     destructor  Destroy; override;
@@ -1230,6 +1279,16 @@ begin
         IncTab;
           WriteLine('property    Items[i:integer] : ' + AClassDef.BaseClassName + ' read GetItems write SetItems;', ASL);
           WriteLine('function    Add(AObject: ' + AClassDef.BaseClassName + '): Integer; reintroduce;', ASL);
+
+          {AJG 2021-10-10}
+          WriteLine('//   function Add returns a new ItemClass Item.', ASL);
+          WriteLine('function    Add: ' + AClassDef.BaseClassName + '; reintroduce; overload;', ASL);
+          WriteLine('//   function Clone, returns a new object that is a clone of this one.', ASL);
+          WriteLine('function    Clone: ' + AClassDef.BaseClassName + '; reintroduce;', ASL); //TtiObject; '
+          WriteLine('//  AssignClassProps, not implemented here.', ASL);
+          WriteLine('//procedure AssignClassProps(ASource: TtiObject); reintroduce;', ASL);
+          {end AJG}
+
           WriteLine('procedure   Read; override;', ASL);
           WriteLine('procedure   Save; override;', ASL);
           WriteLine('class property ItemClass: '+AClassDef.BaseClassName+'Class read FItemClass write FItemClass;', ASL);
@@ -1265,6 +1324,42 @@ begin
     DecTab;
   WriteLine('end;', ASL);
   WriteBreak(ASL);
+
+  {AJG 2021-10-10}
+  //function Add: AClassDef.BaseClassName;
+  WriteLine('function ' + lListName + '. Add: ' + AClassDef.BaseClassName + ';', ASL);
+  WriteLine('var', ASL);
+  WriteLine('  aItem: ' + AClassDef.BaseClassName + ';', ASL);
+  WriteLine('begin', ASL);
+  WriteLine('  aItem := ' + AClassDef.BaseClassName + '.Create;', ASL);
+  WriteLine('  Add(aItem);', ASL);
+  WriteLine('end;', ASL);
+  WriteBreak(ASL);
+
+  //WriteLine('//   function Clone, returns a new object that is a clone of this one.
+  //WriteLine('function    Clone: ' + AClassDef.BaseClassName + '); reintroduce;', ASL); //TtiObject; '
+  //var
+  //  lClass : TtiClass;
+  //begin
+  //  lClass := TtiClass(ClassType);
+  //  result := TtiObject(lClass.Create);
+  //  result.Assign(self);
+  WriteLine('function ' + lListName + '.Clone: ' + AClassDef.BaseClassName + ';', ASL);
+  WriteLine('var', ASL);
+  WriteLine('  lClass: TtiClass;', ASL);
+  WriteLine('begin', ASL);
+  WriteLine('  lClass := TtiClass(ClassType);', ASL);
+  WriteLine('  result := ' + AClassDef.BaseClassName + '(lClass.Create);', ASL);
+  WriteLine('  result.Assign(self);', ASL);
+  WriteLine('end;', ASL);
+  WriteBreak(ASL);
+
+  //WriteLine('//procedure AssignClassProps(ASource: TtiObject); virtual;', ASL);
+  WriteLine('//procedure ' + lListName + '.AssignClassProps(ASource: TtiObject); virtual;', ASL);
+  WriteLine('//begin', ASL);
+  WriteLine('//end;', ASL);
+  WriteBreak(ASL);
+  {end AJG}
 
   WriteLine('function ' + lListName + '.GetItems(i: integer): ' + AClassDef.BaseClassName + ';', ASL);
   WriteLine('begin', ASL);
@@ -1519,6 +1614,43 @@ begin
     end;
 end;
 
+procedure TMapperProjectWriter.WriteClassIntfClone(ASL: TStringlist;
+  AClassDef: TMapClassDef);
+begin
+  //WriteLine('//   function Clone, returns a new object that is a clone of this one.', ASL);
+  //WriteLine('function    Clone: ' + AClassDef.BaseClassName + '; reintroduce;', ASL); //TtiObject; '
+  WriteLine('function   Clone: ' + AClassDef.BaseClassName + ';', ASL);
+end;
+
+procedure TMapperProjectWriter.WriteClassImpClone(ASL: TStringlist;
+  AClassDef: TMapClassDef);
+begin
+  WriteLine('function ' + AClassDef.BaseClassName + '.Clone: ' + AClassDef.BaseClassName + ';', ASL);
+  WriteLine('var', ASL);
+  WriteLine('  lClass: TtiClass;', ASL);
+  WriteLine('begin', ASL);
+  WriteLine('  lClass := TtiClass(ClassType);', ASL);
+  WriteLine('  result := ' + AClassDef.BaseClassName + '(lClass.Create);', ASL);
+  WriteLine('  result.Assign(self);', ASL);
+  WriteLine('end;', ASL);
+  WriteBreak(ASL);
+end;
+
+procedure TMapperProjectWriter.WriteClassIntfAssignClassProps(ASL: TStringlist;
+  AClassDef: TMapClassDef);
+begin
+  WriteLine('//procedure AssignClassProps(ASource: TtiObject); reintroduce;', ASL);
+end;
+
+procedure TMapperProjectWriter.WriteClassImpAssignClassProps(ASL: TStringlist;
+  AClassDef: TMapClassDef);
+begin
+  WriteLine('//procedure ' + AClassDef.BaseClassName + '.AssignClassProps(ASource: TtiObject);', ASL);
+  WriteLine('//begin', ASL);
+  WriteLine('//end;', ASL);
+  WriteBreak(ASL);
+end;
+
 procedure TMapperProjectWriter.WriteClassIntfDestructor(ASL: TStringList; AClassDef: TMapClassDef);
 var
   lCtr: integer;
@@ -1582,32 +1714,50 @@ begin
 
 end;
 
+{$ifdef agti}
 procedure TMapperProjectWriter.WriteProject(aOutputList: TagtiMapperOutputList);
 var
   lCtr: Integer;
   lUnit: TMapUnitDef;
   aOutput: TagtiMapperOutput;
   asl: TStringlist;  //points to stringlist of output
+
+  s: String;
 begin
   //BaseDir := ADirectory;
   //tiForceDirectories1(BaseDir);
+  asl := TStringlist.Create;
+  aOutputList.Clear;
 
-  for lCtr := 0 to Project.Units.Count - 1 do
-    begin
-      aOutput := TagtiMapperOutput.Create;
-      ASL := aOutput.pasOutput;
-      aOutputList.Add(aOutput);
+  try
+    for lCtr := 0 to Project.Units.Count - 1 do
+      begin
+        asl.Clear;
 
-      lUnit := Project.Units.Items[lCtr];
-      WriteBreak(ASL);
-      ASL.Add('// -------------------------------------------------------------');
-      ASL.Add('// Unit Definition: ' + lUnit.Name);
-      ASL.Add('// -------------------------------------------------------------');
-      WriteBreak(ASL);
-      WriteUnit(lUnit, ASL);
-      //ASL.SaveToFile(BaseDir + PathDelim + lUnit.Name + '.pas');
-    end;
+        lUnit := Project.Units.Items[lCtr];
+
+        aOutput := TagtiMapperOutput.Create;
+        aOutput.pasPath:=sysutils.IncludeTrailingPathDelimiter(Project.OutputDirectory);
+        aoutput.pasFilename:=lUnit.Name;
+        aOutputList.Add(aOutput);
+
+        WriteBreak(ASL);
+        ASL.Add('// -------------------------------------------------------------');
+        ASL.Add('// Unit Definition: ' + lUnit.Name);
+        ASL.Add('// -------------------------------------------------------------');
+        WriteBreak(ASL);
+        WriteUnit(lUnit, ASL);
+
+        s := ASL.Text;
+        aOutput.pasOutput.Text:=s;
+        //ASL.SaveToFile(BaseDir + PathDelim + lUnit.Name + '.pas');
+      end;
+
+  finally
+    asl.Free
+  end;
 end;
+{$endif}
 
 procedure TMapperProjectWriter.WritePropGetter(ASL: TStringList;
   APropDef: TMapClassProp);
@@ -1803,6 +1953,10 @@ begin
   WriteLine('public', ASL);
     IncTab;
       WriteClassIntfDestructor(ASL, AClassDef);
+      {AJG}
+      WriteClassIntfAssignClassProps(ASL, AClassDef);
+      WriteClassIntfClone(ASL, AClassDef);
+      {End AJG}
       WriteClassIntfReadMethod(ASL, AClassDef);
       WriteClassIntfSaveMethod(ASL, AClassDef);
       if AClassDef.Validators.Count > 0 then
@@ -1981,6 +2135,10 @@ begin
         begin
           lClassDef := AUnit.UnitClasses.Items[lCtr];
           WriteClassImpDestructor(ASL, lClassDef);
+          {AJG}
+          WriteClassImpAssignClassProps(ASL, lClassDef);
+          WriteClassImpClone(ASL, lClassDef);
+          {End AJG}
           WriteClassImpSettersGetters(ASL, lClassDef);
           WriteClassImpReadMethod(ASL, lClassDef);
           WriteClassImpSavemethod(ASL, lClassDef);

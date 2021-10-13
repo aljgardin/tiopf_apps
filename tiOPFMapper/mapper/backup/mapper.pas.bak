@@ -44,19 +44,26 @@ type
   TagtiMapperOutput = class(TPersistent)
   private
     FFilename: TFilename;
-    FOutput: TStringlist;
+    FpasOutput: TStringlist;
+    FpasPath: String;
     procedure SetFilename(AValue: TFilename);
-    procedure SetOutput(AValue: TStringlist);
+    procedure SetpasOutput(AValue: TStringlist);
+    procedure SetpasPath(AValue: String);
   protected
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure Assign(Source: TPersistent); override;
+
     procedure Clear;
 
+    procedure SaveToFile; overload;
+
   published
-    property pasOutput: TStringlist read FOutput write SetOutput;
+    property pasOutput: TStringlist read FpasOutput write SetpasOutput;
     property pasFilename: TFilename read FFilename write SetFilename;
+    property pasPath: String read FpasPath write SetpasPath;
   end;
 
   TagtiMapperOutputList = specialize TFPGObjectList<TagtiMapperOutput>;
@@ -1052,28 +1059,59 @@ begin
   FFilename:=AValue;
 end;
 
-procedure TagtiMapperOutput.SetOutput(AValue: TStringlist);
+procedure TagtiMapperOutput.SetpasOutput(AValue: TStringlist);
 begin
-  if FOutput=AValue then Exit;
-  FOutput:=AValue;
+  if FpasOutput.Text=AValue.Text then Exit;
+  FpasOutput.Assign(AValue);
+end;
+
+procedure TagtiMapperOutput.SetpasPath(AValue: String);
+begin
+  if FpasPath=AValue then Exit;
+  FpasPath:=AValue;
 end;
 
 constructor TagtiMapperOutput.Create;
 begin
   inherited Create;
-  FOutput := TStringlist.Create;
+  FpasOutput := TStringlist.Create;
 end;
 
 destructor TagtiMapperOutput.Destroy;
 begin
-  FOutput.Free;
+  FpasOutput.Free;
   inherited Destroy;
+end;
+
+procedure TagtiMapperOutput.Assign(Source: TPersistent);
+begin
+  inherited Assign(Source);
+  if Source is TagtiMapperOutput then
+    begin
+      self.pasOutput.Assign((Source as TagtiMapperOutput).FpasOutput);
+      self.FFilename:=(Source as TagtiMapperOutput).FFilename;
+    end;
 end;
 
 procedure TagtiMapperOutput.Clear;
 begin
   FpasOutput.Clear;
   FFilename := '';
+end;
+
+procedure TagtiMapperOutput.SaveToFile;
+begin
+  if DirectoryExists(FpasPath) and (FFilename <> '') then
+  begin
+    try
+      pasOutput.SaveToFile(sysutils.IncludeTrailingPathDelimiter(fPasPath) + FFilename + '.p);
+    except
+      on E: Exception do
+      begin
+
+      end;
+    end;
+  end;
 end;
 
 { TMapProject }

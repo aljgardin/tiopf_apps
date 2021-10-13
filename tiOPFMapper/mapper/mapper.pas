@@ -15,7 +15,6 @@ unit mapper;
 //    function    Add: TBaseMapObject; overload; virtual;
 
 
-
 {$IFDEF FPC}
   {$mode objfpc}{$H+}
 {$ENDIF}
@@ -31,7 +30,6 @@ uses
   ,tiRTTI
   ,tiAutoMap
   ,typinfo
-  ,fgl
   ,tiVisitorDB
   ,tiOPFManager
   ,tiFilteredObjectList
@@ -39,27 +37,6 @@ uses
 
 type
 
-  { TagtiMapperOutput }
-
-  TagtiMapperOutput = class(TPersistent)
-  private
-    FFilename: TFilename;
-    FpasOutput: TStringlist;
-    procedure SetFilename(AValue: TFilename);
-    procedure SetOutput(AValue: TStringlist);
-  protected
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    procedure Clear;
-
-  published
-    property pasOutput: TStringlist read FpasOutput write SetOutput;
-    property pasFilename: TFilename read FFilename write SetFilename;
-  end;
-
-  TagtiMapperOutputList = specialize TFPGObjectList<TagtiMapperOutput>;
 
   // -----------------------------------------------------------------
   //  Forward Declares
@@ -1042,38 +1019,6 @@ begin
     result := vtRegExp
   else
     Raise Exception.Create('gStrToValType: Value out of range');
-end;
-
-{ TagtiMapperOutput }
-
-procedure TagtiMapperOutput.SetFilename(AValue: TFilename);
-begin
-  if FFilename=AValue then Exit;
-  FFilename:=AValue;
-end;
-
-procedure TagtiMapperOutput.SetOutput(AValue: TStringlist);
-begin
-  if FpasOutput=AValue then Exit;
-  FpasOutput:=AValue;
-end;
-
-constructor TagtiMapperOutput.Create;
-begin
-  inherited Create;
-  FpasOutput := TStringlist.Create;
-end;
-
-destructor TagtiMapperOutput.Destroy;
-begin
-  FpasOutput.Free;
-  inherited Destroy;
-end;
-
-procedure TagtiMapperOutput.Clear;
-begin
-  FpasOutput.Clear;
-  FFilename := '';
 end;
 
 { TMapProject }

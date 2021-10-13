@@ -106,6 +106,7 @@ type
     procedure   WriteProject(const ADirectory: String); overload; override;
     procedure   WriteProject(const ADirectory: string; ASL: TStringList); overload; override;
 
+    {AJG 2021-10-10}
     procedure WriteProject(aOutputList: TagtiMapperOutputList); overload;
 
     constructor Create(AProject: TMapProject); override;
@@ -1588,25 +1589,41 @@ var
   lUnit: TMapUnitDef;
   aOutput: TagtiMapperOutput;
   asl: TStringlist;  //points to stringlist of output
+
+  s: String;
 begin
   //BaseDir := ADirectory;
   //tiForceDirectories1(BaseDir);
+  asl := TStringlist.Create;
+  aOutputList.Clear;
 
-  for lCtr := 0 to Project.Units.Count - 1 do
-    begin
-      aOuptut := TagtiMapperOutput.Create;
-      ASL := aOutput.pasOutput;
-      aOutputList.Add(aOutput);
+  try
+    for lCtr := 0 to Project.Units.Count - 1 do
+      begin
+        asl.Clear;
 
-      lUnit := Project.Units.Items[lCtr];
-      WriteBreak(ASL);
-      ASL.Add('// -------------------------------------------------------------');
-      ASL.Add('// Unit Definition: ' + lUnit.Name);
-      ASL.Add('// -------------------------------------------------------------');
-      WriteBreak(ASL);
-      WriteUnit(lUnit, ASL);
-      //ASL.SaveToFile(BaseDir + PathDelim + lUnit.Name + '.pas');
-    end;
+        lUnit := Project.Units.Items[lCtr];
+
+        aOutput := TagtiMapperOutput.Create;
+        aOutput.pasPath:=sysutils.IncludeTrailingPathDelimiter(Project.OutputDirectory);
+        aoutput.pasFilename:=lUnit.UnitName;
+        aOutputList.Add(aOutput);
+
+        WriteBreak(ASL);
+        ASL.Add('// -------------------------------------------------------------');
+        ASL.Add('// Unit Definition: ' + lUnit.Name);
+        ASL.Add('// -------------------------------------------------------------');
+        WriteBreak(ASL);
+        WriteUnit(lUnit, ASL);
+
+        s := ASL.Text;
+        aOutput.pasOutput.Text:=s;
+        //ASL.SaveToFile(BaseDir + PathDelim + lUnit.Name + '.pas');
+      end;
+
+  finally
+    asl.Free
+  end;
 end;
 
 procedure TMapperProjectWriter.WritePropGetter(ASL: TStringList;
