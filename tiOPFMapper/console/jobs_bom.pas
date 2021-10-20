@@ -2,7 +2,7 @@
 
 unit jobs_bom;
 // ---------------------------------------------------------
-// Automatically generated on 10/10/2021 11:54:23
+// Automatically generated on 10/16/2021 22:30:22
 // Warning: 
 //   If you rerun timap, your changes in this file will be lost
 // ---------------------------------------------------------
@@ -58,7 +58,11 @@ type
     procedure   SetJobName(const AValue: String); virtual;
     procedure   SetStatus(const AValue: TJobStatus); virtual;
   public
+    procedure AssignClassProps(ASource: TtiObject); reintroduce;
+    function   Clone: TJob; reintroduce;
+    //Read: This method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.
     procedure   Read; override;
+    //Save: This method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.
     procedure   Save; override;
     function    IsValid(const AErrors: TtiObjectErrors): boolean; overload; override;
   published
@@ -75,8 +79,16 @@ type
     procedure   SetItems(i: integer; const AValue: TJob); reintroduce;
     function    GetItems(i: integer): TJob; reintroduce;
   public
+    constructor Create; override;
+    destructor Destroy; override;
     property    Items[i:integer] : TJob read GetItems write SetItems;
     function    Add(AObject: TJob): Integer; reintroduce;
+    //   function Add returns a new FItemClass Item.
+    function    Add: TJob; reintroduce; overload;
+    //   function Clone, returns a new object that is a clone of this one.
+    function    Clone: TJobList; reintroduce;
+    procedure AssignClassProps(ASource: TtiObject); reintroduce;
+    //Read, Save: Method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.
     procedure   Read; override;
     procedure   Save; override;
     class property ItemClass: TJobClass read FItemClass write FItemClass;
@@ -97,7 +109,11 @@ type
     procedure   SetJobOID(const AValue: String); virtual;
     procedure   SetUserOID(const AValue: String); virtual;
   public
+    procedure AssignClassProps(ASource: TtiObject); reintroduce;
+    function   Clone: TUserJobRelation; reintroduce;
+    //Read: This method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.
     procedure   Read; override;
+    //Save: This method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.
     procedure   Save; override;
     function    IsValid(const AErrors: TtiObjectErrors): boolean; overload; override;
   published
@@ -113,8 +129,16 @@ type
     procedure   SetItems(i: integer; const AValue: TUserJobRelation); reintroduce;
     function    GetItems(i: integer): TUserJobRelation; reintroduce;
   public
+    constructor Create; override;
+    destructor Destroy; override;
     property    Items[i:integer] : TUserJobRelation read GetItems write SetItems;
     function    Add(AObject: TUserJobRelation): Integer; reintroduce;
+    //   function Add returns a new FItemClass Item.
+    function    Add: TUserJobRelation; reintroduce; overload;
+    //   function Clone, returns a new object that is a clone of this one.
+    function    Clone: TUserJobRelationList; reintroduce;
+    procedure AssignClassProps(ASource: TtiObject); reintroduce;
+    //Read, Save: Method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.
     procedure   Read; override;
     procedure   Save; override;
     class property ItemClass: TUserJobRelationClass read FItemClass write FItemClass;
@@ -250,6 +274,9 @@ uses
 procedure RegisterMappings;
 begin
   { Automap registrations for TJob }
+  {   Used when Read(aDBConnection, aPersistencelayer called.}
+  {   DefaultDatabasename and defaultpersistencelayername must be set.}
+  {   Gtiopfmanager.read is called wich uses cuStandardTask_Read etc classes.}
   GTIOPFManager.ClassDBMappingMgr.RegisterMapping(TJob, 
     'jobs', 'OID', 'OID', [pktDB]);
   GTIOPFManager.ClassDBMappingMgr.RegisterMapping(TJob,
@@ -261,6 +288,9 @@ begin
   GTIOPFManager.ClassDBMappingMgr.RegisterCollection(TJobList, TJob);
   
   { Automap registrations for TUserJobRelation }
+  {   Used when Read(aDBConnection, aPersistencelayer called.}
+  {   DefaultDatabasename and defaultpersistencelayername must be set.}
+  {   Gtiopfmanager.read is called wich uses cuStandardTask_Read etc classes.}
   GTIOPFManager.ClassDBMappingMgr.RegisterMapping(TUserJobRelation, 
     'user_job_relation', 'OID', 'OID', [pktDB]);
   GTIOPFManager.ClassDBMappingMgr.RegisterMapping(TUserJobRelation,
@@ -274,7 +304,8 @@ end;
 procedure RegisterVisitors;
 begin
   { NOTE: The most reliable order of registering visitors are
-          Read, Delete, Update, Create }
+  {        Read, Delete, Update, Create }
+  { These are used when Read() is called.}
   GTIOPFManager.VisitorManager.RegisterVisitor('LoadJobList', TJobList_Read);
   GTIOPFManager.VisitorManager.RegisterVisitor('LoadJob', TJob_Read);
   GTIOPFManager.VisitorManager.RegisterVisitor('SaveJob', TJob_Delete);
@@ -284,7 +315,8 @@ begin
   GTIOPFManager.VisitorManager.RegisterVisitor('TJobList_FindByStatusVis', TJobList_FindByStatusVis);
   
   { NOTE: The most reliable order of registering visitors are
-          Read, Delete, Update, Create }
+  {        Read, Delete, Update, Create }
+  { These are used when Read() is called.}
   GTIOPFManager.VisitorManager.RegisterVisitor('LoadUserJobRelationList', TUserJobRelationList_Read);
   GTIOPFManager.VisitorManager.RegisterVisitor('LoadUserJobRelation', TUserJobRelation_Read);
   GTIOPFManager.VisitorManager.RegisterVisitor('SaveUserJobRelation', TUserJobRelation_Delete);
@@ -292,6 +324,19 @@ begin
   GTIOPFManager.VisitorManager.RegisterVisitor('SaveUserJobRelation', TUserJobRelation_Create);
   GTIOPFManager.VisitorManager.RegisterVisitor('TUserJobRelationList_FindByUserVis', TUserJobRelationList_FindByUserVis);
   
+end;
+
+procedure TJob.AssignClassProps(ASource: TtiObject);
+begin
+end;
+
+function TJob.Clone: TJob;
+var
+  lClass: TtiClass;
+begin
+  lClass := TtiClass(ClassType);
+  result := TJob(lClass.Create);
+  result.Assign(self);
 end;
 
 procedure TJob.SetJobDesc(const AValue: String);
@@ -346,6 +391,41 @@ end;
 function TJobList.Add(AObject: TJob): integer;
 begin
   result := inherited Add(AObject);
+end;
+
+constructor TJobList.Create;
+begin
+  Inherited Create;
+  FItemClass := TJob;
+end;
+
+destructor TJobList.Destroy;
+begin
+  inherited Destroy;
+end;
+
+function TJobList. Add: TJob;
+var
+  aItem: TJob;
+begin
+  aItem := TJob.Create;
+  Add(aItem);
+  result := aItem;
+end;
+
+function TJobList.Clone: TJobList;
+var
+  lClass: TtiClass;
+begin
+  lClass := TtiClass(ClassType);
+  result := TJobList(lClass.Create);
+  result.Assign(self);
+end;
+
+procedure TJobList.AssignClassProps(ASource: TtiObject);
+begin
+//Only call inherited if it inherits from other than TtiVisited or TtiObject or TtiMappedFilteredObjectList.
+//inherited AssignClassProps(ASource);
 end;
 
 function TJobList.GetItems(i: integer): TJob;
@@ -408,6 +488,19 @@ begin
   result := self.Count;
 end;
 
+procedure TUserJobRelation.AssignClassProps(ASource: TtiObject);
+begin
+end;
+
+function TUserJobRelation.Clone: TUserJobRelation;
+var
+  lClass: TtiClass;
+begin
+  lClass := TtiClass(ClassType);
+  result := TUserJobRelation(lClass.Create);
+  result.Assign(self);
+end;
+
 procedure TUserJobRelation.SetJobOID(const AValue: String);
 begin
   if FJobOID = AValue then
@@ -459,6 +552,41 @@ end;
 function TUserJobRelationList.Add(AObject: TUserJobRelation): integer;
 begin
   result := inherited Add(AObject);
+end;
+
+constructor TUserJobRelationList.Create;
+begin
+  Inherited Create;
+  FItemClass := TUserJobRelation;
+end;
+
+destructor TUserJobRelationList.Destroy;
+begin
+  inherited Destroy;
+end;
+
+function TUserJobRelationList. Add: TUserJobRelation;
+var
+  aItem: TUserJobRelation;
+begin
+  aItem := TUserJobRelation.Create;
+  Add(aItem);
+  result := aItem;
+end;
+
+function TUserJobRelationList.Clone: TUserJobRelationList;
+var
+  lClass: TtiClass;
+begin
+  lClass := TtiClass(ClassType);
+  result := TUserJobRelationList(lClass.Create);
+  result.Assign(self);
+end;
+
+procedure TUserJobRelationList.AssignClassProps(ASource: TtiObject);
+begin
+//Only call inherited if it inherits from other than TtiVisited or TtiObject or TtiMappedFilteredObjectList.
+//inherited AssignClassProps(ASource);
 end;
 
 function TUserJobRelationList.GetItems(i: integer): TUserJobRelation;

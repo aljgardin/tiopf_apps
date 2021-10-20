@@ -2,7 +2,7 @@
 
 unit person_bom;
 // ---------------------------------------------------------
-// Automatically generated on 10/10/2021 11:54:23
+// Automatically generated on 10/16/2021 22:30:22
 // Warning: 
 //   If you rerun timap, your changes in this file will be lost
 // ---------------------------------------------------------
@@ -71,7 +71,11 @@ type
     procedure   SetLastName(const AValue: String); virtual;
     procedure   SetPersonType(const AValue: TPersonType); virtual;
   public
+    procedure AssignClassProps(ASource: TtiObject); reintroduce;
+    function   Clone: TPerson; reintroduce;
+    //Read: This method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.
     procedure   Read; override;
+    //Save: This method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.
     procedure   Save; override;
     function    IsValid(const AErrors: TtiObjectErrors): boolean; overload; override;
   published
@@ -93,8 +97,16 @@ type
     procedure   SetItems(i: integer; const AValue: TPerson); reintroduce;
     function    GetItems(i: integer): TPerson; reintroduce;
   public
+    constructor Create; override;
+    destructor Destroy; override;
     property    Items[i:integer] : TPerson read GetItems write SetItems;
     function    Add(AObject: TPerson): Integer; reintroduce;
+    //   function Add returns a new FItemClass Item.
+    function    Add: TPerson; reintroduce; overload;
+    //   function Clone, returns a new object that is a clone of this one.
+    function    Clone: TPersonList; reintroduce;
+    procedure AssignClassProps(ASource: TtiObject); reintroduce;
+    //Read, Save: Method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.
     procedure   Read; override;
     procedure   Save; override;
     class property ItemClass: TPersonClass read FItemClass write FItemClass;
@@ -183,6 +195,9 @@ uses
 procedure RegisterMappings;
 begin
   { Automap registrations for TPerson }
+  {   Used when Read(aDBConnection, aPersistencelayer called.}
+  {   DefaultDatabasename and defaultpersistencelayername must be set.}
+  {   Gtiopfmanager.read is called wich uses cuStandardTask_Read etc classes.}
   GTIOPFManager.ClassDBMappingMgr.RegisterMapping(TPerson, 
     'person', 'OID', 'OID', [pktDB]);
   GTIOPFManager.ClassDBMappingMgr.RegisterMapping(TPerson,
@@ -202,7 +217,8 @@ end;
 procedure RegisterVisitors;
 begin
   { NOTE: The most reliable order of registering visitors are
-          Read, Delete, Update, Create }
+  {        Read, Delete, Update, Create }
+  { These are used when Read() is called.}
   GTIOPFManager.VisitorManager.RegisterVisitor('LoadPersonList', TPersonList_Read);
   GTIOPFManager.VisitorManager.RegisterVisitor('LoadPerson', TPerson_Read);
   GTIOPFManager.VisitorManager.RegisterVisitor('SavePerson', TPerson_Delete);
@@ -211,6 +227,19 @@ begin
   GTIOPFManager.VisitorManager.RegisterVisitor('TPersonList_FindByGenderVis', TPersonList_FindByGenderVis);
   GTIOPFManager.VisitorManager.RegisterVisitor('TPersonList_FindByFirstNameMatchVis', TPersonList_FindByFirstNameMatchVis);
   
+end;
+
+procedure TPerson.AssignClassProps(ASource: TtiObject);
+begin
+end;
+
+function TPerson.Clone: TPerson;
+var
+  lClass: TtiClass;
+begin
+  lClass := TtiClass(ClassType);
+  result := TPerson(lClass.Create);
+  result.Assign(self);
 end;
 
 procedure TPerson.SetActiveDate(const AValue: TDateTime);
@@ -312,6 +341,41 @@ end;
 function TPersonList.Add(AObject: TPerson): integer;
 begin
   result := inherited Add(AObject);
+end;
+
+constructor TPersonList.Create;
+begin
+  Inherited Create;
+  FItemClass := TPerson;
+end;
+
+destructor TPersonList.Destroy;
+begin
+  inherited Destroy;
+end;
+
+function TPersonList. Add: TPerson;
+var
+  aItem: TPerson;
+begin
+  aItem := TPerson.Create;
+  Add(aItem);
+  result := aItem;
+end;
+
+function TPersonList.Clone: TPersonList;
+var
+  lClass: TtiClass;
+begin
+  lClass := TtiClass(ClassType);
+  result := TPersonList(lClass.Create);
+  result.Assign(self);
+end;
+
+procedure TPersonList.AssignClassProps(ASource: TtiObject);
+begin
+//Only call inherited if it inherits from other than TtiVisited or TtiObject or TtiMappedFilteredObjectList.
+//inherited AssignClassProps(ASource);
 end;
 
 function TPersonList.GetItems(i: integer): TPerson;

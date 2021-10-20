@@ -88,6 +88,8 @@ type
     procedure   WriteClassIntfMethods(ASL: TStringList; AClassDef: TMapClassDef);
     procedure   WriteClassImpSettersGetters(ASL: TStringList; AClassDef: TMapClassDef);
     {AJG}
+    procedure   WriteClassIntfCreate(ASL: TStringlist; AClassDef: TMapClassDef);
+    procedure   WriteClassImpCreate(ASL: TStringlist; AClassDef: TMapClassDef);
     procedure   WriteClassIntfClone(ASL: TStringlist; AClassDef: TMapClassDef);
     procedure   WriteClassImpClone(ASL: TStringlist; AClassDef: TMapClassDef);
     procedure   WriteClassIntfAssignClassProps(ASL: TStringlist; AClassDef: TMapClassDef);
@@ -486,6 +488,9 @@ begin
     exit;
 
   WriteLine('{ Automap registrations for ' + AClassDef.BaseClassName + ' }', ASL);
+  WriteLine('{   Used when Read(aDBConnection, aPersistencelayer called.}', ASL);
+  WriteLine('{   DefaultDatabasename and defaultpersistencelayername must be set.}', ASL);
+  WriteLine('{   Gtiopfmanager.read is called wich uses cuStandardTask_Read etc classes.}', ASL);
 
   // Write out OID mapping first
   WriteLine('GTIOPFManager.ClassDBMappingMgr.RegisterMapping(' + AClassDef.BaseClassName + ', ', ASL);
@@ -626,12 +631,14 @@ end;
 procedure TMapperProjectWriter.WriteClassIntfReadMethod(ASL: TStringList;
   AClassDef: TMapClassDef);
 begin
+  WriteLine('//Read: This method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.', ASL);
   WriteLine('procedure   Read; override;', ASL);
 end;
 
 procedure TMapperProjectWriter.WriteClassIntfSaveMethod(ASL: TStringList;
   AClassDef: TMapClassDef);
 begin
+  WriteLine('//Save: This method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.', ASL);
   WriteLine('procedure   Save; override;', ASL);
 end;
 
@@ -978,7 +985,8 @@ var
 begin
   lBaseClassName := Copy(AClassMap.BaseClassName, 2, Length(AClassMap.BaseClassName));
   WriteLine('{ NOTE: The most reliable order of registering visitors are', ASL);
-  WriteLine('        Read, Delete, Update, Create }', ASL);
+  WriteLine('{        Read, Delete, Update, Create }', ASL);
+  WriteLine('{ These are used when Read() is called.}' , ASL);
 
   if AClassMap.AutoCreateListClass then
   begin
@@ -1277,18 +1285,23 @@ begin
         DecTab;
       WriteLine('public', ASL);
         IncTab;
+          {AJG 2021-10-10}
+          WriteLine('constructor Create; override;', ASL);
+          WriteLine('destructor Destroy; override;', ASL);
+          {END AJG}
+
           WriteLine('property    Items[i:integer] : ' + AClassDef.BaseClassName + ' read GetItems write SetItems;', ASL);
           WriteLine('function    Add(AObject: ' + AClassDef.BaseClassName + '): Integer; reintroduce;', ASL);
 
           {AJG 2021-10-10}
-          WriteLine('//   function Add returns a new ItemClass Item.', ASL);
+          WriteLine('//   function Add returns a new FItemClass Item.', ASL);
           WriteLine('function    Add: ' + AClassDef.BaseClassName + '; reintroduce; overload;', ASL);
           WriteLine('//   function Clone, returns a new object that is a clone of this one.', ASL);
-          WriteLine('function    Clone: ' + AClassDef.BaseClassName + '; reintroduce;', ASL); //TtiObject; '
-          WriteLine('//  AssignClassProps, not implemented here.', ASL);
-          WriteLine('//procedure AssignClassProps(ASource: TtiObject); reintroduce;', ASL);
+          WriteLine('function    Clone: ' + AClassDef.BaseClassName + 'List; reintroduce;', ASL); //TtiObject; '
+          WriteLine('procedure AssignClassProps(ASource: TtiObject); reintroduce;', ASL);
           {end AJG}
 
+          WriteLine('//Read, Save: Method uses Gtiopfmanager.defaultdbconnection and defaultpersistencelayername.', ASL);
           WriteLine('procedure   Read; override;', ASL);
           WriteLine('procedure   Save; override;', ASL);
           WriteLine('class property ItemClass: '+AClassDef.BaseClassName+'Class read FItemClass write FItemClass;', ASL);
@@ -1326,6 +1339,21 @@ begin
   WriteBreak(ASL);
 
   {AJG 2021-10-10}
+  //constructor Create;
+  WriteLine('constructor ' + lListName + '.Create;', ASL);
+  WriteLine('begin', ASL);
+  WriteLine('  Inherited Create;', ASL);
+  WriteLine('  FItemClass := ' + AClassDef.BaseClassName + ';', ASL);
+  WriteLine('end;', ASL);
+  WriteBreak(ASL);
+
+  //destructor Destroy;
+  WriteLine('destructor ' + lListName + '.Destroy;', ASL);
+  WriteLine('begin', ASL);
+  WriteLine('  inherited Destroy;', ASL);
+  WriteLine('end;', ASL);
+  WriteBreak(ASL);
+
   //function Add: AClassDef.BaseClassName;
   WriteLine('function ' + lListName + '. Add: ' + AClassDef.BaseClassName + ';', ASL);
   WriteLine('var', ASL);
@@ -1333,31 +1361,27 @@ begin
   WriteLine('begin', ASL);
   WriteLine('  aItem := ' + AClassDef.BaseClassName + '.Create;', ASL);
   WriteLine('  Add(aItem);', ASL);
+  WriteLine('  result := aItem;', ASL);
   WriteLine('end;', ASL);
   WriteBreak(ASL);
 
-  //WriteLine('//   function Clone, returns a new object that is a clone of this one.
-  //WriteLine('function    Clone: ' + AClassDef.BaseClassName + '); reintroduce;', ASL); //TtiObject; '
-  //var
-  //  lClass : TtiClass;
-  //begin
-  //  lClass := TtiClass(ClassType);
-  //  result := TtiObject(lClass.Create);
-  //  result.Assign(self);
-  WriteLine('function ' + lListName + '.Clone: ' + AClassDef.BaseClassName + ';', ASL);
+  //function Clone, returns a new object that is a clone of this one.
+  WriteLine('function ' + lListName + '.Clone: ' + lListName + ';', ASL);
   WriteLine('var', ASL);
   WriteLine('  lClass: TtiClass;', ASL);
   WriteLine('begin', ASL);
   WriteLine('  lClass := TtiClass(ClassType);', ASL);
-  WriteLine('  result := ' + AClassDef.BaseClassName + '(lClass.Create);', ASL);
+  WriteLine('  result := ' + lListName + '(lClass.Create);', ASL);
   WriteLine('  result.Assign(self);', ASL);
   WriteLine('end;', ASL);
   WriteBreak(ASL);
 
-  //WriteLine('//procedure AssignClassProps(ASource: TtiObject); virtual;', ASL);
-  WriteLine('//procedure ' + lListName + '.AssignClassProps(ASource: TtiObject); virtual;', ASL);
-  WriteLine('//begin', ASL);
-  WriteLine('//end;', ASL);
+  //procedure AssignClassProps(ASource: TtiObject); virtual;', ASL);
+  WriteLine('procedure ' + lListName + '.AssignClassProps(ASource: TtiObject);', ASL);
+  WriteLine('begin', ASL);
+  WriteLine('//Only call inherited if it inherits from other than TtiVisited or TtiObject or TtiMappedFilteredObjectList.', ASL);
+  WriteLine('//inherited AssignClassProps(ASource);', ASL);
+  WriteLine('end;', ASL);
   WriteBreak(ASL);
   {end AJG}
 
@@ -1614,12 +1638,28 @@ begin
     end;
 end;
 
+procedure TMapperProjectWriter.WriteClassIntfCreate(ASL: TStringlist;
+  AClassDef: TMapClassDef);
+begin
+  WriteLine('constructor   Create: ' + AClassDef.BaseClassName + '; override;', ASL);
+end;
+
+procedure TMapperProjectWriter.WriteClassImpCreate(ASL: TStringlist;
+  AClassDef: TMapClassDef);
+begin
+  WriteLine('constructor ' + AClassDef.BaseClassName + '.Create;', ASL);
+  WriteLine('begin', ASL);
+  WriteLine('  inherited Create;', ASL);
+  WriteLine('end;', ASL);
+  WriteBreak(ASL);
+end;
+
 procedure TMapperProjectWriter.WriteClassIntfClone(ASL: TStringlist;
   AClassDef: TMapClassDef);
 begin
   //WriteLine('//   function Clone, returns a new object that is a clone of this one.', ASL);
   //WriteLine('function    Clone: ' + AClassDef.BaseClassName + '; reintroduce;', ASL); //TtiObject; '
-  WriteLine('function   Clone: ' + AClassDef.BaseClassName + ';', ASL);
+  WriteLine('function   Clone: ' + AClassDef.BaseClassName + '; reintroduce;', ASL);
 end;
 
 procedure TMapperProjectWriter.WriteClassImpClone(ASL: TStringlist;
@@ -1639,15 +1679,15 @@ end;
 procedure TMapperProjectWriter.WriteClassIntfAssignClassProps(ASL: TStringlist;
   AClassDef: TMapClassDef);
 begin
-  WriteLine('//procedure AssignClassProps(ASource: TtiObject); reintroduce;', ASL);
+  WriteLine('procedure AssignClassProps(ASource: TtiObject); reintroduce;', ASL);
 end;
 
 procedure TMapperProjectWriter.WriteClassImpAssignClassProps(ASL: TStringlist;
   AClassDef: TMapClassDef);
 begin
-  WriteLine('//procedure ' + AClassDef.BaseClassName + '.AssignClassProps(ASource: TtiObject);', ASL);
-  WriteLine('//begin', ASL);
-  WriteLine('//end;', ASL);
+  WriteLine('procedure ' + AClassDef.BaseClassName + '.AssignClassProps(ASource: TtiObject);', ASL);
+  WriteLine('begin', ASL);
+  WriteLine('end;', ASL);
   WriteBreak(ASL);
 end;
 
