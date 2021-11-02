@@ -488,7 +488,9 @@ begin
     exit;
 
   WriteLine('{ Automap registrations for ' + AClassDef.BaseClassName + ' }', ASL);
-  WriteLine('{ Used when Read(aDBConnection, aPersistencelayer called.}', ASL);
+  WriteLine('{   Used when Read(aDBConnection, aPersistencelayer called.}', ASL);
+  WriteLine('{   DefaultDatabasename and defaultpersistencelayername must be set.}', ASL);
+  WriteLine('{   Gtiopfmanager.read is called wich uses cuStandardTask_Read etc classes.}', ASL);
 
   // Write out OID mapping first
   WriteLine('GTIOPFManager.ClassDBMappingMgr.RegisterMapping(' + AClassDef.BaseClassName + ', ', ASL);
@@ -982,9 +984,9 @@ var
   lBaseClassName: string;
 begin
   lBaseClassName := Copy(AClassMap.BaseClassName, 2, Length(AClassMap.BaseClassName));
-  WriteLine('{ NOTE: The most reliable order of registering visitors are', ASL);
-  WriteLine('        Read, Delete, Update, Create }', ASL);
-  WriteLine(' These are used when Read() is called.', ASL);
+  WriteLine('{ NOTE: The most reliable order of registering visitors are ', ASL);
+  WriteLine('{        Read, Delete, Update, Create }', ASL);
+  WriteLine('{ These are used when Read() is called.}' , ASL);
 
   if AClassMap.AutoCreateListClass then
   begin

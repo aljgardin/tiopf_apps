@@ -15,7 +15,6 @@ unit mapper;
 //    function    Add: TBaseMapObject; overload; virtual;
 
 
-
 {$IFDEF FPC}
   {$mode objfpc}{$H+}
 {$ENDIF}
@@ -31,7 +30,6 @@ uses
   ,tiRTTI
   ,tiAutoMap
   ,typinfo
-  ,fgl
   ,tiVisitorDB
   ,tiOPFManager
   ,tiFilteredObjectList
@@ -39,34 +37,6 @@ uses
 
 type
 
-  { TagtiMapperOutput }
-
-  TagtiMapperOutput = class(TPersistent)
-  private
-    FFilename: TFilename;
-    FpasOutput: TStringlist;
-    FpasPath: String;
-    procedure SetFilename(AValue: TFilename);
-    procedure SetpasOutput(AValue: TStringlist);
-    procedure SetpasPath(AValue: String);
-  protected
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    procedure Assign(Source: TPersistent); override;
-
-    procedure Clear;
-
-    procedure SaveToFile; overload;
-
-  published
-    property pasOutput: TStringlist read FpasOutput write SetpasOutput;
-    property pasFilename: TFilename read FFilename write SetFilename;
-    property pasPath: String read FpasPath write SetpasPath;
-  end;
-
-  TagtiMapperOutputList = specialize TFPGObjectList<TagtiMapperOutput>;
 
   // -----------------------------------------------------------------
   //  Forward Declares
@@ -543,6 +513,7 @@ type
     FCrud: string;
     FDefType: TClassDefType;
     FForwardDeclare: boolean;
+    FListClassParent: string;
     FNotifyObserversOfPropertyChanges: boolean;
     FORMClassName: string;
     FSelections: TClassMappingSelectList;
@@ -557,6 +528,7 @@ type
     procedure SetCrud(const AValue: string);
     procedure SetDefType(const AValue: TClassDefType);
     procedure SetForwardDeclare(const AValue: boolean);
+    procedure SetListClassParent(AValue: string);
     procedure SetNotifyObserversOfPropertyChanges(const AValue: boolean);
     procedure SetORMClassName(const AValue: string);
   public
@@ -580,6 +552,9 @@ type
     property    ForwardDeclare: boolean read FForwardDeclare write SetForwardDeclare;
     property    ORMClassName: string read FORMClassName write SetORMClassName;
     property    NotifyObserversOfPropertyChanges: boolean read FNotifyObserversOfPropertyChanges write SetNotifyObserversOfPropertyChanges default False;
+    {AJG 2021-10-29}
+    property    ListClassParent: string read FListClassParent write SetListClassParent;
+    {AJG End}
 end;
 
   TMapClassDefList = class(TBaseMapObjectList)
@@ -689,6 +664,15 @@ end;
     constructor Create; override;
     destructor  Destroy; override;
   end;
+
+  {Added by AJG 2021-10-29}
+  TtiMFOL = class(TtiMappedFilteredObjectList)
+  private
+    class var FItemClass: TtiClass;
+  public
+    class property ItemClass: TtiClass read FItemClass write FItemClass;
+  end;
+  TtiMFOLClass = class of TtiMFOL;
 
   {: List read Visitor with parameters for use as a generic list visitor.}
   TtiMapParameterListReadVisitor = class(TtiVisitorSelect)
@@ -1049,69 +1033,6 @@ begin
     result := vtRegExp
   else
     Raise Exception.Create('gStrToValType: Value out of range');
-end;
-
-{ TagtiMapperOutput }
-
-procedure TagtiMapperOutput.SetFilename(AValue: TFilename);
-begin
-  if FFilename=AValue then Exit;
-  FFilename:=AValue;
-end;
-
-procedure TagtiMapperOutput.SetpasOutput(AValue: TStringlist);
-begin
-  if FpasOutput.Text=AValue.Text then Exit;
-  FpasOutput.Assign(AValue);
-end;
-
-procedure TagtiMapperOutput.SetpasPath(AValue: String);
-begin
-  if FpasPath=AValue then Exit;
-  FpasPath:=AValue;
-end;
-
-constructor TagtiMapperOutput.Create;
-begin
-  inherited Create;
-  FpasOutput := TStringlist.Create;
-end;
-
-destructor TagtiMapperOutput.Destroy;
-begin
-  FpasOutput.Free;
-  inherited Destroy;
-end;
-
-procedure TagtiMapperOutput.Assign(Source: TPersistent);
-begin
-  inherited Assign(Source);
-  if Source is TagtiMapperOutput then
-    begin
-      self.pasOutput.Assign((Source as TagtiMapperOutput).FpasOutput);
-      self.FFilename:=(Source as TagtiMapperOutput).FFilename;
-    end;
-end;
-
-procedure TagtiMapperOutput.Clear;
-begin
-  FpasOutput.Clear;
-  FFilename := '';
-end;
-
-procedure TagtiMapperOutput.SaveToFile;
-begin
-  if DirectoryExists(FpasPath) and (FFilename <> '') then
-  begin
-    try
-      pasOutput.SaveToFile(sysutils.IncludeTrailingPathDelimiter(fPasPath) + FFilename + '.p);
-    except
-      on E: Exception do
-      begin
-
-      end;
-    end;
-  end;
 end;
 
 { TMapProject }
@@ -1519,6 +1440,7 @@ begin
   FSelections := TClassMappingSelectList.Create;
   FValidators := TMapValidatorList.Create;
   FNotifyObserversOfPropertyChanges := False;
+  FListClassParent := 'TtiMFOL';//'TtiMappedFilteredObjectList';
 end;
 
 destructor TMapClassDef.Destroy;
@@ -1601,6 +1523,12 @@ procedure TMapClassDef.SetForwardDeclare(const AValue: boolean);
 begin
   if FForwardDeclare=AValue then exit;
   FForwardDeclare:=AValue;
+end;
+
+procedure TMapClassDef.SetListClassParent(AValue: string);
+begin
+  if FListClassParent=AValue then Exit;
+  FListClassParent:=AValue;
 end;
 
 procedure TMapClassDef.SetNotifyObserversOfPropertyChanges(const AValue: boolean);

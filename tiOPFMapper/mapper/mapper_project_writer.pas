@@ -984,7 +984,7 @@ var
   lBaseClassName: string;
 begin
   lBaseClassName := Copy(AClassMap.BaseClassName, 2, Length(AClassMap.BaseClassName));
-  WriteLine('{ NOTE: The most reliable order of registering visitors are', ASL);
+  WriteLine('{ NOTE: The most reliable order of registering visitors are }', ASL);
   WriteLine('{        Read, Delete, Update, Create }', ASL);
   WriteLine('{ These are used when Read() is called.}' , ASL);
 
