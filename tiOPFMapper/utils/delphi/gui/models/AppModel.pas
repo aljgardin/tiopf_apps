@@ -138,6 +138,8 @@ begin
 
   FCurrentEnums := TMapEnumList.Create;
   FCurrentEnums.OwnsObjects := False;
+
+  InitPropertyTypes;
 end;
 
 procedure TAppModel.CreateNewProject(const AFileName: string);

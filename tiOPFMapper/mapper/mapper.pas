@@ -227,6 +227,8 @@ type
     function Add(AObject: TMapConnectionDef): Integer; reintroduce;
   end;
 
+  { TMapPropertyType }
+
   TMapPropertyType = class(TBaseMapObject)
   private
     FTypeName: string;
@@ -386,6 +388,8 @@ type
   public
     constructor Create; override;
     destructor Destroy; override;
+
+
   published
     //Class Property:
     property PropertyType: TMapPropertyType read FPropertyType write SetPropType;
@@ -1588,7 +1592,7 @@ end;
 
 function TMapClassDef.Clone: TMapClassDef;
 begin
-  Result := TMapClassDef(inherited Clone);
+  result := TMapClassDef(inherited Clone);
 end;
 
 procedure TMapClassDef.SetAutoCreateBase(const AValue: boolean);
@@ -1737,7 +1741,8 @@ begin
   begin
     lSource := ASource as TMapClassProp;
 
-    PropertyType := lSource.PropertyType;
+    //PropertyType := lSource.PropertyType;
+    PropertyType.Assign(lSource.FPropertyType);
   end;
 end;
 
@@ -2519,7 +2524,8 @@ begin
   begin
     lSource := ASource as TMapValidator;
 
-    ClassProp := lSource.ClassProp;
+    //ClassProp := lSource.ClassProp;
+    ClassProp.Assign(lSource.ClassProp);
   end;
 end;
 

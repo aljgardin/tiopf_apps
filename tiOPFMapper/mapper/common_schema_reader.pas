@@ -322,6 +322,12 @@ begin
         lNewProp.PropertyType := TAppModel.Instance.CurrentPropertyTypes.FindByTypeName('String');
       end;
 
+      if lNewProp.PropertyType = nil then
+      begin
+        Beep; Beep; beep;
+        Break;
+      end;
+
       AClass.ClassProps.Add(lNewProp);
     end;
   end;
@@ -843,6 +849,9 @@ begin
       // Add reference to ProjectEnums
       FProject.ProjectEnums.Add(lNewEnum);
       // Add reference to Application Property Types
+
+      //Something Wrong here:{ TODO : Check }
+      //Cast to TMapPropertyType?
       TAppModel.Instance.CurrentPropertyTypes.Add(lNewEnum);
     end;
   end;
@@ -905,6 +914,9 @@ begin
   begin
     lProp := AClassDef.ClassProps.Items[lCtr];
     lNewPropNode := FDoc.CreateElement('prop');
+
+    //lProp not initialized here.VVV
+
     lNewPropNode.SetAttribute('name', lProp.Name);
     lNewPropNode.SetAttribute('type', lProp.PropertyType.TypeName);
     lClassPropsNode.AppendChild(lNewPropNode);
