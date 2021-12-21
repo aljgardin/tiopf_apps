@@ -513,7 +513,6 @@ type
     FCrud: string;
     FDefType: TClassDefType;
     FForwardDeclare: boolean;
-    FListClassParent: string;
     FNotifyObserversOfPropertyChanges: boolean;
     FORMClassName: string;
     FSelections: TClassMappingSelectList;
@@ -528,7 +527,6 @@ type
     procedure SetCrud(const AValue: string);
     procedure SetDefType(const AValue: TClassDefType);
     procedure SetForwardDeclare(const AValue: boolean);
-    procedure SetListClassParent(AValue: string);
     procedure SetNotifyObserversOfPropertyChanges(const AValue: boolean);
     procedure SetORMClassName(const AValue: string);
   public
@@ -552,9 +550,6 @@ type
     property    ForwardDeclare: boolean read FForwardDeclare write SetForwardDeclare;
     property    ORMClassName: string read FORMClassName write SetORMClassName;
     property    NotifyObserversOfPropertyChanges: boolean read FNotifyObserversOfPropertyChanges write SetNotifyObserversOfPropertyChanges default False;
-    {AJG 2021-10-29}
-    property    ListClassParent: string read FListClassParent write SetListClassParent;
-    {AJG End}
 end;
 
   TMapClassDefList = class(TBaseMapObjectList)
@@ -587,13 +582,18 @@ end;
     procedure AssignClassProps(ASource: TtiObject); override;
   end;
 
+  { TMapUnitDefList }
+
   TMapUnitDefList = class(TBaseMapObjectList)
   protected
     function    GetItems(i: Integer): TMapUnitDef; reintroduce;
     procedure   SetItems(i: Integer;  AObject: TMapUnitDef); reintroduce;
   public
+    constructor Create; override;
+
     property    Items[AIndex: Integer]: TMapUnitDef read GetItems write SetItems; default;
     function    Add(AObject: TMapUnitDef): Integer; reintroduce;
+    function    Add: TMapUnitDef; override;
     function    FindByName(const AName: string): TMapUnitDef;
   end;
 
@@ -664,15 +664,6 @@ end;
     constructor Create; override;
     destructor  Destroy; override;
   end;
-
-  {Added by AJG 2021-10-29}
-  TtiMFOL = class(TtiMappedFilteredObjectList)
-  private
-    class var FItemClass: TtiClass;
-  public
-    class property ItemClass: TtiClass read FItemClass write FItemClass;
-  end;
-  TtiMFOLClass = class of TtiMFOL;
 
   {: List read Visitor with parameters for use as a generic list visitor.}
   TtiMapParameterListReadVisitor = class(TtiVisitorSelect)
@@ -1440,7 +1431,6 @@ begin
   FSelections := TClassMappingSelectList.Create;
   FValidators := TMapValidatorList.Create;
   FNotifyObserversOfPropertyChanges := False;
-  FListClassParent := 'TtiMFOL';//'TtiMappedFilteredObjectList';
 end;
 
 destructor TMapClassDef.Destroy;
@@ -1523,12 +1513,6 @@ procedure TMapClassDef.SetForwardDeclare(const AValue: boolean);
 begin
   if FForwardDeclare=AValue then exit;
   FForwardDeclare:=AValue;
-end;
-
-procedure TMapClassDef.SetListClassParent(AValue: string);
-begin
-  if FListClassParent=AValue then Exit;
-  FListClassParent:=AValue;
 end;
 
 procedure TMapClassDef.SetNotifyObserversOfPropertyChanges(const AValue: boolean);
@@ -1870,6 +1854,11 @@ begin
   result := inherited Add(AObject);
 end;
 
+function TMapUnitDefList.Add: TMapUnitDef;
+begin
+  result := TMapUnitDef.Create;
+end;
+
 function TMapUnitDefList.FindByName(const AName: string): TMapUnitDef;
 var
   lCtr: integer;
@@ -1897,6 +1886,14 @@ end;
 procedure TMapUnitDefList.SetItems(i: Integer; AObject: TMapUnitDef);
 begin
   inherited SetItems(i, AObject);
+end;
+
+constructor TMapUnitDefList.Create;
+begin
+  //inherited Create;
+  //override this in new overriden class:
+  //FBaseItemType := ItemClass.ClassType;  ie.. FBaseItemType := TMapProject;
+  FBaseItemType := TMapUnitDef.ClassType;
 end;
 
 { TMapSchemaWriter }

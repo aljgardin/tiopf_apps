@@ -582,13 +582,19 @@ end;
     procedure AssignClassProps(ASource: TtiObject); override;
   end;
 
+  { TMapUnitDefList }
+
   TMapUnitDefList = class(TBaseMapObjectList)
   protected
     function    GetItems(i: Integer): TMapUnitDef; reintroduce;
     procedure   SetItems(i: Integer;  AObject: TMapUnitDef); reintroduce;
   public
+    {AJG 2021-12-21 Added Create}
+    constructor Create; override;
+
     property    Items[AIndex: Integer]: TMapUnitDef read GetItems write SetItems; default;
     function    Add(AObject: TMapUnitDef): Integer; reintroduce;
+    function    Add: TMapUnitDef; override;
     function    FindByName(const AName: string): TMapUnitDef;
   end;
 
@@ -1849,6 +1855,11 @@ begin
   result := inherited Add(AObject);
 end;
 
+function TMapUnitDefList.Add: TMapUnitDef;
+begin
+  result := TMapUnitDef.Create;
+end;
+
 function TMapUnitDefList.FindByName(const AName: string): TMapUnitDef;
 var
   lCtr: integer;
@@ -1876,6 +1887,14 @@ end;
 procedure TMapUnitDefList.SetItems(i: Integer; AObject: TMapUnitDef);
 begin
   inherited SetItems(i, AObject);
+end;
+
+constructor TMapUnitDefList.Create;
+begin
+  inherited Create;
+  //override this in new overriden class:
+  //FBaseItemType := ItemClass.ClassType;  ie.. FBaseItemType := TMapProject;
+  FBaseItemType := TMapUnitDef.ClassType;
 end;
 
 { TMapSchemaWriter }
