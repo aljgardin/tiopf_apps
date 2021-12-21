@@ -594,8 +594,15 @@ end;
 
     property    Items[AIndex: Integer]: TMapUnitDef read GetItems write SetItems; default;
     function    Add(AObject: TMapUnitDef): Integer; reintroduce;
+<<<<<<< .mine
     function    Add: TMapUnitDef; override;
+=======
+    function    Add: TMapUnitDef; reintroduce; overload;
+>>>>>>> .theirs
     function    FindByName(const AName: string): TMapUnitDef;
+
+    //Clone
+    //AssignClassProps
   end;
 
   {: Class of TMapSchemaReader. }
@@ -1031,6 +1038,29 @@ end;
 
 procedure TMapProject.ClearAll;
 begin
+  //property    FileName: string read FFileName write SetFileName;
+  //property    ProjectName: string read FProjectName write SetProjectName;
+  //property    Includes: TStringList read FIncludes;
+  //property    OrigOutDirectory: string read FOrigOutDirectory write SetOrigOutDirectory;
+  //property    OutputDirectory: string read FOutputDirectory write SetOutputDirectory;
+  //property    BaseDirectory: string read FBaseDirectory write SetBaseDirectory;
+  //property    TabSpaces: integer read FTabSpaces write SetTabSpaces;
+  //property    BeginEndTabs: integer read FBeginEndTabs write SetBeginEndTabs;
+  //property    VisibilityTabs: integer read FVisibilityTabs write SetVisibilityTabs;
+  //property    MaxEditorCodeWidth: integer read FMaxEditorCodeWidth write SetMaxEditorCodeWidth;
+  //property    EnumType: TEnumType read FEnumType write SetEnumType;
+  Filename := '';
+  ProjectName := '';
+  Includes.Clear;
+  OrigOutDirectory := '';
+  OutputDirectory := '';
+  BaseDirectory := '';
+  TabSpaces := 2;
+  BeginEndTabs := 2;
+  VisibilityTabs := 2;
+  MaxEditorCodeWidth := 120;
+  EnumType := etInt;
+
   FIncludes.Clear;
   FUnits.Clear;
   ProjectClasses.Clear;
@@ -1855,11 +1885,31 @@ begin
   result := inherited Add(AObject);
 end;
 
+<<<<<<< .mine
 function TMapUnitDefList.Add: TMapUnitDef;
 begin
   result := TMapUnitDef.Create;
 end;
 
+
+
+
+
+
+
+=======
+function TMapUnitDefList.Add: TMapUnitDef;
+var
+  aUnit: TMapUnitDef;
+  x: Integer;
+begin
+  result := nil;
+  aUnit := TMapUnitDef.CreateNew();
+  result := aUnit;
+  Add(aUnit);
+end;
+
+>>>>>>> .theirs
 function TMapUnitDefList.FindByName(const AName: string): TMapUnitDef;
 var
   lCtr: integer;
