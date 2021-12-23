@@ -594,11 +594,7 @@ end;
 
     property    Items[AIndex: Integer]: TMapUnitDef read GetItems write SetItems; default;
     function    Add(AObject: TMapUnitDef): Integer; reintroduce;
-<<<<<<< .mine
-    function    Add: TMapUnitDef; override;
-=======
     function    Add: TMapUnitDef; reintroduce; overload;
->>>>>>> .theirs
     function    FindByName(const AName: string): TMapUnitDef;
 
     //Clone
@@ -1885,23 +1881,9 @@ begin
   result := inherited Add(AObject);
 end;
 
-<<<<<<< .mine
-function TMapUnitDefList.Add: TMapUnitDef;
-begin
-  result := TMapUnitDef.Create;
-end;
-
-
-
-
-
-
-
-=======
 function TMapUnitDefList.Add: TMapUnitDef;
 var
   aUnit: TMapUnitDef;
-  x: Integer;
 begin
   result := nil;
   aUnit := TMapUnitDef.CreateNew();
@@ -1909,7 +1891,6 @@ begin
   Add(aUnit);
 end;
 
->>>>>>> .theirs
 function TMapUnitDefList.FindByName(const AName: string): TMapUnitDef;
 var
   lCtr: integer;
