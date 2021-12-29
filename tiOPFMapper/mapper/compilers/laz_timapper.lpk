@@ -23,8 +23,8 @@
         <UnitName Value="tiSQLParser"/>
       </Item1>
       <Item2>
-        <Filename Value="..\mapper.pas"/>
-        <UnitName Value="mapper"/>
+        <Filename Value="..\frmtmapclassprop.pas"/>
+        <UnitName Value="frmtmapclassprop"/>
       </Item2>
       <Item3>
         <Filename Value="..\fpc_schema_reader.pas"/>

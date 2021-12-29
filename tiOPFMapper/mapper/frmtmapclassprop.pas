@@ -1,4 +1,4 @@
-unit mapper;
+unit frmTMapClassProp;
 
 
 //  Adding methods to each Mapper Class:
