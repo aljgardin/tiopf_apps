@@ -8,8 +8,7 @@ unit laz_timapper;
 interface
 
 uses
-  tiSQLParser, mapper, fpc_schema_reader, mapper_project_writer, 
-  fpc_schema_writer, agtiMapperOutput;
+  tiSQLParser, fpc_schema_reader, mapper_project_writer, fpc_schema_writer, agtiMapperOutput;
 
 implementation
 

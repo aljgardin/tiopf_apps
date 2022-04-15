@@ -169,6 +169,7 @@ type
     property    EnumType: TEnumType read FEnumType write SetEnumType;
 
   public
+    procedure   AssignClassProps(ASource: TtiObject); override;
     function   Clone: TMapProject; reintroduce;
 
     // object properties
@@ -180,7 +181,7 @@ type
     procedure   ClearAll; virtual;
     constructor Create; override;
     destructor  Destroy; override;
-    procedure   AssignClassProps(ASource: TtiObject); override;
+
   end;
 
   { TMapProjectList }
@@ -287,6 +288,9 @@ type
   end;
 
   {: Stores information about a class property. }
+
+  { TMapClassProp }
+
   TMapClassProp = class(TBaseMapObject)
   private
     FIsReadOnly: boolean;
@@ -297,6 +301,10 @@ type
     procedure SetPropName(const AValue: string);
     procedure SetPropType(const AValue: TMapPropType);
     procedure SetPropTypeName(const AValue: string);
+  public
+    procedure AssignClassProps(ASource: TtiObject); override;
+    function Clone: TMapClassProp; reintroduce;
+
   published
     property    Name: string read FName write SetPropName;
     property    PropertyType: TMapPropType read FPropertyType write SetPropType;
@@ -304,14 +312,21 @@ type
     property    IsReadOnly: boolean read FIsReadOnly write SetIsReadOnly;
   end;
 
+  { TMapClassPropList }
+
   TMapClassPropList = class(TBaseMapObjectList)
   protected
     function    GetItems(i: Integer): TMapClassProp; reintroduce;
     procedure   SetItems(i: Integer;  AObject: TMapClassProp); reintroduce;
   public
+    procedure AssignClassProps(ASource: TtiObject); override;
+    function Clone: TMapClassPropList; reintroduce;
+    function Add: TMapClassProp; reintroduce; overload;
+
     property    Items[AIndex: Integer]: TMapClassProp read GetItems write SetItems; default;
     function    Add(AObject: TMapClassProp): Integer; reintroduce; overload;
     function    Add(const AName: string; const APropType: TMapPropType): integer; overload;
+
     function    FindByName(const AName: string): TMapClassProp;
   end;
 
@@ -525,6 +540,7 @@ type
     FCrud: string;
     FDefType: TClassDefType;
     FForwardDeclare: boolean;
+    FListSavesDatabaseName: Boolean;
     FNotifyObserversOfPropertyChanges: boolean;
     FORMClassName: string;
     FSelections: TClassMappingSelectList;
@@ -539,6 +555,7 @@ type
     procedure SetCrud(const AValue: string);
     procedure SetDefType(const AValue: TClassDefType);
     procedure SetForwardDeclare(const AValue: boolean);
+    procedure SetListSavesDatabaseName(AValue: Boolean);
     procedure SetNotifyObserversOfPropertyChanges(const AValue: boolean);
     procedure SetORMClassName(const AValue: string);
   public
@@ -549,6 +566,7 @@ type
     property    Validators: TMapValidatorList read FValidators;
     constructor Create; override;
     destructor  Destroy; override;
+
     procedure AssignClassProps(ASource: TtiObject); override;
     function Clone: TMapClassDef; override;
   published
@@ -563,6 +581,7 @@ type
     property    ForwardDeclare: boolean read FForwardDeclare write SetForwardDeclare;
     property    ORMClassName: string read FORMClassName write SetORMClassName;
     property    NotifyObserversOfPropertyChanges: boolean read FNotifyObserversOfPropertyChanges write SetNotifyObserversOfPropertyChanges default False;
+    Property    ListSavesDatabaseName: Boolean read FListSavesDatabaseName write SetListSavesDatabaseName;
 end;
 
   { TMapClassDefList }
@@ -575,12 +594,11 @@ end;
     constructor Create; override;
     procedure AssignClassProps(ASource: TtiObject); override;
     function Clone: TMapClassDefList; override;
-    function Add: TMapClassDef; reintroduce;
+    function Add: TMapClassDef; reintroduce; overload;
 
     property    Items[AIndex: Integer]: TMapClassDef read GetItems write SetItems; default;
     function    Add(AObject: TMapClassDef): Integer; reintroduce;
     function    FindByName(const AName: string): TMapClassDef;
-
   end;
 
   { TMapUnitDef }
@@ -599,12 +617,13 @@ end;
     property    UnitEnums: TMapEnumList read FUnitEnums;
     property    References: TStringList read FReferences;
   public
+    procedure AssignClassProps(ASource: TtiObject); override;
+    function    Clone: TMapUnitDef; override;
+
     function    HasValidators: boolean;
     constructor Create; override;
     destructor  Destroy; override;
 
-    procedure AssignClassProps(ASource: TtiObject); override;
-    function    Clone: TMapUnitDef; override;
   end;
 
   { TMapUnitDefList }
@@ -616,15 +635,15 @@ end;
   public
     {AJG 2021-12-21 Added Create}
     constructor Create; override;
+    function    Clone : TMapUnitDefList; override;
+    procedure   AssignClassProps(ASource: TtiObject); override;
+    function    Add: TMapUnitDef; reintroduce; overload;
+    function    Add(const aUnitName: String): TMapUnitDef; reintroduce; overload;
 
     property    Items[AIndex: Integer]: TMapUnitDef read GetItems write SetItems; default;
     function    Add(AObject: TMapUnitDef): Integer; reintroduce;
     function    FindByName(const AName: string): TMapUnitDef;
 
-    function    Add: TMapUnitDef; reintroduce; overload;
-    function    Add(const aUnitName: String): TMapUnitDef; reintroduce; overload;
-    function    Clone : TMapUnitDefList; override;
-    procedure   AssignClassProps(ASource: TtiObject); override;
   end;
 
   {: Class of TMapSchemaReader. }
@@ -1415,11 +1434,8 @@ begin
 end;
 
 function TMapUnitDef.Clone: TMapUnitDef;
-var
-  lClass : TtiClass;
 begin
-  lClass := TtiClass(ClassType);
-  result := TMapUnitDef(lClass.Create);
+  result := TMapUnitDef.CreateNew();
   result.Assign(self);
 end;
 
@@ -1602,11 +1618,8 @@ begin
 end;
 
 function TMapClassDef.Clone: TMapClassDef;
-var
-  lClass : TtiClass;
 begin
-  lClass := TtiClass(ClassType);
-  result := TMapClassDef(lClass.Create);
+  result := TMapClassDef.CreateNew();
   result.Assign(self);
 end;
 
@@ -1614,6 +1627,12 @@ procedure TMapClassDef.SetForwardDeclare(const AValue: boolean);
 begin
   if FForwardDeclare=AValue then exit;
   FForwardDeclare:=AValue;
+end;
+
+procedure TMapClassDef.SetListSavesDatabaseName(AValue: Boolean);
+begin
+  if FListSavesDatabaseName=AValue then Exit;
+  FListSavesDatabaseName:=AValue;
 end;
 
 procedure TMapClassDef.SetNotifyObserversOfPropertyChanges(const AValue: boolean);
@@ -1677,16 +1696,14 @@ begin
 end;
 
 function TMapClassDefList.Clone: TMapClassDefList;
-var
-  lClass : TtiClass;
 begin
-  lClass := TtiClass(ClassType);
-  result := TMapClassDefList(lClass.Create);
+  result := TMapClassDefList.CreateNew();
   result.Assign(self);
 end;
 
 function TMapClassDefList.Add: TMapClassDef;
 begin
+  //inherited Add;
   Result:=TMapClassDef.CreateNew();
   Add(result);
 end;
@@ -1717,6 +1734,17 @@ begin
   FPropTypeName:=AValue;
 end;
 
+procedure TMapClassProp.AssignClassProps(ASource: TtiObject);
+begin
+  //inherited AssignClassProps(ASource);
+end;
+
+function TMapClassProp.Clone: TMapClassProp;
+begin
+  result := TMapClassProp.CreateNew();
+  result.Assign(self);
+end;
+
 { TMapClassPropList }
 
 function TMapClassPropList.Add(const AName: string;
@@ -1728,6 +1756,12 @@ begin
   lProp.Name := AName;
   lProp.PropertyType := APropType;
   result := self.Add(lProp);
+end;
+
+function TMapClassPropList.Add: TMapClassProp;
+begin
+  result := TMapClassProp.CreateNew();
+  Add(Result);
 end;
 
 function TMapClassPropList.Add(AObject: TMapClassProp): Integer;
@@ -1759,6 +1793,18 @@ end;
 procedure TMapClassPropList.SetItems(i: Integer; AObject: TMapClassProp);
 begin
   inherited SetItems(i, AObject);
+end;
+
+procedure TMapClassPropList.AssignClassProps(ASource: TtiObject);
+begin
+  //List can inherit
+  inherited AssignClassProps(ASource);
+end;
+
+function TMapClassPropList.Clone: TMapClassPropList;
+begin
+  result := TMapClassPropList.CreateNew();
+  result.assign(self);
 end;
 
 { TClassMapping }
@@ -2014,11 +2060,8 @@ begin
 end;
 
 function TMapUnitDefList.Clone: TMapUnitDefList;
-var
-  lClass : TtiClass;
 begin
-  lClass := TtiClass(ClassType);
-  result := TMapUnitDefList(lClass.Create);
+  result := TMapUnitDefList.CreateNew();
   result.Assign(self);
 end;
 

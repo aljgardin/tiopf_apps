@@ -57,6 +57,7 @@ uses
 type
 
   { TMapperProjectWriter }
+  { Writes to Pas file... }
 
   TMapperProjectWriter = class(TMapSchemaWriter)
   private
@@ -157,6 +158,7 @@ type
     {AJG 2021-10-10}
     {$ifdef agti}
     procedure WriteProject(aOutputList: TagtiMapperOutputList); overload;
+    procedure WriteProject(AOutput: TStringlist); overload;
     {$endif}
 
     constructor Create(AProject: TMapProject); override;
@@ -1797,6 +1799,41 @@ begin
     asl.Free
   end;
 end;
+
+procedure TMapperProjectWriter.WriteProject(AOutput: TStringlist);
+var
+  lCtr: Integer;
+  lUnit: TMapUnitDef;
+  asl: TStringlist;  //points to stringlist of output
+
+  s: String;
+begin
+  Assert(Assigned(AOutput), 'AOutput: TStringlist, not assigned!');
+  asl := TStringlist.Create;
+  aOutput.Clear;
+
+  try
+    for lCtr := 0 to Project.Units.Count - 1 do
+      begin
+        asl.Clear;
+
+        lUnit := Project.Units.Items[lCtr];
+
+        WriteBreak(ASL);
+        ASL.Add('// -------------------------------------------------------------');
+        ASL.Add('// Unit Definition: ' + lUnit.Name);
+        ASL.Add('// -------------------------------------------------------------');
+        WriteBreak(ASL);
+        WriteUnit(lUnit, ASL);
+
+        //ASL.SaveToFile(BaseDir + PathDelim + lUnit.Name + '.pas');
+        AOutput.Assign(ASL);
+      end;
+  finally
+    asl.Free
+  end;
+end;
+
 {$endif}
 
 procedure TMapperProjectWriter.WritePropGetter(ASL: TStringList;

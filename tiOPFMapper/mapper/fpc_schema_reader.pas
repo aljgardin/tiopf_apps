@@ -40,6 +40,9 @@ type
   end;
 
   {Write out as XML:}
+
+  { TProjectWriter }
+
   TProjectWriter = class(TBaseMapObject)
   protected
     FDirectory: String;
@@ -58,6 +61,8 @@ type
   public
     procedure   WriteProject(AProject: TMapProject; const ADirectory: String; const AFileName: string); virtual; overload;
     procedure   WriteProject(Aproject: TMapProject; const AFilePath: string); virtual; overload;
+
+    procedure   WriteProject(AProject: TMapProject; asl: TStringlist); virtual; overload;
     destructor  Destroy; override;
   end;
 
@@ -971,6 +976,80 @@ begin
   WriteProjectUnits(FWriterProject, lDocElem);
 
   WriteXMLFile(FDoc, AFilePath);
+end;
+
+procedure TProjectWriter.WriteProject(AProject: TMapProject; asl: TStringlist);
+var
+  lDocElem: TDOMElement;
+  lNewElem: TDOMElement;
+  lIncNode: TDomElement;
+  lDir: string;
+  lIncludesNode: TDomNode;
+  lIncludeElement: TDomElement;
+  ic: integer;
+  lComment: TDOMComment;
+begin
+
+  { NOT COMPLETE.....}
+
+  asl.Clear;
+
+  if FDoc <> nil then
+    begin
+      FreeAndNil(FDoc);
+    end;
+
+  FWriterProject := AProject;
+
+  FDoc := TXMLDocument.Create;
+
+  // Setup the <project> root node
+  lDocElem := FDoc.CreateElement('project');
+  lDocElem.SetAttribute('tab-spaces', IntToStr(FWriterProject.TabSpaces));
+  lDocElem.SetAttribute('begin-end-tabs', IntToStr(FWriterProject.BeginEndTabs));
+  lDocElem.SetAttribute('visibility-tabs', IntToStr(FWriterProject.VisibilityTabs));
+  lDocElem.SetAttribute('project-name', FWriterProject.ProjectName);
+  lDocElem.SetAttribute('outputdir', FWriterProject.OrigOutDirectory);
+
+  if FWriterProject.EnumType = etInt then
+    lDocElem.SetAttribute('enum-type', 'int')
+  else
+    lDocElem.SetAttribute('enum-type', 'string');
+
+  //Added write props:
+  lDocElem.SetAttribute('origoutdir', FWriterProject.OrigOutDirectory);
+  lDocElem.SetAttribute('max-editor-code', intToStr(FWriterProject.MaxEditorCodeWidth));
+  lDocElem.SetAttribute('base-directory', FWriterProject.BaseDirectory);
+
+  FDoc.AppendChild(lDocElem);
+
+  //Added write Includes:
+  lComment := FDoc.CreateComment('Includes are Schema files added to this schema before build-time.');
+  lDocElem.AppendChild(lComment);
+  lComment := FDoc.CreateComment('<includes>');
+  lDocElem.AppendChild(lComment);
+  lComment := FDoc.CreateComment('  <item file-name="{aFilename}" />');
+  lDocElem.AppendChild(lComment);
+  lComment := FDoc.CreateComment('</includes>');
+  lDocElem.AppendChild(lComment);
+  if FWriterProject.Includes.Count > 0 then
+  begin
+    lIncludesNode := FDoc.CreateElement('includes');
+    for ic := 0 to FWriterProject.Includes.Count - 1 do
+      begin
+        lIncludeElement := FDoc.CreateElement('item');
+        lIncludeElement.SetAttribute('file-name', FWriterProject.Includes.Strings[ic]);
+        lIncludesNode.AppendChild(lIncludeElement);
+      end;
+    lDocElem.AppendChild(lIncludesNode);
+  end;
+  lComment := FDoc.CreateComment('End Includes.');
+  lDocElem.AppendChild(lComment);
+
+  WriteProjectUnits(FWriterProject, lDocElem);
+
+  //WriteXMLFile(FDoc, AFilePath);
+  asl.Text := FDoc.TextContent;
 end;
 
 procedure TProjectWriter.WriteProject(AProject: TMapProject; const ADirectory: String; const AFileName: string);
