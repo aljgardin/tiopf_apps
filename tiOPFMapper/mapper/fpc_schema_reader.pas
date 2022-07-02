@@ -988,6 +988,7 @@ var
   lIncludeElement: TDomElement;
   ic: integer;
   lComment: TDOMComment;
+  ss: TStringStream;
 begin
 
   { NOT COMPLETE.....}
@@ -1048,8 +1049,13 @@ begin
 
   WriteProjectUnits(FWriterProject, lDocElem);
 
-  //WriteXMLFile(FDoc, AFilePath);
-  asl.Text := FDoc.TextContent;
+  try
+    ss := TStringStream.Create();
+    WriteXMLFile(FDoc, ss);
+    asl.Text := ss.DataString;
+  finally
+    ss.Free;
+  end;
 end;
 
 procedure TProjectWriter.WriteProject(AProject: TMapProject; const ADirectory: String; const AFileName: string);
