@@ -1,31 +1,34 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <PathDelim Value="/"/>
-    <Version Value="5"/>
+    <Version Value="11"/>
     <General>
       <Flags>
         <SaveOnlyProjectUnits Value="True"/>
+        <LRSInOutputDirectory Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
       <AutoCreateForms Value="False"/>
-      <IconPath Value="./"/>
-      <TargetFileExt Value=""/>
     </General>
-    <VersionInfo>
-      <ProjectVersion Value=""/>
-    </VersionInfo>
+    <BuildModes Count="1">
+      <Item1 Name="default" Default="True"/>
+    </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
-      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
-      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
     </PublishOptions>
     <RunParams>
       <local>
-        <FormatVersion Value="1"/>
         <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
       </local>
+      <FormatVersion Value="2"/>
+      <Modes Count="1">
+        <Mode0 Name="default">
+          <local>
+            <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+          </local>
+        </Mode0>
+      </Modes>
     </RunParams>
     <RequiredPackages Count="4">
       <Item1>
@@ -45,57 +48,47 @@
       <Unit0>
         <Filename Value="tiSQLEditor.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="tiSQLEditor"/>
       </Unit0>
       <Unit1>
         <Filename Value="FMainSQLEditor.pas"/>
+        <IsPartOfProject Value="True"/>
         <ComponentName Value="FormMain"/>
         <HasResources Value="True"/>
-        <IsPartOfProject Value="True"/>
-        <ResourceFilename Value="FMainSQLEditor.lrs"/>
-        <UnitName Value="FMainSQLEditor"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit1>
       <Unit2>
         <Filename Value="FSQLEditor.pas"/>
+        <IsPartOfProject Value="True"/>
         <ComponentName Value="FormSQLEditor"/>
         <HasResources Value="True"/>
-        <IsPartOfProject Value="True"/>
-        <ResourceFilename Value="FSQLEditor.lrs"/>
-        <UnitName Value="FSQLEditor"/>
       </Unit2>
       <Unit3>
         <Filename Value="FSQLMgrBrowse.pas"/>
+        <IsPartOfProject Value="True"/>
         <ComponentName Value="FormSQLMgrBrowse"/>
         <HasResources Value="True"/>
-        <IsPartOfProject Value="True"/>
-        <ResourceFilename Value="FSQLMgrBrowse.lrs"/>
-        <UnitName Value="FSQLMgrBrowse"/>
       </Unit3>
       <Unit4>
         <Filename Value="tiSQLMgrDataSet_Srv.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="tiSQLMgrDataSet_Srv"/>
       </Unit4>
       <Unit5>
         <Filename Value="tiSQLMgrDataSet_BOM.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="tiSQLMgrDataSet_BOM"/>
       </Unit5>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="5"/>
+    <Version Value="11"/>
     <Target>
       <Filename Value="bin/tiSQLEditor.exe"/>
     </Target>
     <Parsing>
       <SyntaxOptions>
         <AllowLabel Value="False"/>
+        <UseAnsiStrings Value="False"/>
       </SyntaxOptions>
     </Parsing>
-    <CodeGeneration>
-      <Generate Value="Faster"/>
-    </CodeGeneration>
     <Linking>
       <Options>
         <Win32>
@@ -106,10 +99,7 @@
     <Other>
       <CustomOptions Value="-FUunits
 -dUseCThreads
--dLINK_FBL
-
-"/>
-      <CompilerPath Value="$(CompPath)"/>
+-dLINK_FBL"/>
     </Other>
   </CompilerOptions>
 </CONFIG>

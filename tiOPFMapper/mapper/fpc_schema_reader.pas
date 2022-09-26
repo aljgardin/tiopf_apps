@@ -608,6 +608,12 @@ begin
             if lClassAttr <> nil then
               lnewClass.ORMClassName := lClassAttr.NodeValue;
 
+            {+ Added by aljgardin@yahoo.com 9/16/2022}
+            lClassAttr := lClassNode.Attributes.GetNamedItem('Class-Display-Helper');
+            if lClassAttr <> nil then
+              lnewClass.ClassDisplayHelper := StrToBool(lClassAttr.NodeValue);
+            {: End Added By aljgardin@yahoo.com 9/16/2022}
+
             if lClassNode.FindNode('class-props') = nil then
               raise Exception.Create(ClassName + '.ReadUnitClasses: "class-props" node is not present.');
 
@@ -1121,6 +1127,7 @@ begin
   lNewClassNode.SetAttribute('forward-declare', LowerCase(BoolToStr(AClassDef.ForwardDeclare, true)));
   lNewClassNode.SetAttribute('orm-class-name', AClassDef.ORMClassName);
   lNewClassNode.SetAttribute('notify-observers', LowerCase(BoolToStr(AClassDef.NotifyObserversOfPropertyChanges, true)));
+  lNewClassNode.SetAttribute('Class-Display-Helper', LowerCase(BoolToStr(AClassDef.ClassDisplayHelper, true)));
   {AJG: END.}
 
   WriteClassProps(AClassDef, lNewClassNode);

@@ -1,0 +1,4 @@
+{"version":1,"strings":[
+{"hash":203305024,"name":"fmainsqleditor.crsformcaption","sourcebytes":[116,105,83,81,76,69,100,105,116,111,114,32],"value":"tiSQLEditor "},
+{"hash":132127311,"name":"fmainsqleditor.crsdoyouwanttosave","sourcebytes":[68,111,32,121,111,117,32,119,97,110,116,32,116,111,32,115,97,118,101,32,121,111,117,114,32,99,104,97,110,103,101,115,63],"value":"Do you want to save your changes?"}
+]}

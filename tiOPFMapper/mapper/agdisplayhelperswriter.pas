@@ -1,0 +1,909 @@
+unit agdisplayhelperswriter;
+
+//Takes a TMapProject
+//  Writes out a unit with DisplayHelpers for each class and list class.
+//  Output to TStringlist.
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils, mapper, tiObject;
+
+const
+  cLineLength = 120;
+  cDHPostfix = 'DisplayHelper';
+  cListClassPostfix = 'List';
+
+type
+
+  { TagDisplayHelpersWriter }
+
+  TagDisplayHelpersWriter = class(TtiObject)
+  Private
+    FCurrencyDigits: Integer;
+    FCurrencyPrecision: Integer;
+    FFilename: String;
+    FFloatDigits: Integer;
+    FFloatFormat: TFloatFormat;
+    FFloatPrecision: Integer;
+    FIndentInc: Integer;
+    FMapProject: TMapProject;
+    FOutput: TStrings;
+    procedure SetCurrencyDigits(AValue: Integer);
+    procedure SetCurrencyPrecision(AValue: Integer);
+    procedure SetFloatDigits(AValue: Integer);
+    procedure SetFloatFormat(AValue: TFloatFormat);
+    procedure SetFloatPrecision(AValue: Integer);
+    procedure SetOutput(AValue: TStrings);
+
+  protected
+    FIndent: Integer;
+
+    procedure AddLine;
+    procedure AddLine(aStr: String); overload;
+    procedure AddRem(aStr: String);
+    procedure AddremB;
+    procedure AddRems;
+
+    function Ind: String;
+    procedure iInd;
+    Procedure dInd;
+
+    function UsesIntf: String; virtual;
+    procedure UsesIntf(aOut: TStringList); virtual; overload;
+    procedure AllClassList(aOut: TStrings); virtual;
+
+    //WriteForwardDeclares:
+    procedure WriteForwardDecs; virtual;
+
+    //Class Declarations:
+    procedure WriteDHClassDec(aClass: TMapClassDef; aSL: TStrings); virtual; overload;
+    procedure WriteDHClassDec(aClass: TMapClassDef); virtual; overload;
+
+    //ListClass Declarations:
+    procedure WriteDHClassListDec(aClass: TMapClassDef; aSL: TStrings); virtual; overload;
+    procedure WriteDHClassListDec(aClass: TMapClassDef); virtual; overload;
+
+    //Class Implementations:
+    procedure WriteDHClassImp(aClass: TMapClassDef; aSL: TStrings); virtual; overload;
+    procedure WriteDHClassImp(aClass: TMapClassDef); virtual; overload;
+    function DisplayText(const aProp: TMapClassProp): String; virtual;
+
+    //ListClass Implementations:
+    procedure WriteDHClassListImp(aClass: TMapClassDef; aSL: TStrings); virtual; overload;
+    procedure WriteDHClassListImp(aClass: TMapClassDef); virtual; overload;
+
+    procedure UpdateOutput; virtual;
+
+  public
+    constructor Create; override;
+    Constructor Create(aMapProject: TMapProject; aIndentInc: Integer = 2); overload;
+    destructor Destroy; override;
+
+    function SaveOutput: Boolean; virtual; overload;
+    function SaveOutput(aFilename: String): Boolean; virtual; overload;
+
+    class procedure Execute(aMapProject: TMapProject; Var aOut: TStrings);
+    class Procedure ExecuteSave(aMapProject: TMapProject; Var aOut: TStrings; const aFilename: String);
+
+  published
+    property Output: TStrings read FOutput write SetOutput;
+
+    property FloatPrecision: Integer read FFloatPrecision write SetFloatPrecision;
+    property FloatDigits: Integer read FFloatDigits write SetFloatDigits;
+    property FloatFormat: TFloatFormat read FFloatFormat write SetFloatFormat;
+
+    property CurrencyPrecision: Integer read FCurrencyPrecision write SetCurrencyPrecision;
+    property CurrencyDigits: Integer read FCurrencyDigits write SetCurrencyDigits;
+
+  end;
+
+implementation
+
+uses tiUtils;
+
+{ TagDisplayHelpersWriter }
+
+procedure TagDisplayHelpersWriter.SetOutput(AValue: TStrings);
+begin
+  //if FOutput=AValue then Exit;
+  //FOutput:=AValue;
+end;
+
+procedure TagDisplayHelpersWriter.SetFloatDigits(AValue: Integer);
+begin
+  if FFloatDigits=AValue then Exit;
+  FFloatDigits:=AValue;
+end;
+
+procedure TagDisplayHelpersWriter.SetCurrencyDigits(AValue: Integer);
+begin
+  if FCurrencyDigits=AValue then Exit;
+  FCurrencyDigits:=AValue;
+end;
+
+procedure TagDisplayHelpersWriter.SetCurrencyPrecision(AValue: Integer);
+begin
+  if FCurrencyPrecision=AValue then Exit;
+  FCurrencyPrecision:=AValue;
+end;
+
+procedure TagDisplayHelpersWriter.SetFloatFormat(AValue: TFloatFormat);
+begin
+  if FFloatFormat=AValue then Exit;
+  FFloatFormat:=AValue;
+end;
+
+procedure TagDisplayHelpersWriter.SetFloatPrecision(AValue: Integer);
+begin
+  if FFloatPrecision=AValue then Exit;
+  FFloatPrecision:=AValue;
+end;
+
+procedure TagDisplayHelpersWriter.UpdateOutput;
+var
+  iUnit, iClass: Integer;
+  //aUnitList: TMapUnitDefList;
+  aUnit: TMapUnitDef;
+  aClassList: TMapClassDefList;
+  aClass: TMapClassDef;
+
+  sl: TStringlist;
+
+  sUnitName: String;
+begin
+  //UnitName = ProjectName + 'DisplayHelpers.pas';
+  sUnitName := FMapProject.ProjectName + 'DisplayHelpers';
+  FOutput.Clear;
+
+  try
+    sl := TStringlist.Create;
+
+    //Write Interface Section:
+
+    //unit uHostlistDisplay;
+    //
+    Foutput.Add('unit ' + SUnitName + ';');
+    Addline;
+    AddLine('// -----------------------------------------------------------------');
+    AddLine('// Automatically generated By:');
+    AddLine('// agDisplayHelpersWriter.TagDisplayHelpersWriter.Output: TStrings;');
+    AddLine('// Automatically generated on :');
+    AddLine('//   ' + DateToStr(now) + ' ' + TimeToStr(now));
+    AddLine('//');
+    AddLine('// Warning: ');
+    AddLine('//   If you rerun timap,');
+    AddLine('//   your changes in this file will be lost!');
+    AddLine('// -----------------------------------------------------------------');
+    AddLine;
+    //{$mode objfpc}{$H+}
+    AddLine('{$mode objfpc}{$H+}');
+    //
+    AddLine;
+    //interface
+    AddLine('interface');
+    //
+    AddLine;
+    //uses
+    AddLine('uses');
+    iInd;
+    //  agSMDR_BOM, tiDisplayHelpers, tiObject;
+    UsesIntf(sl);
+    sl.Add(Ind + 'tiDisplayHelpers,');
+    sl.Add(Ind + 'tiObject;');
+    FOutput.AddStrings(sl);
+    dInd;
+    //
+    AddLine;
+    //Type
+    AddLine('Type');
+    //
+    AddLine;
+
+    //Add ForwardDeclares:
+
+    ////////////////////////////////////////////////////////////////////////////
+    AddRems;
+    //  Forward Declares:
+    Addrem('  Forward Declares:');
+    ////////////////////////////////////////////////////////////////////////////
+    AddRems;
+    //
+    AddLine;
+    iInd;
+    // Classname = class;
+    WriteForwardDecs();
+    dInd;
+
+    //Iterate each Unit and class and create DisplayHelper Classes:
+    for iUnit := 0 to FMapProject.Units.Count - 1 do
+    begin
+      aUnit := FMapProject.Units[iUnit];
+      aClassList := aUnit.UnitClasses;
+
+      // Write Class Declarations:
+      for iClass := 0 to aClassList.Count - 1 do
+      begin
+        aClass := aClassList.Items[iClass];
+        WriteDHClassDec(aClass, FOutput);
+        self.WriteDHClassListDec(aClass, FOutput);
+      end;  // End iterate Classes.
+    end;  // End iterate Units.
+
+    //Implementation Section:
+
+    //implementation
+    AddLine('Implementation');
+    //
+    AddLine;
+    //uses SysUtils;
+    AddLine('uses');
+    //
+    AddLine;
+    iInd;
+    AddLine('SysUtils;');
+    dInd;
+    AddLine;
+
+    //Write Class Implementations:
+
+    //Iterate each Unit and class and create DisplayHelper Implementations:
+    for iUnit := 0 to FMapProject.Units.Count - 1 do
+    begin
+      aUnit := FMapProject.Units[iUnit];
+      aClassList := aUnit.UnitClasses;
+
+      // Write Class Declarations:
+      for iClass := 0 to aClassList.Count - 1 do
+      begin
+        aClass := aClassList.Items[iClass];
+
+        WriteDHClassImp(aClass, FOutput);
+        WriteDHClassListImp(aClass, FOutput);
+      end;  // End iterate Classes.
+    end;  // End iterate Units.
+
+    //End of Unit:
+    dInd;
+    AddLine;
+    AddLine('End.');
+  finally
+    sl.Free
+  end;
+end;
+
+constructor TagDisplayHelpersWriter.Create;
+begin
+  inherited Create;
+  FFloatDigits := 15;// Integer;
+  FFloatPrecision := 15;// Integer;
+  FFloatFormat := ffNumber;
+
+  FCurrencyPrecision := 2;
+  FCurrencyDigits := 15;
+
+  FIndentInc := 2;
+end;
+
+procedure TagDisplayHelpersWriter.AddLine;
+begin
+  // Add Blank line to output
+  FOutput.Add('');
+end;
+
+procedure TagDisplayHelpersWriter.AddLine(aStr: String);
+begin
+  //Add Line to Output.
+  FOutput.Add(Ind + aStr);
+end;
+
+procedure TagDisplayHelpersWriter.AddRem(aStr: String);
+begin
+  //Add Remarked line to Output.
+  FOutput.Add(Ind + '// ' + aStr);
+end;
+
+procedure TagDisplayHelpersWriter.AddremB;
+begin
+  //Add Blank Remarked Line to Output.
+  FOutput.Add(Ind + '//');
+end;
+
+procedure TagDisplayHelpersWriter.AddRems;
+var
+  x: Integer;
+  s: String;
+begin
+  // return a line of ///////////
+  s := '';
+  for x := 1 to cLineLength do
+  begin
+    s := s + '/';
+  end;
+end;
+
+function TagDisplayHelpersWriter.Ind: String;
+var
+  x: Integer;
+begin
+  // return the current indent level.
+  result := '';
+  if FIndent > 0 then
+    for x := 0 to (FIndent * FIndentInc) do
+    begin
+      result := result + ' ';
+    end;
+end;
+
+procedure TagDisplayHelpersWriter.iInd;
+begin
+  // increment Indent by Indent Interval.
+  Inc(FIndent, FIndentInc);
+end;
+
+procedure TagDisplayHelpersWriter.dInd;
+begin
+  // decrement Indent by Indent Interval.
+  Dec(FIndent, FIndentInc);
+  if FIndent < 0 then
+    FIndent := 0;
+end;
+
+function TagDisplayHelpersWriter.UsesIntf: String;
+var
+  iUnit: Integer;
+  //aUnit: TMapUnitDef;
+
+  sl: TStringlist;
+begin
+  // return a list of units for the Interface Uses.
+  sl := TStringList.Create;
+
+  //aUnitList := TMapProject.Units;
+
+  // get list of all units needed in uses interface;
+  for iUnit := 0 to FMapProject.Units.Count - 1 do
+  begin
+    sl.Add(FMapProject.Units[iUnit].Name);
+  end;
+
+  result := sl.CommaText;
+end;
+
+procedure TagDisplayHelpersWriter.UsesIntf(aOut: TStringList);
+var
+  iUnit: Integer;
+  //aUnitList: TMapUnitDefList;
+  //aUnit: TMapUnitDef;
+  uc: Integer;
+begin
+  Assert(Assigned(aOut),' aOut: TStringlist, not assigned!');
+  // return a list of units for the Interface Uses.
+  aOut.Clear;
+
+  //aUnitList := TMapProject.Units;
+  uc := FMapProject.Units.Count;
+
+  // get list of all units needed in uses interface;
+  for iUnit := 0 to uc - 1 do
+  begin
+    aOut.Add(Ind + FMapProject.Units[iUnit].Name + ',')
+  end;
+end;
+
+procedure TagDisplayHelpersWriter.AllClassList(aOut: TStrings);
+var
+  iUnit, iClass: Integer;
+  //aUnitList: TMapUnitDefList;
+  aUnit: TMapUnitDef;
+  aClassList: TMapClassDefList;
+  aClass: TMapClassDef;
+
+  cn, lcn: String;
+begin
+  Assert(Assigned(aOut), 'aOut: TStrings not assigned!');
+
+  aOut.Clear;
+
+  for iUnit := 0 to FMapProject.Units.Count - 1 do
+  begin
+    aUnit := FMapProject.Units[iUnit];
+    aClassList := aUnit.UnitClasses;
+
+    // compile Name of all classes and list classes:
+    for iClass := 0 to aClassList.Count - 1 do
+    begin
+      aClass := aClassList.Items[iClass];
+
+      cn := aClass.BaseClassName + cDHPostfix;
+      lcn := aClass.BaseClassName + CListClassPostfix + cDHPostfix;
+
+      aOut.Add(cn);
+      aOut.Add(lcn);
+
+    end;  // End iterate Classes.
+  end;  // End iterate Units.
+end;
+
+procedure TagDisplayHelpersWriter.WriteForwardDecs;
+var
+  sl: TStringlist;
+  x: Integer;
+begin
+  try
+    sl := TStringList.Create;
+    AllClassList(sl);
+
+    for x := 0 to sl.Count - 1 do
+    begin
+      AddLine(sl.Strings[x] + ' = Class;');
+    end;
+  finally
+    sl.Free;
+  end;
+end;
+
+procedure TagDisplayHelpersWriter.WriteDHClassDec(aClass: TMapClassDef; aSL: TStrings);
+var
+  aCN: String;
+  aCNDH: String;
+
+  iProp: Integer;
+  pName: String;
+
+  aProp: TMapClassProp;
+  aPropList: TMapClassPropList;
+begin
+  // Write a single class declaration to FOutput.
+  Assert(Assigned(aSL), 'aSL: TStringlist, Not Assigned!');
+  Assert(Assigned(aClass), 'aClass: TMapClassDef, Not Assigned!');
+
+  aCN := aClass.BaseClassName;
+  aCNDH := aCN + cDHPostfix;  //Classname + 'List';
+
+  iInd;
+  aSL.Add('');
+  aSL.Add(Ind + '{ ' + aCNDH + ' DisplayHelper Class for ' + aCN + ' In Unit: ' + aClass.UnitName + ' }');
+  aSL.Add('');
+  dInd;
+
+  //THostDisplay = class(TBaseDisplayObject)
+  aSL.Add(Ind + aCNDH + ' = Class(TBaseDisplayObject');
+  //private
+  aSL.Add(Ind + 'Private');
+  iInd;
+  //  FData : aClass.BaseClassName;
+  aSL.Add(Ind + 'FData: ' + aCN + ';');
+  //  Procedure SetData(const AValue : aClass.BaseClassName);
+  aSL.Add(Ind + 'Procedure SetData(const AValue : ' + aCN + ');');
+  //  function GetDisplay(AIndex : Integer) : String;
+  aSL.Add(Ind + 'function GetDisplay(AIndex : Integer) : String;');
+  //  function CheckData : Boolean;
+  aSL.Add(Ind + 'function CheckData : Boolean;');
+  dInd;
+  //public
+  aSL.Add(Ind + 'Public');
+  iInd;
+  //  constructor CreateCustom(const aData: aClass.BaseClassName);
+  aSL.Add(Ind + 'constructor CreateCustom(const aData: ' + aCN + ');');
+  //  destructor Destroy; override;
+  aSL.Add(Ind + 'destructor Destroy; override;');
+  //  property Data : aClass.BaseClassName read FData write SetData;
+  aSL.Add(Ind + 'property Data : ' + aCN + ' read FData write SetData;');
+  //published
+  dInd;
+  aSL.Add(Ind + 'Published');
+  iInd;
+  //  Add the class properties:
+  //  property    Name: String index 0 read GetDisplay;
+  //  property    Address: String index 1 read GetDisplay;
+  //  property    Port: String index 2 read GetDisplay;
+  //  property    UserName: String index 3 read GetDisplay;
+  aPropList := aClass.ClassProps;
+  for iProp := 0 to aPropList.Count - 1 do
+  begin
+    aProp := aPropList.Items[iProp];
+    pName := aProp.Name;
+
+    aSL.Add(Ind + 'property    ' + pName + ': String index ' + IntToStr(iProp) + ' read GetDisplay;');
+  end;  //End iterate iProp;
+
+  dInd;
+  //End;
+  aSL.Add(Ind + 'End;');
+  aSL.Add('');
+end;
+
+procedure TagDisplayHelpersWriter.WriteDHClassDec(aClass: TMapClassDef);
+begin
+  WriteDHClassDec(aClass, FOutput);
+end;
+
+procedure TagDisplayHelpersWriter.WriteDHClassListDec(aClass: TMapClassDef; aSL: TStrings);
+var
+  aCN: String;
+  aCNDH: String;
+
+  //iProp: Integer;
+  //pName: String;
+  //pType: TMapPropType;
+  //
+  //aProp: TMapClassProp;
+  //aPropList: TMapClassPropList;
+begin
+  // Write DisplayHelper for a single Listclass declaration to aSL.
+  Assert(Assigned(aSL), 'aSL: TStringlist, Not Assigned!');
+  Assert(Assigned(aClass), 'aClass: TMapClassDef, Not Assigned!');
+
+  aCN := aClass.BaseClassName + cListClassPostfix;  // + 'List';
+  aCNDH := aCN + cDHPostfix;  // + 'DisplayHelper';
+
+  iInd;
+  aSL.Add('');
+  aSL.Add(Ind + '{ ' + aCNDH + ' DisplayHelper Class for ' + aCN + ' In Unit: ' + aClass.BaseUnitName + ' }');
+  aSL.Add('');
+  dInd;
+
+  //THostDisplayList = class(TBaseDisplayList)
+  aSL.Add(Ind + aCNDH + ' = class(TBaseDisplayList)');
+  //protected
+  aSL.Add(Ind + 'protected');
+  //  function CreateDisplayInstance(AItem: TtiObject): TBaseDisplayObject; override;
+  iInd;
+  aSL.Add(Ind + 'function CreateDisplayInstance(AItem: TtiObject): TBaseDisplayObject; override;');
+  //  function FindDisplayObject(AObject: TtiObject): TBaseDisplayObject; override;
+  aSL.Add(Ind + 'function FindDisplayObject(AObject: TtiObject): TBaseDisplayObject; override;');
+  //end;
+  dIND;
+  aSL.Add(Ind + 'end;');
+  aSL.Add('');
+end;
+
+procedure TagDisplayHelpersWriter.WriteDHClassListDec(aClass: TMapClassDef);
+begin
+  WriteDHClassListDec(aClass, FOutput);
+end;
+
+procedure TagDisplayHelpersWriter.WriteDHClassImp(aClass: TMapClassDef; aSL: TStrings);
+var
+  aCN: String;
+  aCNDH: String;
+
+  iProp: Integer;
+
+  aProp: TMapClassProp;
+  aPropList: TMapClassPropList;
+begin
+  // Write a single class Implementation to Stringlist.
+  Assert(Assigned(aSL), 'aSL: TStringlist, Not Assigned!');
+  Assert(Assigned(aClass), 'aClass: TMapClassDef, Not Assigned!');
+
+  aCN := aClass.BaseClassName;
+  aCNDH := aCN + cDHPostfix;  //Classname + 'List';
+
+  iInd;
+  aSL.Add('');
+  aSL.Add(Ind + '{ ' + aCNDH + ' DisplayHelper Class for ' + aCN + ' In Unit: ' + aClass.BaseUnitName + ' }');
+  aSL.Add('');
+  dInd;
+
+  //function THostDisplay.CheckData: Boolean;
+  aSL.Add('function ' + aCNDH + '.CheckData: Boolean;');
+  //begin
+  aSL.Add('begin');
+  //  Result := Assigned(FData);
+  iInd;
+  aSL.Add('Result := Assigned(FData);');
+  //end;
+  dInd;
+  aSL.Add('end;');
+  //
+  asl.Add('');
+  //constructor THostDisplay.CreateCustom(const aData: TagTelnetHost);
+  aSL.Add(Ind + 'constructor ' + aCNDH + '.CreateCustom(const aData: ' + aCN + ');');
+  //begin
+  aSL.Add(Ind + 'begin');
+  //  Inherited Create;
+  iInd;
+  aSL.Add(Ind + 'Inherited Create;');
+  //  FData := aData;
+  aSL.Add(Ind + 'FData := aData;');
+  dInd;
+  //end;
+  aSL.Add(Ind + 'end;');
+  //
+  aSL.Add(Ind + '');
+  //destructor THostDisplay.Destroy;
+  aSL.Add(Ind + 'destructor ' + aCN + '.Destroy;');
+  //begin
+  aSL.Add(Ind + 'begin');
+  iInd;
+  //  FData := nil;
+  aSL.Add(Ind + 'FData := nil;');
+  //  inherited;
+  aSL.Add(Ind + 'inherited;');
+  dInd;
+  //end;
+  aSL.Add(Ind + 'end;');
+  //
+  aSL.Add(Ind + '');
+  //function THostDisplay.GetDisplay(AIndex: Integer): String;
+  aSL.Add(Ind + 'function ' + aCN + '.GetDisplay(AIndex: Integer): String;');
+  //begin
+  aSL.Add(Ind + 'begin');
+  iInd;
+
+  //////////////  //property    Name: String index 0 read GetDisplay;
+  //////////////  //property    Address: String index 1 read GetDisplay;
+  //////////////  //property    Port: String index 2 read GetDisplay;
+  //////////////  //property    UserName: String index 3 read GetDisplay;
+  //////////////  //property    Password: String index 4 read GetDisplay;
+  //////////////  //property    Notes: String index 5 read GetDisplay;
+  //////////////  //property    SMDRFormatOID: String index 6 read GetDisplay;
+
+  //  if CheckHost then
+  aSL.Add(Ind + 'if CheckHost then');
+  //  begin
+  aSL.Add(Ind + 'begin');
+  iInd;
+  //    case AIndex of
+  aSL.Add(Ind + 'case AIndex of');
+  iInd;
+
+  ////Iterate each property:
+  aPropList := aClass.ClassProps;
+
+  ////////      0 : Result := FData.Name;
+  ////////      1 : Result := FData.Address;
+  ////////      2 : Result := IntToStr(FData.Port);
+
+  for iProp := 0 to aPropList.Count - 1 do
+  begin
+    aProp := aPropList.Items[iProp];
+    aSL.Add(Ind + IntToStr(iProp) + ' : ' + DisplayText(aProp));
+  end;  // End Iterate Props
+  dInd;
+  //    end; { Case }
+  aSL.Add(Ind + 'end; { Case }');
+  dInd;
+  //  end;
+  aSL.Add(Ind + 'end;');
+  dInd;
+  //end;
+  aSL.Add(Ind + 'end;');
+  //
+  aSL.Add('');
+  //procedure THostDisplay.SetData(const AValue: aCN);
+  aSL.Add(Ind + 'procedure ' + aCNDH + '.SetData(const AValue: ' + aCN + ');');
+  //begin
+  aSL.Add(Ind + 'begin');
+  iInd;
+  //  if FData = AValue then Exit;
+  aSL.Add(Ind + 'if FData = AValue then Exit;');
+  //  if CheckData then
+  aSL.Add(Ind + 'if CheckData then');
+  iInd;
+  //    FData.DetachObserver(Self);
+  aSL.Add(Ind + 'FData.DetachObserver(Self);');
+  dInd;
+  //  FData := AValue;
+  aSL.Add(Ind + 'FData := AValue;');
+  //  if CheckData then
+  aSL.Add(Ind + 'if CheckData then');
+  iInd;
+  //    FData.AttachObserver(Self);
+  aSL.Add(Ind + 'FData.AttachObserver(Self);');
+  dInd;
+  dInd;
+  //end;
+  aSL.Add(Ind + 'end;');
+  aSL.Add('');
+end;
+
+procedure TagDisplayHelpersWriter.WriteDHClassImp(aClass: TMapClassDef);
+begin
+  WriteDHClassImp(aClass, FOutput);
+end;
+
+function TagDisplayHelpersWriter.DisplayText(const aProp: TMapClassProp): String;
+var
+  pName: String;
+  pType: TMapProptype;
+begin
+  ////////      0 : Result := Host.Name;
+  //ptString, ptAnsiString, ptDouble, ptSingle, ptCurrency, ptInteger, ptInt64, ptDateTime, ptBoolean, ptEnum, ptStream
+  pName := aProp.Name;
+  pType := aProp.PropertyType;
+  result := 'Result := ';
+
+  //  FloatToStrF();
+  //  IntToStr();
+  //  BoolToStr(value, UseBoolStrs);
+
+  case ptype of
+    ptString, ptAnsiString:
+      result := result + 'FData.' + pName + ';';
+
+    ptDouble, ptSingle:
+    //FloatToStrF(Value: Int64, format: TFloatFormat, Precision: Integer, Digits: Integer, const FormatSettings: TFormatSettings);
+      result := result + 'FloatToStrF(FData.' + pName + ', FFloatFormat, ' + IntToStr(FFloatPrecision) + ', ' + IntToStr(FFloatDigits) + ');';
+
+    ptCurrency:
+      result := result + 'FloatToStrF(FData.' + pName + ', ffCurrency, ' + IntToStr(FCurrencyPrecision) + ', ' + IntToStr(FCurrencyDigits) + ');';
+
+    ptInteger:
+      result := result + 'IntToStr(FData.' + pName + ');';
+
+    ptInt64:
+      result := result + 'IntToStr(FData.' + pName + ');';
+
+    ptDateTime:
+      result := result + 'DateTimeToStr(FData.' + pName + ');';
+
+    ptBoolean:
+      result := result + 'BoolToStr(FData.' + pName + ', True);';
+
+    { TODO : Need to finish Enum: }
+    ptEnum:
+      begin
+        result := result + '''ptEnum''' + ';';
+      End;
+
+      { TODO : Need to finish Stream: }
+    ptStream:
+      begin
+        result := result + '''ptStream''' + ';';
+      end;
+
+  else
+    result := result + '''DisplayText(), Error''' + ';';
+  end;  //End Case
+end;
+
+procedure TagDisplayHelpersWriter.WriteDHClassListImp(aClass: TMapClassDef; aSL: TStrings);
+var
+  aCN: String;
+  aCNDH: String;
+
+  //iProp: Integer;
+  //pName: String;
+  //pType: TMapPropType;
+
+  //aProp: TMapClassProp;
+  //aPropList: TMapClassPropList;
+begin
+  // Write a single class Implementation to Stringlist.
+  Assert(Assigned(aSL), 'aSL: TStringlist, Not Assigned!');
+  Assert(Assigned(aClass), 'aClass: TMapClassDef, Not Assigned!');
+
+  aCN := aClass.BaseClassName + cListClassPostfix;
+  aCNDH := aCN + cDHPostfix;  //Classname + 'List' + 'DisplayHelper';
+
+  iInd;
+  aSL.Add('');
+  aSL.Add(Ind + '{ ' + aCNDH + ' DisplayHelper Class for ' + aCN + ' In Unit: ' + aClass.BaseUnitName + ' }');
+  aSL.Add('');
+  dInd;
+
+  //function THostDisplayList.CreateDisplayInstance(AItem: TtiObject): TBaseDisplayObject;
+  aSL.Add(Ind + 'function ' + aCNDH + '.CreateDisplayInstance(AItem: TtiObject): TBaseDisplayObject;');
+  //begin
+  aSL.Add(Ind + 'begin');
+  iInd;
+  //  Result := THostDisplay.CreateCustom(TagTelnetHost(AItem));
+  aSL.Add(Ind + 'Result := ' + aCNDH + '.CreateCustom(' + aCN + '(AItem));');
+  dInd;
+  //end;
+  aSL.Add(Ind + 'end;');
+  //
+  aSL.Add('');
+  //function THostDisplayList.FindDisplayObject(AObject: TtiObject): TBaseDisplayObject;
+  aSL.Add(Ind + 'function ' + aCNDH + '.FindDisplayObject(AObject: TtiObject): TBaseDisplayObject;');
+  //var
+  aSL.Add(Ind + 'var');
+  iInd;
+  //  i: integer;
+  aSL.Add(Ind + 'i: integer;');
+  dInd;
+  //begin
+  aSL.Add(Ind + 'begin');
+  iInd;
+  //  Result := nil;
+  aSL.Add(Ind + 'Result := nil;');
+  //  for i := 0 to Count-1 do
+  aSL.Add(Ind + 'for i := 0 to Count-1 do');
+  //  begin
+  aSL.Add(Ind + 'begin');
+  iInd;
+  //    if (THostDisplay(Items[i]).host = AObject) then
+  aSL.Add(Ind + 'if (THostDisplay(Items[i]).host = AObject) then');
+  //    begin
+  aSL.Add(Ind + 'begin');
+  iInd;
+  //      Result := TBaseDisplayObject(Items[i]);
+  aSL.Add(Ind + 'Result := TBaseDisplayObject(Items[i]);');
+  //      break;
+  aSL.Add(Ind + 'break;');
+  dInd;
+  //    end;
+  aSL.Add(Ind + 'end;');
+  dInd;
+  //  end;
+  aSL.Add(Ind + 'end;');
+  dInd;
+  //end;
+  aSL.Add(Ind + 'end;');
+  //
+  aSL.Add('');
+end;
+
+procedure TagDisplayHelpersWriter.WriteDHClassListImp(aClass: TMapClassDef);
+begin
+  WriteDHClassLIstImp(aClass, FOutput);
+end;
+
+constructor TagDisplayHelpersWriter.Create(aMapProject: TMapProject; aIndentInc: Integer);
+begin
+  Assert(Assigned(aMapProject), 'constructor TagDisplayHelpersWriter.Create(aMapProject: TMapProject); aMapProject Not Assigned!');
+  Create;
+  FOutput := TStringlist.Create;
+  FMapProject := aMapProject;
+  FIndentInc := aIndentInc;
+  FIndent := 0;
+
+  FFilename := FMapProject.ProjectName + 'DisplayHelpers.pas';
+
+  UpdateOutput;
+end;
+
+destructor TagDisplayHelpersWriter.Destroy;
+begin
+  FOutput.Free;
+  FMapProject := nil;
+  inherited Destroy;
+end;
+
+function TagDisplayHelpersWriter.SaveOutput: Boolean;
+begin
+  tiUtils.tiForceDirectories1(FMapProject.OutputDirectory);
+  result := false;
+  try
+    FOutput.SaveToFile(FFilename);
+    result := true;
+  except
+  end;
+end;
+
+function TagDisplayHelpersWriter.SaveOutput(aFilename: String): Boolean;
+begin
+  result := false;
+  try
+    FOutput.SaveToFile(aFilename);
+  except
+  end;
+end;
+
+class procedure TagDisplayHelpersWriter.Execute(aMapProject: TMapProject; var aOut: TStrings);
+var
+  DH: TagDisplayHelpersWriter;
+begin
+  DH := TagDisplayHelpersWriter.Create(aMapProject);
+  aOut.Assign(DH.Output);
+  DH.Free;
+end;
+
+class procedure TagDisplayHelpersWriter.ExecuteSave(aMapProject: TMapProject; var aOut: TStrings;
+  const aFilename: String);
+var
+  DH: TagDisplayHelpersWriter;
+begin
+  DH := TagDisplayHelpersWriter.Create(aMapProject);
+  aOut.Assign(DH.Output);
+  DH.SaveOutput;
+  DH.Free;
+end;
+
+end.
+

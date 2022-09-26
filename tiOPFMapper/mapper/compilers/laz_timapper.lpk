@@ -11,9 +11,11 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <Other>
-        <CustomOptions Value="-dagti"/>
-        <OtherDefines Count="1">
+        <CustomOptions Value="-dagti
+-ddebug"/>
+        <OtherDefines Count="2">
           <Define0 Value="agti"/>
+          <Define1 Value="debug"/>
         </OtherDefines>
       </Other>
     </CompilerOptions>

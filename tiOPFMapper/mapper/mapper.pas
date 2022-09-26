@@ -535,6 +535,7 @@ type
     FBaseClassName: string;
     FBaseClassParent: string;
     FBaseUnitName: string;  //Is this used and what is it for?
+    FClassDisplayHelper: Boolean;
     FClassMapping: TClassMapping;
     FClassProps: TMapClassPropList;
     FCrud: string;
@@ -551,6 +552,7 @@ type
     procedure SetBaseClassName(const AValue: string);
     procedure SetBaseClassParent(const AValue: string);
     procedure SetBaseUnitName(const AValue: string);
+    procedure SetClassDisplayHelper(AValue: Boolean);
     procedure SetClassProps(const AValue: TMapClassPropList);
     procedure SetCrud(const AValue: string);
     procedure SetDefType(const AValue: TClassDefType);
@@ -582,6 +584,8 @@ type
     property    ORMClassName: string read FORMClassName write SetORMClassName;
     property    NotifyObserversOfPropertyChanges: boolean read FNotifyObserversOfPropertyChanges write SetNotifyObserversOfPropertyChanges default False;
     Property    ListSavesDatabaseName: Boolean read FListSavesDatabaseName write SetListSavesDatabaseName;
+
+    Property    ClassDisplayHelper: Boolean read FClassDisplayHelper write SetClassDisplayHelper; {+ Added by aljgardin@yahoo.com 9/16/2022}
 end;
 
   { TMapClassDefList }
@@ -1588,6 +1592,14 @@ begin
   if FBaseUnitName=AValue then exit;
   FBaseUnitName:=AValue;
 end;
+
+{+ Added by aljgardin@yahoo.com 9/16/2022}
+procedure TMapClassDef.SetClassDisplayHelper(AValue: Boolean);
+begin
+  if FClassDisplayHelper=AValue then Exit;
+  FClassDisplayHelper:=AValue;
+end;
+{: End Added By aljgardin@yahoo.com 9/16/2022}
 
 procedure TMapClassDef.SetClassProps(const AValue: TMapClassPropList);
 begin

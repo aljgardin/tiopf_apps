@@ -88,14 +88,16 @@ type
     procedure   WriteORMClass(ASL: TStringList; AClassDef: TMapClassDef);
     procedure   WriteClassIntfMethods(ASL: TStringList; AClassDef: TMapClassDef);
     procedure   WriteClassImpSettersGetters(ASL: TStringList; AClassDef: TMapClassDef);
-    {AJG}
+
+    {+ Added by aljgardin@yahoo.com 9/16/2022}
     procedure   WriteClassIntfCreate(ASL: TStringlist; AClassDef: TMapClassDef);
     procedure   WriteClassImpCreate(ASL: TStringlist; AClassDef: TMapClassDef);
     procedure   WriteClassIntfClone(ASL: TStringlist; AClassDef: TMapClassDef);
     procedure   WriteClassImpClone(ASL: TStringlist; AClassDef: TMapClassDef);
     procedure   WriteClassIntfAssignClassProps(ASL: TStringlist; AClassDef: TMapClassDef);
     procedure   WriteClassImpAssignClassProps(ASL: TStringlist; AClassDef: TMapClassDef);
-    {End AJG}
+    {: End Added By aljgardin@yahoo.com 9/16/2022}
+
     procedure   WriteClassIntfDestructor(ASL: TStringList; AClassDef: TMapClassDef);
     procedure   WriteClassIntfReadMethod(ASL: TStringList; AClassDef: TMapClassDef);
     procedure   WriteIntfUses(ASL: TStringList; AUnitDef: TMapUnitDef);
@@ -159,6 +161,10 @@ type
     {$ifdef agti}
     procedure WriteProject(aOutputList: TagtiMapperOutputList); overload;
     procedure WriteProject(AOutput: TStringlist); overload;
+
+    procedure WriteDisplayHelpersUnit(AOutput: TStringlist); overload;
+    //procedure WriteDisplayHelpersUnit(aOutputList: TagtiMapperOutputList); overload;
+
     {$endif}
 
     constructor Create(AProject: TMapProject); override;
@@ -1827,11 +1833,19 @@ begin
         WriteUnit(lUnit, ASL);
 
         //ASL.SaveToFile(BaseDir + PathDelim + lUnit.Name + '.pas');
-        AOutput.Assign(ASL);
+        AOutput.AddStrings(ASL);
       end;
   finally
     asl.Free
   end;
+end;
+
+procedure TMapperProjectWriter.WriteDisplayHelpersUnit(AOutput: TStringlist);
+begin
+  //Iterate all units and classes.
+  //  Create DisplayHelpers for each class.
+  //
+
 end;
 
 {$endif}

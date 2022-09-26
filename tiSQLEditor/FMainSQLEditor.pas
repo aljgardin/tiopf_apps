@@ -10,7 +10,7 @@
 
 unit FMainSQLEditor;
 
-{$I tiDefines.inc}
+{$I tiDefines.inc}      -
 
 interface
 
