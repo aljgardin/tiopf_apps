@@ -975,9 +975,9 @@ end;
 
 function gStrToClassDefType(const AString: String): TClassDefType;
 begin
-  if LowerCase(AString) = 'create' then
+  if LowerCase(AString) = 'dtcreate' then
     result := dtCreate
-  else if LowerCase(AString) = 'reference' then
+  else if LowerCase(AString) = 'dtreference' then
     result := dtReference
   else
     Raise Exception.Create('gStrToClassDefType: invalid parameter');

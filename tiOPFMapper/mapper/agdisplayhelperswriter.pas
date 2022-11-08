@@ -848,12 +848,13 @@ constructor TagDisplayHelpersWriter.Create(aMapProject: TMapProject; aIndentInc:
 begin
   Assert(Assigned(aMapProject), 'constructor TagDisplayHelpersWriter.Create(aMapProject: TMapProject); aMapProject Not Assigned!');
   Create;
+
   FOutput := TStringlist.Create;
   FMapProject := aMapProject;
   FIndentInc := aIndentInc;
   FIndent := 0;
 
-  FFilename := FMapProject.ProjectName + 'DisplayHelpers.pas';
+  FFilename := FMapProject.ProjectName + '_DisplayHelpers.pas';
 
   UpdateOutput;
 end;
@@ -901,6 +902,8 @@ var
 begin
   DH := TagDisplayHelpersWriter.Create(aMapProject);
   aOut.Assign(DH.Output);
+
+  aOut.SaveToFile(aFilename);
   DH.SaveOutput;
   DH.Free;
 end;
